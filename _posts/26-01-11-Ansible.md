@@ -11,17 +11,8 @@ blog-label: Notes
 Ansible 能够实现统一配置多台服务器的软件环境；自动将代码或应用部署到服务器；远程执行命令；组合多步操作，按顺序执行。
 
 # 安装
-也可通过rpm、pip、容器安装Ansible，但都是阉割版且步骤繁琐，推荐源码包安装
-下载源码包解压源码包
-wget https://releases.ansible.com/ansible/ansible-2.9.0.tar.gz
-tar -xzf ansible-2.9.0.tar.gz
-进入解压后的目录
-cd ansible-2.9.0
-ll
-配置文件为 ansible.cfg
-hosts 为主机清单
-**Debian**
 ```bash
+### Debian
 # 安装 pipx
 sudo apt update && sudo apt install pipx -y
 pipx ensurepath
