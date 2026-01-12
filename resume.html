@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>个人简历</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI",
+                   "PingFang SC", "Hiragino Sans GB",
+                   "Microsoft YaHei", Arial, sans-serif;
+      background: #f5f6fa;
+      margin: 0;
+      padding: 20px;
+      color: #333;
+    }
+
+    .resume {
+      max-width: 900px;
+      margin: auto;
+      background: #fff;
+      padding: 32px;
+      border-radius: 10px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      border-bottom: 2px solid #eee;
+      padding-bottom: 20px;
+      margin-bottom: 30px;
+    }
+
+    .avatar {
+      width: 120px;
+      object-fit: cover;
+      margin-right: 30px;
+    }
+
+    .header-info h1 {
+      margin: 0;
+      font-size: 28px;
+    }
+
+    .header-info p {
+      margin: 6px 0;
+      color: #666;
+    }
+
+    .section {
+      margin-bottom: 28px;
+    }
+
+    .section h2 {
+      font-size: 20px;
+      border-left: 4px solid #4f46e5;
+      padding-left: 10px;
+      margin-bottom: 14px;
+    }
+
+    .item {
+      margin-bottom: 14px;
+    }
+
+    .item-title {
+      font-weight: bold;
+    }
+
+    .item-time {
+      float: right;
+      color: #888;
+      font-size: 14px;
+    }
+
+    ul {
+      margin: 8px 0 0 20px;
+    }
+
+    li {
+      margin-bottom: 6px;
+    }
+
+    .skills span {
+      display: inline-block;
+      background: #eef2ff;
+      color: #3730a3;
+      padding: 6px 10px;
+      border-radius: 6px;
+      margin: 6px 6px 0 0;
+      font-size: 14px;
+    }
+
+  </style>
+</head>
+<body>
+
+<div class="resume">
+
+  <!-- 头部 -->
+  <div class="header">
+    <img src="/assest/Tux-flat.svg.png" alt="个人照片" class="avatar">
+    <div class="header-info">
+      <h1>xxx</h1>
+      <p>Linux 运维 / 云计算 / 后端方向</p>
+      <p>📧 your@email.com | 📱 138-0000-0000</p>
+      <p>🌐 GitHub: github.com/yourname</p>
+    </div>
+  </div>
+
+  <!-- 工作经历 -->
+  <div class="section">
+    <h2>工作经历</h2>
+
+    <div class="item">
+      <span class="item-title">某大型互联网公司 · 运维实习生</span>
+      <span class="item-time">2023.06 – 2023.12</span>
+      <div style="clear: both"></div>
+      <ul>
+        <li>负责 Linux 服务器日常维护与监控</li>
+        <li>参与 Docker 容器化部署与镜像管理</li>
+        <li>使用 Ansible 编写自动化运维脚本</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- 项目经验 -->
+  <div class="section">
+    <h2>项目经验</h2>
+
+    <div class="item">
+      <span class="item-title">个人博客系统（Flask + SQLite）</span>
+      <ul>
+        <li>独立完成后端 API 与数据库设计</li>
+        <li>支持 Markdown 笔记与分类管理</li>
+        <li>部署于 Linux 服务器，使用 Nginx 反代</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- 技能 -->
+  <div class="section">
+    <h2>技能清单</h2>
+    <p>
+      具备 Linux 系统运维与容器化实践经验，熟悉 Docker、Kubernetes，
+      有服务器运维及自动化部署经验，热衷于稳定性与效率优化。
+    </p>
+  </div>
+
+  <!-- 教育背景 -->
+  <div class="section">
+    <h2>教育背景</h2>
+    <div class="item">
+      <span class="item-title">XX 大学 · 计算机相关专业</span>
+      <span class="item-time">2020 – 2024</span>
+      <div style="clear: both"></div>
+    </div>
+  </div>
+
+  <!-- 个人简介 -->
+  <div class="section">
+    <h2>个人简介</h2>
+    <p>
+      具备 Linux 系统运维与容器化实践经验，熟悉 Docker、Kubernetes，
+      有服务器运维及自动化部署经验，热衷于稳定性与效率优化。
+    </p>
+  </div>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,14 @@
+title: Libix's Blog
+description: 记录学习与生活
+url: ""
+show_downloads: false
+
+markdown: kramdown
+highlighter: rouge
+permalink: /:year/:month/:day/:title/
+
+kramdown:
+  input: GFM
+  hard_wrap: true
+  math_engine: mathjax
+  syntax_highlighter: rouge
