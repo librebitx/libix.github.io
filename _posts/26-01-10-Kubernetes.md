@@ -364,7 +364,6 @@ pod1   1/1     Running   0          3m14s   10.244.195.152   knode1   <none>    
 ```
 
 ## **create 与 apply 的区别**
-
 在使用 yaml 文件创建 pod 时，如果是初次创建，二者无区别；若需更改 yaml 后更新配置，只有 `apply` 可以更新并创建，`create` 则会报错。
 
 ## **一个 pod 里面启动多个容器**
@@ -417,23 +416,16 @@ kubectl delete pods --all
 ## **静态 pod**
 
 静态 Pod 是由 **kubelet** 进程直接管理并运行在特定节点上的 Pod，而不需要通过 API Server 进行调度。
-
 在集群目录 /etc/kubernetes/manifests/ 下会放着一些 yaml 文件，这些都是静态 pod 所属的文件。主要是为集群提供功能支撑的。只需要把文件放在里面，就会在集群里面创建一个 pod，把文件移走，pod 就会自动删除。
-
 K8s 的核心组件本质上就是运行在 K8s 里的 Pod；K8s 是一个用 Pod 管理 Pod 的递归系统。 只有最底层的 kubelet 和 容器引擎 是钉在操作系统上的，其他的都可以是容器。
 
 # Label
 
 标签分为两种类型：node 标签、pod 标签
-
 标签规范: 键=值
-
 beta.kubernetes.io/arch=amd64
-
 aaa.bbb=ccc
-
 aaa.bbb/ccc=ddd
-
 ## **node 标签**
 
 ```bash
@@ -478,7 +470,6 @@ knode2    Ready    work2    2d20h   v1.30.0   192.168.100.202   <none>        Ce
 ```
 
 ## **pod 标签**
-
 **pod 上的标签是给 deployment 管理用的**
 
 ```bash
@@ -497,17 +488,11 @@ pod1   1/1     Running   0          116s   run=pod1
 ```
 
 ## **将 pod 发放到指定节点**
-
 **nodeName**
-
 这个字段允许直接指定 Pod 调度到目标节点 (node)
-
 **nodeSelector**
-
 nodeSelector 是 Pod 规范（Spec）中的一个字段。它通过 **键值对（Key-Value Pair）** 的方式，让 Pod 与 Node 的 **标签（Labels）** 进行匹配。键（Key）和值（Value）都**必须完全匹配，缺一不可。**
-
 Pod 会告诉调度器，我只想去那些身上贴了特定“标签”的 Node 上工作。
-
 如果集群中没有节点满足**所有**标签条件，那么该 Pod 将会一直处于 Pending 状态，直到有合适的节点出现。
 
 ```bash
@@ -565,21 +550,14 @@ pod4   1/1     Running   0          54s   10.244.69.199    knode2   <none>      
 ```
 
 ## **cordon / drain / taint**
-
 在 Kubernetes 中管理**节点 (node)** 状态和工作负载时非常重要的工具
-
 cordon 警戒线：用于将一个节点标记为**不可调度 (unschedulable)**。
-
 drain 驱逐：一旦设置了 drain，不仅会 cordon，还会 evicted 驱逐。（本意是把该节点上的 pod 删除掉，并在其他 node 上启动）
-
 taint 污点：一但设置了 taint，默认调度器会直接过滤掉，不会调度到该 node 上，但是可以通过 tolerations 关键字来强制的运行。
 
 ### **cordon**
-
 用于将一个节点标记为 **不可调度 (unschedulable)** 。一旦对某个节点设置了 cordon，那么就告诉 k8s 集群，未来发放的 pod 不要再调度到该节点上了；
-
 对于节点上已经存在的 pod 不受影响。
-
 比如有两个节点，当创建一个 pod 的时候，会根据 scheduler 调度算法，分布在不同的节点上。现在有 knode1 和 knode2 两个节点，如果 knode1 节点要维护或检查，设置 cordon 后，新创建的 pod 就不能再调度到 node1 上了。
 
 ```bash
@@ -615,11 +593,9 @@ pod3   1/1     Running   0             3s      10.244.69.205    knode2   <none> 
 对比 cordon ， drain 多了一个驱逐的动作。包含两个动作（ cordon / evicted ）。
 
 **自动 cordon 节点：**
-
 drain 命令首先会自动将目标节点标记为不可调度 (unschedulable)，就像执行了 kubectl cordon 一样，以防止新的 Pod 在驱逐过程中被调度上来。
 
 **安全驱逐 Pod：**
-
 它会优雅地终止节点上的 Pod。这意味着它会向 Pod 发送 SIGTERM 信号，并等待 Pod 的 terminationGracePeriodSeconds (默认 30 秒) 结束。如果 Pod 在此期间没有自行终止，则会发送 SIGKILL 强制终止。
 
 它会尊重 PodDisruptionBudgets (PDBs)。PDB 是一种机制，用于确保在自愿中断（如 drain）期间，一个应用至少有多少个副本保持运行状态。如果驱逐某个 Pod 会违反其应用的 PDB，drain 操作会暂时阻塞，直到可以安全驱逐为止（或者超时）。
@@ -636,51 +612,30 @@ drain 命令首先会自动将目标节点标记为不可调度 (unschedulable)�
 单个 pod 看不到效果，配合 deployment 可以看到效果。
 
 ### **Taint**
-
 Taint (污点) 就是用来实现这种 “排斥” 需求的。
-
 主控节点 (Master/Control-Plane Node) 运行着 Kubernetes 的核心组件，非常重要，你不希望普通的应用 Pod 占用它们的资源或可能影响它们的稳定性。
-
 具有特殊硬件的节点，比如带有 GPU 的节点，你可能只想让需要 GPU 的特定应用在上面运行。
-
 需要维护的节点，你可能想临时阻止新的 Pod 调度到某个节点上，并驱逐现有 Pod，以便进行维护。
 
 **什么是 Taint (污点)？**
-
 Taint 是应用到节点 (Node) 上的一个属性。它会 “排斥” 那些不能 “容忍” 这个污点的 Pod。也就是说，默认情况下，Pod 不会被调度到带有它不能容忍的污点的节点上。
-
 可以把 Taint 看作是节点给 Pod 设置的一个 “门槛” 或者 “条件”。
 
 **Taint 的组成**
-
 一个 Taint 由三个部分组成：
-
 **键 (Key):** 必需的，是一个字符串，例如 gpu、node-role.kubernetes.io/master。
-
 **值 (Value):** 可选的，也是一个字符串，与键一起描述污点的具体含义，例如 true、nvidia-tesla-v100。如果不需要值，可以省略。
-
 **效果 (Effect):** 必需的，决定了当 Pod 不能容忍这个污点时会发生什么。
-
 **格式：** =: ( 如果值为空，则是 : )
-
 **Taint 的效果 (Effect)**
-
 有三种主要的效果：
-
 **NoSchedule (不调度):** 这是最常用的效果。
-
 如果一个 Pod 不能容忍带有 NoSchedule 效果污点的节点，那么 Kubernetes 调度器不会将这个 Pod 调度到该节点上。
-
 NoSchedule 只影响新调度的 Pod。对于那些在节点被打上污点之前就已经在该节点上运行的 Pod，它们不会被驱逐。
-
 **PreferNoSchedule (倾向于不调度):** 这是一个 “软” 限制。
-
 Kubernetes 调度器会尽量避免将不能容忍此污点的 Pod 调度到该节点上。
-
 但是，如果没有其他更合适的节点可以调度，调度器仍然可能将该 Pod 调度到这个带有 PreferNoSchedule 污点的节点上。
-
 **NoExecute (不执行并驱逐):** 这是最强的效果。
-
 如果 Pod 不容忍，不但阻止新的 Pod 调度到该节点，而且驱逐 (evict) 节点上已经运行的、且不能**容忍**该污点的 Pod。
 
 对于一个典型的 Kubernetes 控制平面节点 (master/control-plane node)，会看到至少一个默认的污点。这是 Kubernetes 为了保护控制平面组件不被普通用户工作负载干扰而设置的。
@@ -775,19 +730,12 @@ No resources found in default namespace.
 现在我们知道了 Taint 会排斥 Pod，那么如果一个 Pod 确实想运行在一个有污点的节点上呢？这就需要 Toleration (容忍)。
 
 ### Toleration
-
 Toleration（容忍） 是定义在 **Pod** 的 spec 中的。它允许（但并不保证）Pod 被调度到带有匹配污点的节点上。
-
 属于**不可变字段**，禁止在线修改，除了 tolerationSeconds；
-
 一个 Toleration 的组成：
-
 **key:** 要容忍的污点的键
-
 **value (可选):** 要容忍的污点的值
-
 **operator (可选):**
-
 ​	**Exists (存在即可):** 只要与污点的 key 或者 effect 匹配，就认为容忍。此时 value 字段会被忽略（即使你写了）。	
 
 | 组合方式           | 匹配效果                                                     | 运维场景                                                     |
@@ -796,35 +744,20 @@ Toleration（容忍） 是定义在 **Pod** 的 spec 中的。它允许（但并
 | 有 Key + 无 Effect | 半模糊匹配。只要 Key 对上了，管你是 NoSchedule 还是 NoExecute 全都容忍。 | 最推荐用法。防止节点状态变化（如从不可调度变成驱逐）导致 Pod 掉线。 |
 | 无 Key + 无 Effect | 超级通配符。容忍集群里所有节点的所有污点。                   | 核心组件专用。如日志收集、监控插件（Prometheus, Fluentd）。  |
 | 无 Key + 有 Effect | 容忍该 Effect 下的所有 Key。                                 | 希望监控插件能部署在集群中所有“活着”的节点上，不管这些节点是因为磁盘满了还是网络延迟。 |
-
 ​	**Equal  (相等才行):** 污点的 key、value (如果污点有值) 和 effect **都必须**和 Toleration 中定义的**完全匹配**。这是默认的 operator（操作符）。
-
 **effect (可选): 可以容忍的污点的效果**
-
 ​	如果 effect 为空，则表示容忍所有效果（NoSchedule, PreferNoSchedule, NoExecute）的具有相同 key 和 value (根据 operator 判断) 的污点。
-
 ​	如果指定了 effect，则只容忍具有特定效果的污点。
-
 **tolerationSeconds (可选, 仅用于 NoExecute 效果):**
-
 tolerationSeconds 字段指定了在节点被 NoExecute 污点标记时，具有相应容忍度的 Pod 可以在该节点上继续运行多长时间，然后才会被驱逐。
-
 当一个节点被添加了 NoExecute 效果的污点时：
-
 ​	没有容忍该污点的 Pod：会立即被驱逐。
-
 ​	容忍该污点但没有指定 tolerationSeconds 的 Pod：会永远绑定在该节点上（即不会被驱逐），只要节点上的污点仍然存在。
-
 ​	容忍该污点且指定了 tolerationSeconds 的 Pod：它们会被允许在节点上继续运行指定的时间（秒）。
-
 ​		如果在这个时间段内，节点上的污点被移除了，那么这个 Pod 就不会被驱逐，继续正常运行。
-
 ​		如果在这个时间段结束后，节点上的污点仍然存在，那么**节点生命周期控制器（Node Lifecycle Controller）**就会将这个 Pod 从节点上驱逐掉。
-
 taint 的效果（即节点对 Pod 的排斥行为）必须通过 Pod YAML 文件中的 spec.tolerations 部分来抵消或“容忍”，这样 Pod 才能被调度到带有相应污点的节点上，或者在 NoExecute 效果下不被驱逐。
-
 Taint (污点) **作用在节点（node）上**；
-
 Toleration (容忍) **作用在 Pod 上**，没有 Toleration，Pod 就会受到 taint 的排斥作用，不会运行在 node 上
 
 ```bash
@@ -1466,19 +1399,13 @@ root@master:~#
 ```
 
 # **控制器**
-
 在 Kubernetes 中，控制器是一个核心概念，它是 Kubernetes 实现其自动化和自愈能力的关键。你可以把控制器想象成一个永不停止地尝试让当前状态与期望状态一致的循环。
-
 每个控制器都关注特定类型的 Kubernetes 资源（比如 Pod、Deployment、Service 等）。
 
 ## **Deployment**
-
 一种资源对象，是 K8s 的**逻辑控制器**。存在于 **Master 节点 (etcd)** 里的配置信息。
-
 在k8s里面，最小的调度单位是 pod，但是 pod 本身不稳定，导致系统不健壮，没有可再生性（自愈功能）。
-
 Deployment 并不直接管理 Pod，它通过 **ReplicaSet (RS)** 来实现版本控制维持 Pod 的副本数量。
-
 集群中只需要告诉 deploy，需要多少个 pod 即可，一旦某个 pod 宕掉，deploy 会生成新的 pod，保证集群中的固定存在 3 个 pod。少一个，生成一个，多一个，删除一个。如果不把 deploy 删除，那么 3 个 pod 是永远删除不掉的。
 
 ```bash
@@ -1790,13 +1717,9 @@ root@master:~#
 ## HPA
 
 HPA (Horizontal Pod Autoscaler) 是 Kubernetes 中实现“弹性伸缩”的核心组件。
-
 水平伸缩 (Horizontal Scaling)：增加或减少 Pod 的数量。就像增加搬运工的人数（这是 HPA 干的活）。
-
 垂直伸缩 (Vertical Scaling)：增加或减少 单个 Pod 的资源（CPU/内存）。就像给搬运工吃大力丸，让他一个人能搬更多东西（这是 VPA 干的活）。
-
 它是应对突发流量、节省服务器成本的终极利器。
-
 HPA 是通过 metric-service 组件来进行检测的，通过 Metrics API 获取 Pod 的实际资源利用率（比如 CPU 使用了多少）。将实际值与你在 HPA 中设定的“目标值”进行对比。计算出需要的副本数，并修改 Deployment 的 replicas 字段。
 
 **配置 metrics-server 插件**
@@ -1990,22 +1913,14 @@ dep1   Deployment/dep1   cpu: 19%/10%   1         6         6          66m
 ## DaemonSet
 
 DaemonSet 确保在集群的**每一个（或指定的）节点**上都运行一个 Pod 的副本。
-
 daemonset 也是一种控制器，也是用来创建pod的，但是和dep不一样，dep 需要指定副本数，每个 worker 上都可以运行多个副本。
-
 ds 不需要指定副本数，会自动的在每个 worker上都创建1个副本，不可运行多个。这东西有啥用？
-
 作用就是在每个节点上收集日志、监控和管理等，还记得drain操作吗？里面包含驱逐操作，这个pod是不能删除的。
-
 由于 DaemonSet 的特性是“每台机器一个副本”，它通常用于执行 系统级操作 或 基础服务：
-
-​    日志收集：在每个节点运行日志采集 Agent，例如 fluentd 或 logstash。
-
-​    节点监控：在每个节点运行监控组件，例如 Prometheus Node Exporter、collectd 或 Datadog agent。
-
-​    网络插件：在每个节点运行网络组件，例如 calico-node、flannel 或 kube-proxy。
-
-​    存储守护进程：在每个节点运行存储驱动，例如 ceph、glusterd 的客户端。
+    日志收集：在每个节点运行日志采集 Agent，例如 fluentd 或 logstash。
+    节点监控：在每个节点运行监控组件，例如 Prometheus Node Exporter、collectd 或 Datadog agent。
+    网络插件：在每个节点运行网络组件，例如 calico-node、flannel 或 kube-proxy。
+    存储守护进程：在每个节点运行存储驱动，例如 ceph、glusterd 的客户端。
 
 
 
@@ -2018,35 +1933,25 @@ ds 不需要指定副本数，会自动的在每个 worker上都创建1个副本
 使用某些镜像例如 mysql，是需要变量来传递密码的，也就是再编写yaml文件的时候，需要在参数里面指定明文密码。这样就会导致一定的安全隐患。
 
 为了安全起见，涉及到密码、Token、证书，一律用 Secret；涉及到环境变量、配置文件，一律用 ConfigMap。
-
 ConfigMap (CM) 和 Secret 是专门用来实现 “配置与镜像分离” 的资源对象。	
-
 ConfigMap 是明文存储的，主要用于存放数据库地址、日志级别、配置文件等非敏感信息。
-
 Secret 虽然在底层也是存在 etcd 里的，但它在 API 层面会有特殊的保护，并且在显示时是 Base64 编码的。最重要的是，K8s 的权限管理（RBAC）通常会把 Secret 的访问权限控制得比 ConfigMap 更严。
 
 Secret 和 ConfigMap 都是属于特定命名空间的。
 
 ## Secret
 
-### 类型
-
-默认为 Opaque，base64编码格式，用来存储密码和密钥。Base64 只是为了编码二进制，不是加密。
-
+**类型**
+默认为 Opaque，base64 编码格式，用来**存储敏感配置数据**，密码和密钥。Base64 只是为了编码二进制，不是加密。
 dockerconfigjson：存储私有 docker registry 的认证信息
-
 service-account-token：用于被 serviceaccount 引用。sa 创建的时候，k8s 会创建对应的 secret。如果 pod 使用了 sc，对应的secret会自动挂载到pod目录。
 
 ### 创建方式
 
 当执行 kubectl create secret 时，发生了一个“数据迁移”的过程：
-
-​    读取：kubectl 读取了本地原始数据文件里的内容。
-
-​    传输：它把内容发给了集群的 API Server。
-
-​    持久化：API Server 把内容存进了集群的数据库 etcd 里。
-
+读取：kubectl 读取了本地原始数据文件里的内容。
+传输：它把内容发给了集群的 API Server。
+持久化：API Server 把内容存进了集群的数据库 etcd 里。
 一旦存入 etcd，它就和本地原始数据文件彻底“断开联系”了。即使把创建 Secret 时的原始数据文件删了，Pod 照样跑，Secret 照样在。
 
 ```bash
@@ -2167,9 +2072,7 @@ https://kubernetes.io/docs/concepts/configuration/secret/
 #### 挂载为文件
 
 Secret 是属于特定命名空间的。Pod 只能挂载与其处于同一个命名空间下的 Secret。
-
 Secret 只是存放在 K8s 数据库里的“原材料”，挂载就是把这些材料加工成容器看得见、摸得着的“文件”。
-
 这种方式适用于证书、复杂的配置文件。K8s 会把 Secret 里的 Key 变成目录下的文件名，Value 变成文件内容。
 
 ```bash
@@ -2524,15 +2427,10 @@ root@master:~#
 ```
 
 ## ConfigMap
-
-ConfigMap 是 Kubernetes 用来存储非敏感配置数据的资源对象，配置文件（如 nginx.conf）、环境变量、各种开关参数（明文存储）。
-
+ConfigMap 是 Kubernetes 用来**存储非敏感配置数据**的资源对象，配置文件（如 nginx.conf）、环境变量、各种开关参数（明文存储）。
 实现配置与镜像的分离。不需要为了改一个配置参数而重新打包镜像。
-
 ConfigMap 的创建和 Secret 几乎一样命令极其相似，只是把 secret 换成了 configmap
-
 ConfigMap 的两种用法：注入环境变量、挂载为文件（都和 Secret 完全一致）
-
 ConfigMap 也是属于特定命名空间的。
 
 ```bash
@@ -2549,7 +2447,7 @@ NAME               DATA   AGE
 kube-root-ca.crt   1      82s
 myconfig1          1      18s
 root@master:~# 
-# kube-root-ca.crt 是 Kubernetes 自动为每个 Namespace 创建的 ConfigMap，里面存的是「集群的根 CA 证书」，用来让 Pod / ServiceAccount 校验 API Server 的身份。
+# kube-root-ca.crt 是 Kubernetes 自动为每个 Namespace 创建的 ConfigMap，里面存的是集群的根 CA 证书，用来让 Pod / ServiceAccount 校验 API Server 的身份。
 # 每创建一个 Namespace，Kubernetes 就会自动创建 kube-root-ca.crt（ConfigMap）
 root@master:~# kubectl get configmaps -n myconfig myconfig1 -o yaml
 apiVersion: v1
@@ -2760,26 +2658,27 @@ root@master:~# curl 10.99.89.87:5500
 root@master:~# 
 ```
 **为什么要负载均衡？**
-A. 高可用性（避免单点故障）
-如果 1 号会计突然晕倒了（Pod 挂了），经理（Service）会立刻发现，并把接下来的所有客户都导向 2 号和 3 号窗口。
-结果：虽然少了一个人，但银行依然在营业，客户没感觉到服务中断。
-B. 扩展性（应对业务高峰）
-如果是双十一，客户暴增。你可以通过修改 Deployment 把 replicas 从 3 改成 10（增加到 10 个窗口）。
-结果：Service 会自动把这 10 个窗口都管起来，哪怕客人再多，平均摊到每个会计头上的活也就没那么重了。
-C. 低延迟
-多个 Pod 同时处理请求，比一个 Pod 苦哈哈地排队处理，速度要快得多。
-## 服务发现
-环境变量（旧派做法，不推荐）
-当启动一个 Pod 时，K8s 会把当前集群里所有已存在的 Service 信息以环境变量的形式塞进 Pod。
-如果先开了 Pod，后开了 Service，那这个 Pod 里的环境变量里就没有那个 Service。这就好比公司才招了新人，你的通讯录里没他。
-DNS 域名发现（现代标准，强烈推荐）
-这是目前最通用的方式。K8s 内部运行着一个叫 CoreDNS 的服务，它像一个自动更新的“电话本”。
-只要创建了一个叫 svc-test 的 Service，CoreDNS 就会自动生成一条记录。在同一个命名空间下，你不需要输入 IP，直接访问名字就行
 
+> A. 高可用性（避免单点故障）
+> 如果 1 号会计突然晕倒了（Pod 挂了），经理（Service）会立刻发现，并把接下来的所有客户都导向 2 号和 3 号窗口。
+> 结果：虽然少了一个人，但银行依然在营业，客户没感觉到服务中断。
+> B. 扩展性（应对业务高峰）
+> 如果是双十一，客户暴增。你可以通过修改 Deployment 把 replicas 从 3 改成 10（增加到 10 个窗口）。
+> 结果：Service 会自动把这 10 个窗口都管起来，哪怕客人再多，平均摊到每个会计头上的活也就没那么重了。
+> C. 低延迟
+> 多个 Pod 同时处理请求，比一个 Pod 苦哈哈地排队处理，速度要快得多。
+
+## 服务发现
 > 服务发现的全名（FQDN）
 > <服务名>.<命名空间>.svc.cluster.local
 > 跨空间访问：如果你在 default 空间的 Pod 想找 mysec 空间的数据库，就得用这个全名。
 > 同空间访问：直接喊名字 svc-test 即可。
+
+A. **环境变量**（旧派做法，不推荐）
+	当启动一个 Pod 时，K8s 会把当前集群里所有已存在的 Service 信息以环境变量的形式塞进 Pod。如果先开了 Pod，后开了 Service，那这个 Pod 里的环境变量里就没有那个 Service。这就好比公司才招了新人，你的通讯录里没他。
+B. **DNS 域名发现**（现代标准，强烈推荐）
+    这是目前最通用的方式。K8s 内部运行着一个叫 CoreDNS 的服务，它像一个自动更新的“电话本”。只要创建了一个叫 svc-test 的 Service，CoreDNS 就会自动生成一条记录。在同一个命名空间下，你不需要输入 IP，直接访问名字就行
+
 ```bash
 root@master:~# kubectl run test-client --image=busybox:1.28 -it --rm -- sh
 # -it: 交互式模式
@@ -2814,10 +2713,11 @@ pod "test-client" deleted
 root@master:~# 
 ```
 ## ClusterIP
-这是 Service 的默认类型，用于集群内部通信。
+这是 Service 的默认类型，**用于集群内部通信**。
 Service 会获得一个仅在集群内部可访问的虚拟 IP 地址 (ClusterIP)。所有发送到这个 ClusterIP 的流量都会被负载均衡到 Service 关联的后端 Pod 上。
 只能从 Kubernetes 集群内部的其他 Pod 或节点访问。集群外部无法直接访问。
 ClusterIP 是所有服务访问的“根基”和“终点站”。不管是什么服务发布方式，最终流量都会流向 ClusterIP 。
+
 ## 服务的发布
 ### NodePort
 在所有节点（Master 和 Node）上开启一个相同的端口。
@@ -2866,7 +2766,7 @@ root@master:~# curl 10.106.139.1:5500
 root@master:~# 
 ```
 ### LoadBalancer
-LoadBalancer 是 Kubernetes Service 的一种类型，用于将集群内服务暴露到集群外部。自动分配 外部可访问 IP，提供 四层负载均衡（L4）
+LoadBalancer 用于将集群内服务暴露到集群外部。自动分配 外部可访问 IP，提供 四层负载均衡（L4）
 LoadBalancer 正常使用，必须同时具备：
 负载均衡器（LB）
 可被访问的外部 IP
@@ -2988,15 +2888,15 @@ root@master:~#
 > LoadBalancer 的成本：在云上，每个 LoadBalancer 都要绑定一个公网 IP。100 个服务就是 100 个公网 IP，这每月的账单能让老板当场晕倒。
 > Ingress 的出现，就是为了解决这两个问题：
 > 省钱：只需要 1个 公网 IP（或者一个入口）。
-> 专业：只用标准的 80/443 端口，通过 域名（Domain）来分流。
+> 专业：只用标准的 80/443 端口，通过域名来分流。
 
 Ingress 的两大组成部分
 Ingress 不是一个简单的对象，它由两部分组成：
-A. Ingress 资源 (Ingress Resource)
+A. **Ingress Resource**  (Ingress 资源)
 这就是你写在 YAML 里的配置。
     内容：规定了如果访问 a.com 就去 Service-A，如果访问 b.com/shop 就去 Service-B。
     状态：它只是一张纸（记录在 etcd 里的数据），没有这张纸，没人干活。
-B. Ingress 控制器 (Ingress Controller)
+B.  **Ingress Controller** (Ingress 控制器)
 这是一个真实运行在 Pod 里的程序（通常是 Nginx、HAProxy 或 Traefik）。
     工作：它不断盯着 API Server 看你写了什么“规则”，然后自动修改自己的 Nginx 配置文件，并实现真正的流量转发。
     注意：K8s 默认不自带控制器。需要自己安装（最流行的是 Nginx Ingress Controller）。
@@ -3079,13 +2979,14 @@ root@storage-node:~# curl http://web.libix.com/test/
 root@storage-node:~# 
 ```
 #### Rewrite
-Rewrite 的作用就是： 当用户访问一个不存在的目录时，Ingress 在转发的一瞬间，把不存在的路径重写为某个存在的目录发给 Pod。
+Rewrite 的作用： 当用户访问一个不存在的目录时，Ingress 在转发的一瞬间，把不存在的路径重写为某个存在的目录发给 Pod。
+
 A. 静态资源加载（最常见）
-很多前端网页（Vue/React）打包后，里面的图片和 JS 路径都是 /static/xxx.js。如果你把这个网页挂在 web.libix.com/app1/ 下，没有 Rewrite 的话，网页会去 web.libix.com/static/ 找文件，结果就是网页打不开，全是乱码。
+	很多前端网页（Vue/React）打包后，里面的图片和 JS 路径都是 /static/xxx.js。如果你把这个网页挂在 web.libix.com/app1/ 下，没有 Rewrite 的话，网页会去 web.libix.com/static/ 找文件，结果就是网页打不开，全是乱码。
 B. 灰度发布 / 版本控制
-你想让 web.libix.com/new 访问新版本的 Pod，web.libix.com/old 访问旧版本的 Pod。但这两个 Pod 内部的代码其实是一模一样的（都只认根目录 /）。这时候必须靠 Rewrite 来做翻译。
+	你想让 web.libix.com/new 访问新版本的 Pod，web.libix.com/old 访问旧版本的 Pod。但这两个 Pod 内部的代码其实是一模一样的（都只认根目录 /）。这时候必须靠 Rewrite 来做翻译。
 C. 隐藏后端真实结构
-出于安全考虑，你不想让外界知道你后端真实的文件夹结构。你对外暴露 /search，对内 Rewrite 到后端复杂的 /api/v1/query。
+	出于安全考虑，你不想让外界知道你后端真实的文件夹结构。你对外暴露 /search，对内 Rewrite 到后端复杂的 /api/v1/query。
 
 ``` bash
 root@storage-node:~# curl http://web.libix.com/rewrite
@@ -3129,6 +3030,8 @@ root@storage-node:~#
 ### 在生产环境中，我们会用 正则表达式 来实现更聪明的重写
 ```
 # Helm
+Helm 是查找、共享和使用为 Kubernetes 构建的软件的最佳方式 
+
 在 Kubernetes 的世界里，Helm 就相当于 Linux 系统中的 yum 或 apt，或者 macOS 上的 Homebrew。它是管理 Kubernetes 应用的**神器**。
 如果没有 Helm，你需要手动编写和管理几十个复杂的 YAML 文件；有了 Helm，你只需要一条命令就能安装、升级或回滚复杂的应用。
 **核心术语**
@@ -3142,7 +3045,8 @@ Helm Chart 是**由 模板化的 Deployment + Service + ConfigMap 组成的 完�
 **Release（发行版）：**
 当你在 K8s 集群中运行一个 Chart 时，生成的实例就叫 Release。
 比喻：Chart 是 Docker 镜像，Release 就是运行起来的 Docker 容器。同一个 Chart 可以被安装多次，每次安装都会生成一个新的 Release。
-## 安装 Helm
+
+## 安装
 https://helm.sh/zh/docs/intro/install
 https://github.com/helm/helm/releases
 ```bash
@@ -3156,7 +3060,7 @@ version.BuildInfo{Version:"v4.0.4", GitCommit:"8650e1dad9e6ae38b41f60b712af9218a
 root@master:~# 
 ```
 
-## 添加仓库 (Repository)
+## 添加仓库
 Helm 安装好后，默认是空的，我们需要添加一个仓库（Repository）才能下载应用。就像配置 yum 源一样，你需要告诉 Helm 去哪里找包。
 ```bash
 # 添加 Bitnami 仓库（最常用的仓库之一）
@@ -3190,7 +3094,7 @@ export no_proxy=localhost,127.0.0.1,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,.svc
 root@master:~# 
 root@master:~# source ~/.bashrc
 ```
-## 使用
+## 使用 Chart
 ### 安装
 ```bash
 root@master:~# helm install mycharts bitnami/nginx
@@ -3254,9 +3158,8 @@ deployment.apps/mycharts-nginx   1/1     1            1           13m
 NAME                                       DESIRED   CURRENT   READY   AGE
 replicaset.apps/mycharts-nginx-76787cd55   1         1         1       13m
 root@master:~# 
-root@master:~# 
 ```
-### 升级
+### 更新
 ```bash
 # 格式: helm upgrade [发布名称] [Chart名称] --set [参数名]=[新值]
 root@master:~# helm upgrade mycharts bitnami/nginx --set service.type=NodePort
@@ -3334,25 +3237,338 @@ mycharts-nginx-76787cd55-lggdc   1/1     Running   0          35s   10.244.104.5
 root@master:~# kubectl get svc | grep mycharts
 mycharts-nginx   LoadBalancer   10.96.205.198   192.168.0.242   80:30008/TCP,443:32458/TCP   56m
 root@master:~# 
+root@master:~# helm uninstall mycharts			# 彻底删除应用
+release "mycharts" uninstalled
+root@master:~# 
+root@master:~# kubectl get pods -o wide 
+No resources found in default namespace.
+root@master:~# helm list
+NAME    NAMESPACE       REVISION        UPDATED STATUS  CHART   APP VERSION
+root@master:~# 
 ```
-### 编写 Chart
+## 编写 Chart
 ```bash
-# 彻底删除应用
-helm uninstall my-redis
+root@master:~# helm create hello-helm
+Creating hello-helm
+root@master:~# tree hello-helm/
+hello-helm/
+├── Chart.yaml
+├── charts
+├── templates
+│   ├── NOTES.txt
+│   ├── _helpers.tpl
+│   ├── deployment.yaml
+│   ├── hpa.yaml
+│   ├── httproute.yaml
+│   ├── ingress.yaml
+│   ├── service.yaml
+│   ├── serviceaccount.yaml
+│   └── tests
+│       └── test-connection.yaml
+└── values.yaml
+
+3 directories, 11 files
+root@master:~# helm install test-run ./hello-helm/ --debug --dry-run
+# --debug: 输出详细调试信息
+# --dry-run: 演习模式，不真安装
+level=WARN msg="--dry-run is deprecated and should be replaced with '--dry-run=client'"
+level=DEBUG msg="Original chart version" version=""
+level=DEBUG msg="Chart path" path=/root/hello-helm
+level=DEBUG msg="number of dependencies in the chart" dependencies=0
+NAME: test-run
+LAST DEPLOYED: Tue Jan 13 02:55:32 2026
+NAMESPACE: default
+STATUS: pending-install
+REVISION: 1
+DESCRIPTION: Dry run complete
+...
+root@master:~# 
+root@master:~# helm list
+NAME    NAMESPACE       REVISION        UPDATED STATUS  CHART   APP VERSION
+root@master:~# 
+root@master:~# helm install mylocalchart ./hello-helm/
+NAME: mylocalchart
+LAST DEPLOYED: Tue Jan 13 03:00:50 2026
+NAMESPACE: default
+STATUS: deployed
+REVISION: 1
+DESCRIPTION: Install complete
+...
+root@master:~# 
+root@master:~# kubectl get pods -o wide 
+NAME                                       READY   STATUS    RESTARTS   AGE   IP              NODE    NOMINATED NODE   READINESS GATES
+mylocalchart-hello-helm-5cc7577ffd-n57wn   1/1     Running   0          62s   10.244.104.30   node2   <none>           <none>
+root@master:~# helm list
+NAME            NAMESPACE       REVISION        UPDATED                                 STATUS          CHART                   APP VERSION
+mylocalchart    default         1               2026-01-13 03:00:50.340761993 +0800 CST deployed        hello-helm-0.1.0        1.16.0     
+root@master:~# kubectl get svc | grep mylocalchart
+mylocalchart-hello-helm   ClusterIP   10.98.157.153   <none>        80/TCP         2m9s
+root@master:~# vi ./hello-helm/values.yaml 
+root@master:~# 
+root@master:~# helm upgrade mylocalchart ./hello-helm/
+Release "mylocalchart" has been upgraded. Happy Helming!
+NAME: mylocalchart
+LAST DEPLOYED: Tue Jan 13 03:05:14 2026
+NAMESPACE: default
+STATUS: deployed
+REVISION: 2
+DESCRIPTION: Upgrade complete
+...
+root@master:~# 
+root@master:~# kubectl get svc | grep mylocalchart
+mylocalchart-hello-helm   NodePort    10.98.157.153   <none>        80:32289/TCP   4m30s
+root@master:~# 
 ```
+
+### 企业级通用 Chart
+
+通过实战学会 `range`（循环）、`if`（判断）和 `include`（引用辅助模板）。
+
+
 ```bash
-helm install my-redis bitnami/redis --set auth.password="secretpassword"
+root@master ~# helm create my-app
+Creating my-app
+root@master ~# cd my-app/templates/
+root@master ~/m/templates# rm -rf deployment.yaml service.yaml ingress.yaml hpa.yaml serviceaccount.yaml NOTES.txt httproute.yaml tests/
+root@master ~/m/templates# ls
+_helpers.tpl
+# 为什么要留着 _helpers.tpl？ 这是一个工业级 Chart 的标配。它里面定义了如何生成规范的 Resource Name 和 Label。
+# 工作中千万不要手写 Label，一定要引用 helper，否则升级时 Label 不匹配会导致 Deployment 重建失败。
+
+root@master ~# cat my-app/values.yaml
+# 基础信息
+replicaCount: 2			# Pod 副本数
+image:
+  repository: nginx			# 镜像仓库名
+  tag: "1.23"
+  pullPolicy: IfNotPresent
+
+# 环境变量 (工作中通常用来传数据库地址、开关等) -> 我们要学 range 循环
+env:
+  - name: APP_ENV
+    value: "production"
+  - name: DB_HOST
+    value: "192.168.0.10"
+
+# 资源限制 (生产环境必须有！)
+# CPU 单位是 m，即 millicores，500m 是 0.5 个 CPU 核，内存单位是 Mi（Mebibyte）
+resources:
+  limits:			# 资源限制，超过限制会被限流或杀死
+    cpu: 500m
+    memory: 512Mi
+  requests:			# 请求的资源量，保证 Pod 启动和运行的最小资源
+    cpu: 100m
+    memory: 128Mi
+
+# 服务暴露
+service:
+  type: ClusterIP
+  port: 80
+
+# 域名配置 (开关控制) -> 我们要学 if 判断
+ingress:
+  enabled: true
+  host: web.libix.com			# 绑定的域名
+  
+# 自定义配置文件 (我们要演示如何把这个注入到容器里)
+appConfig:			# 没有魔法含义，只是一个自定义逻辑分组
+  config.json: |			# | 表示：原样保留换行
+# 生成一个文件 config.json ，内容如下：
+    {
+      "database": "mysql",
+      "timeout": 5000,
+      "features": ["new-ui", "fast-login"]
+    }
+root@master ~# 
+root@master ~# cat my-app/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  # 通过调用 _helpers.tpl 中的 my-app.fullname 函数来生成规范的服务名称
+  name: {{ include "my-app.fullname" . }}
+  labels:
+    {{- include "my-app.labels" . | nindent 4 }}			# nindent 是缩进函数，换行并缩进4个空格
+spec:
+  replicas: {{ .Values.replicaCount }}			# .Values 代表 values.yaml 中传入的参数
+  selector:
+    matchLabels:
+      {{- include "my-app.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "my-app.selectorLabels" . | nindent 8 }}
+    spec:
+      # 声明卷来源
+      # Kubernetes 在 Pod 里准备了一个“配置卷”，内容来自 my-app-config 这个 ConfigMap
+      volumes:
+        - name: config-volume
+          configMap:
+            name: {{ include "my-app.fullname" . }}-config
+            
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+          
+          ### Range 循环
+          # 自动遍历 values.yaml 里的 env 列表，生成 env 配置
+          env:
+            {{- range .Values.env }}
+            - name: {{ .name }}
+              value: {{ .value | quote }}			# quote 函数会给字符串加双引号
+            {{- end }}
+
+		  # 容器内挂载路径
+          volumeMounts:
+            - name: config-volume
+              mountPath: /app/config
+
+          ### 直接转录 YAML
+          # toYaml 函数把 values 里的对象直接转成 YAML 格式，省去了一行行写的麻烦
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+root@master ~# 
+root@master ~# cat my-app/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "my-app.fullname" . }}
+  labels:
+    {{- include "my-app.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.service.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "my-app.selectorLabels" . | nindent 4 }}
+root@master ~# 
+root@master ~# cat my-app/templates/ingress.yaml
+### If 条件判断
+# 只有当 values.yaml 里 ingress.enabled 为 true 时，才生成下面这些代码
+{{- if .Values.ingress.enabled -}}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "my-app.fullname" . }}
+  labels:
+    {{- include "my-app.labels" . | nindent 4 }}
+spec:
+  rules:
+    - host: {{ .Values.ingress.host }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ include "my-app.fullname" . }}
+                port:
+                  number: {{ .Values.service.port }}
+{{- end }}
+root@master ~# 
+root@master ~# cat my-app/templates/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "my-app.fullname" . }}-config
+  labels:
+    {{- include "my-app.labels" . | nindent 4 }}
+data:
+  # 这里不需要 range，直接把 values 里的整个对象转成 YAML 格式
+  {{- toYaml .Values.appConfig | nindent 2 }}
+root@master ~# 
+# YAML 语法极其严格：严禁使用 Tab 键（制表符）进行缩进，只能使用空格
+root@master ~# helm install my-app-test ./my-app/
+NAME: my-app-test
+LAST DEPLOYED: Tue Jan 13 20:59:08 2026
+NAMESPACE: default
+STATUS: deployed
+REVISION: 1
+DESCRIPTION: Install complete
+TEST SUITE: None
+root@master ~# 
+root@master:~# kubectl get pods -o wide 
+NAME                           READY   STATUS    RESTARTS   AGE     IP              NODE    NOMINATED NODE   READINESS GATES
+my-app-test-75857f97f9-f6d7c   1/1     Running   0          5m13s   10.244.104.49   node2   <none>           <none>
+my-app-test-75857f97f9-gj56x   1/1     Running   0          5m11s   10.244.104.54   node2   <none>           <none>
+root@master:~# kubectl get svc | grep my
+my-app-test   ClusterIP   10.96.107.187   <none>        80/TCP         111m
+root@master:~# kubectl get ingress
+NAME          CLASS    HOSTS           ADDRESS   PORTS   AGE
+my-app-test   <none>   web.libix.com             80      111m
+root@master:~# kubectl get configmap
+NAME                 DATA   AGE
+kube-root-ca.crt     1      24d
+my-app-test-config   1      5m48s
+root@master:~# 
+root@master:~# kubectl exec my-app-test-75857f97f9-f6d7c -- cat /app/config/config.json			# 检验挂载 ConfigMap
+{
+  "database": "mysql",
+  "timeout": 5000,
+  "features": ["new-ui", "fast-login"]
+}  
+root@master:~# 
+root@master:~# helm lint ./my-app			# 检查语法和最佳实践
+==> Linting ./my-app
+[INFO] Chart.yaml: icon is recommended
+
+1 chart(s) linted, 0 chart(s) failed
+root@master:~# 
+root@master:~# helm package ./my-app/			# 打包
+Successfully packaged chart and saved it to: /root/my-app-0.1.0.tgz
+root@master:~# ls
+my-app  my-app-0.1.0.tgz
+root@master:~# vi my-app/Chart.yaml 
+root@master:~# cat my-app/Chart.yaml | grep version
+version: 0.2.0
+root@master:~# helm package ./my-app/
+Successfully packaged chart and saved it to: /root/my-app-0.2.0.tgz
+root@master:~# 
 ```
-或者创建一个 `my-values.yaml` 文件覆盖默认配置：
+## 依赖管理 (Dependencies)
+
+想象一下，你的应用依赖 Redis 和 MySQL。如果没有 Helm 的依赖管理，你需要分别跑三个 `helm install` 命令，还要手动去查数据库的 Service IP 填给你的应用。有了依赖管理，你可以把 Redis 和 MySQL 定义为你 Chart 的“子 Chart”。 
+效果： 用户只需一条命令 `helm install my-app`，Redis 和 MySQL 就会自动作为一个整体被安装起来，并且网络自动互通。
+
 ```bash
-helm install my-redis bitnami/redis -f my-values.yaml
+root@master:~# cat my-app/Chart.yaml 
+apiVersion: v2
+name: my-app
+description: A Helm chart for Kubernetes
+type: application
+version: 0.2.0
+appVersion: "1.16.0"
+# 声明依赖
+dependencies:
+  - name: redis
+    version: 24.0.0
+    repository: https://charts.bitnami.com/bitnami
+root@master:~# 
+root@master:~# helm dependency build ./my-app			
+Hang tight while we grab the latest from your chart repositories...
+...Successfully got an update from the "bitnami" chart repository
+Update Complete. ⎈Happy Helming!⎈
+Saving 1 charts
+Downloading redis from repo https://charts.bitnami.com/bitnami
+Pulled: registry-1.docker.io/bitnamicharts/redis:24.0.0
+Digest: sha256:37c82701781aa30de0dfe548416481fd27216751fcecfee1a68e8244ee2b9a3a
+Deleting outdated charts
+# 从仓库下载子 Chart 放到本地 charts/ 目录
+root@master:~# ls my-app/charts/
+redis-24.0.0.tgz
+root@master:~# 
+
 ```
-### 第四部分：进阶操作 (生命周期管理)
-Helm 的强大之处在于**版本控制**。
-```bash
-# 更新 Release
-helm upgrade my-redis bitnami/redis -f new-values.yaml
-```
+
+
+
 # 现象描述
 
 ## 集群节点资源占用不均衡

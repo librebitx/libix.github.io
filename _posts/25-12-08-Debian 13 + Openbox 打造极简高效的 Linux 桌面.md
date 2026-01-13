@@ -5,8 +5,6 @@ date:   2025-12-08
 blog-label: Fun
 ---
 
-#### 成品桌面截图展示
-
 在这篇文章中，我将分享如何在 **Debian 13 上构建一个基于 Openbox 的极简桌面环境**，并对窗口管理、菜单、快捷键、美化、常用工具进行配置。
 实现低资源占用、快速响应、自由定制、极简视觉，适合老电脑、虚拟机、极简主义用户等。
 为了保持环境纯净，安装时只需保留最基础的系统。
@@ -729,17 +727,17 @@ openbox 默认不支持复制粘贴图片
 #### 截图
 
 ```bash
+sudo apt install maim xclip
+
+libix@Debian:~$ cat maimshot.sh 
 #!/bin/bash
-
 # 截图保存地址
-DIR="/home/libix/Pictures/screenshots"
-
+DIR="~/Pictures/screenshots"
 # 截图名称
 FILE="$DIR/$(date +%Y-%m-%d_%H:%M:%S).png"
-
 # 选区截图 -> 保存 -> 同时复制到剪贴板
 maim -s "$FILE" && xclip -selection clipboard -t image/png < "$FILE"
-
+libix@Debian:~$ 
 ```
 
 
@@ -1087,8 +1085,6 @@ sudo apt install zram-tools
 ```
 
 
-
-------
 
 #### 问题与解决方案（FAQ）
 
