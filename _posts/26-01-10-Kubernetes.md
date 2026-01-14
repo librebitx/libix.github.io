@@ -13,6 +13,8 @@ blog-label: Notes
 
 当有几十上百台机器时，人已经管不过来了，Kubernetes 就是为了解决这个问题诞生的。
 
+![](/assest/K8S/kubernetes-cluster-architecture.svg)
+
 # 搭建 Kubernetes 集群
 
 ```bash
@@ -2669,7 +2671,7 @@ root@master:~#
 > 多个 Pod 同时处理请求，比一个 Pod 苦哈哈地排队处理，速度要快得多。
 
 ## 服务发现
-> 服务发现的全名（FQDN）
+> 服务域名（Service DNS 名）（FQDN）
 > <服务名>.<命名空间>.svc.cluster.local
 > 跨空间访问：如果你在 default 空间的 Pod 想找 mysec 空间的数据库，就得用这个全名。
 > 同空间访问：直接喊名字 svc-test 即可。
@@ -3029,7 +3031,30 @@ root@storage-node:~# curl http://web.libix.com/rewrite
 root@storage-node:~# 
 ### 在生产环境中，我们会用 正则表达式 来实现更聪明的重写
 ```
+# Probes
+
+Kubernetes 判断一个 Pod 是否健康的唯一标准是：**容器里的主进程还在不在（PID 是否存活）**。
+
+场景一（假死）：你的程序陷入了死锁，或者内存溢出卡住了，网页打不开。但是，PID 进程号还在。K8s 会觉得：“嗯，进程在，它很健康”，然后继续给它发流量。用户访问全部超时。
+
+场景二（启动慢）：你的应用启动需要加载 1GB 的数据，需要 30 秒。但是容器 1 秒就启动了。K8s 觉得：“进程起了，来接客吧！”。用户在第 2 秒访问，直接报错 500。
+
+**探针（Probes）就是给 K8s 装上“听诊器”，容器是否“存活”、是否“就绪”、是否“启动完成”的检查机制。**
+
+## 三大探针
+
+### Liveness Probe (存活探针)
+
+Readiness Probe (就绪探针)
+
+Startup Probe (启动探针)
+
+
+
+## 探测方式
+
 # Helm
+
 Helm 是查找、共享和使用为 Kubernetes 构建的软件的最佳方式 
 
 在 Kubernetes 的世界里，Helm 就相当于 Linux 系统中的 yum 或 apt，或者 macOS 上的 Homebrew。它是管理 Kubernetes 应用的**神器**。
@@ -3320,9 +3345,9 @@ mylocalchart-hello-helm   NodePort    10.98.157.153   <none>        80:32289/TCP
 root@master:~# 
 ```
 
-### 企业级通用 Chart
+### **通用 Chart 模板**
 
-通过实战学会 `range`（循环）、`if`（判断）和 `include`（引用辅助模板）。
+学会 `range`（循环）、`if`（判断）和 `include`（引用辅助模板）。
 
 
 ```bash
@@ -3523,8 +3548,6 @@ root@master:~# helm lint ./my-app			# 检查语法和最佳实践
 root@master:~# 
 root@master:~# helm package ./my-app/			# 打包
 Successfully packaged chart and saved it to: /root/my-app-0.1.0.tgz
-root@master:~# ls
-my-app  my-app-0.1.0.tgz
 root@master:~# vi my-app/Chart.yaml 
 root@master:~# cat my-app/Chart.yaml | grep version
 version: 0.2.0
@@ -3532,39 +3555,139 @@ root@master:~# helm package ./my-app/
 Successfully packaged chart and saved it to: /root/my-app-0.2.0.tgz
 root@master:~# 
 ```
+
+
 ## 依赖管理 (Dependencies)
 
-想象一下，你的应用依赖 Redis 和 MySQL。如果没有 Helm 的依赖管理，你需要分别跑三个 `helm install` 命令，还要手动去查数据库的 Service IP 填给你的应用。有了依赖管理，你可以把 Redis 和 MySQL 定义为你 Chart 的“子 Chart”。 
+想象一下，你的应用依赖 Redis 和 MySQL。如果没有 Helm 的依赖管理，你需要分别跑三个 `helm install` 命令，还要手动去查数据库的 Service IP 填给你的应用。有了依赖管理，你可以把 Redis 和 MySQL 定义为你 Chart 的**子 Chart**。 
 效果： 用户只需一条命令 `helm install my-app`，Redis 和 MySQL 就会自动作为一个整体被安装起来，并且网络自动互通。
 
+> **Redis** 是一个跑在内存里的超快 Key-Value 数据库，常用来当缓存。
+>
+> 部署在应用和数据库之间的中间件，缓存经常需要访问的数据到内存中，减少查找数据库的频率，用来抵抗高并发场景。
+
+**模拟实战：构建 Umbrella Chart**
+
+> Umbrella Chart = 一个“大 Helm Chart”，专门用来统一安装和管理多个子 Chart。
+
+**任务目标：** 构建一个博客系统，它包含：
+
+WordPress	（ WordPress Helm Chart 自带了一个 MariaDB 子 Chart 作为数据库依赖。）
+
+统计服务     	 ( 模拟自研微服务 )
+
+**一个 Chart** 安装，并且**共享配置**。
+
 ```bash
-root@master:~# cat my-app/Chart.yaml 
+# 真实业务环境的 Helm Chart 里不会把数据库作为依赖，业务应用和数据库通常是分开管理和运维的两个系统
+root@master:~# cat my-blog-stack/Chart.yaml 
 apiVersion: v2
-name: my-app
+name: my-blog-stack
 description: A Helm chart for Kubernetes
 type: application
-version: 0.2.0
+version: 0.1.0
 appVersion: "1.16.0"
 # 声明依赖
 dependencies:
-  - name: redis
-    version: 24.0.0
+  - name: wordpress
+    version: 28.1.2
     repository: https://charts.bitnami.com/bitnami
+
+  # 注意：本地依赖不需要 repository，只需要 version
+  - name: stats-service
+    version: 0.1.0
+    repository: file://./charts/stats-service
 root@master:~# 
-root@master:~# helm dependency build ./my-app			
+# 关闭持久化是为了你现在的环境能跑起来，生产环境这里肯定是开启的
+root@master:~# 
+helm install prod-db bitnami/mariadb \
+  --set auth.rootPassword=ChinaSkill22! \
+  --set auth.database=blog_data \
+  --set primary.persistence.enabled=false
+root@master:~# kubectl get pods -o wide 
+NAME                READY   STATUS    RESTARTS   AGE    IP             NODE    NOMINATED NODE   READINESS GATES
+prod-db-mariadb-0   1/1     Running   0          115s   10.244.104.8   node2   <none>           <none>
+root@master:~# 
+
+root@master:~# helm dependency build ./my-blog-stack/			# 从仓库下载子 Chart 放到本地 charts/ 目录
 Hang tight while we grab the latest from your chart repositories...
 ...Successfully got an update from the "bitnami" chart repository
 Update Complete. ⎈Happy Helming!⎈
-Saving 1 charts
-Downloading redis from repo https://charts.bitnami.com/bitnami
-Pulled: registry-1.docker.io/bitnamicharts/redis:24.0.0
-Digest: sha256:37c82701781aa30de0dfe548416481fd27216751fcecfee1a68e8244ee2b9a3a
+Saving 3 charts
+Downloading wordpress from repo https://charts.bitnami.com/bitnami
+Pulled: registry-1.docker.io/bitnamicharts/wordpress:28.1.2
+Digest: sha256:0492a5fc75145b7f53acaff67a77e55588bdea15d60c4aeb820ab3523f2117de
+Downloading mariadb from repo https://charts.bitnami.com/bitnami
+Pulled: registry-1.docker.io/bitnamicharts/mariadb:24.0.3
+Digest: sha256:88cec731463d9ee47d976ff7f6d450eb238bd7dd9d55898038dcaa6abf2830b0
 Deleting outdated charts
-# 从仓库下载子 Chart 放到本地 charts/ 目录
-root@master:~# ls my-app/charts/
-redis-24.0.0.tgz
+root@master:~# ls my-blog-stack/charts/
+mariadb-24.0.3.tgz  stats-service  stats-service-0.1.0.tgz  wordpress-28.1.2.tgz
 root@master:~# 
+root@master:~# sed -i '/^[[:space:]]*#/d' my-blog-stack/values.yaml 			# 删除所有以 # 开头的行
+# ^：行首
+# [[:space:]]*：允许前面有空格（YAML 很常见）
+# -i：原地修改文件
+root@master:~# cat <<'EOF' >> my-blog-stack/values.yaml 
+> # 针对特定子 Chart 的配置
+wordpress:
+  service:
+    type: NodePort
+    nodePorts:
+      http: 30080
+  mariadb:
+    enabled: false  		# 告诉 wordpress 子 Chart 不启用并使用同包内的 mariadb 服务
+  persistence:
+    enabled: false		# 关闭持久化，意味着数据库数据不会保存在持久卷（PV）上，而是存在 Pod 临时存储中，Pod 重启或删除后数据会丢失
+  externalDatabase:
+    host: prod-db-mariadb.default.svc.cluster.local			# 完全限定域名 FQDN
+    user: root
+    password: ChinaSkill22!
+    database: blog_data
+    port: 3306
 
+stats-service:
+  replicaCount: 1
+> EOF
+root@master:~# 
+root@master:~# helm lint my-blog-stack/
+==> Linting my-blog-stack/
+[INFO] Chart.yaml: icon is recommended
+
+1 chart(s) linted, 0 chart(s) failed
+root@master:~# 
+root@master:~# helm install myblogstack ./my-blog-stack/
+NAME: myblogstack
+LAST DEPLOYED: Thu Jan 15 04:08:15 2026
+NAMESPACE: default
+STATUS: deployed
+REVISION: 1
+DESCRIPTION: Install complete
+root@master:~# 
+root@master:~# kubectl get pods -o wide 
+NAME                                         READY   STATUS    RESTARTS   AGE     IP              NODE     NOMINATED NODE   READINESS GATES
+myblogstack-stats-service-764d76b44f-8zn8w   1/1     Running   0          3m32s   10.244.104.15   node2    <none>           <none>
+myblogstack-wordpress-57846d9bc7-4h569       1/1     Running   0          3m32s   10.244.104.13   node2    <none>           <none>
+prod-db-mariadb-0                            1/1     Running   0          19m     10.244.104.8    node2    <none>           <none>
+root@master:~# kubectl get svc
+NAME                           TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)                      AGE
+kubernetes                     ClusterIP   10.96.0.1        <none>        443/TCP                      26d
+myblogstack-stats-service      ClusterIP   10.101.50.245    <none>        80/TCP                       14m
+myblogstack-wordpress          NodePort    10.110.110.145   <none>        80:30080/TCP,443:31655/TCP   14m
+prod-db-mariadb                ClusterIP   10.104.23.78     <none>        3306/TCP                     30m
+prod-db-mariadb-headless       ClusterIP   None             <none>        3306/TCP                     30m
+root@master:~# 
+# 打开浏览器访问10.110.110.145:30080/wp-admin ，用户 user
+root@master:~# kubectl get secret --namespace default myblogstack-wordpress -o jsonpath="{.data.wordpress-password}" | base64 --decode
+Qrw7XPRgcxroot@master:~# 			# 密码：Qrw7XPRgcx
+root@master:~# 
+# 后续修复
+# 漏洞 1：裸奔的密码
+# 漏洞 2：数据“阅后即焚”
+# 漏洞 3：资源无限制
+# 漏洞 4：单点故障
+# 漏洞 5：网络暴露太随意
+# 漏洞 6：探针缺失
 ```
 
 

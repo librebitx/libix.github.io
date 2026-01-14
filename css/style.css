@@ -1,5 +1,3 @@
-/* style.css - 极简黑白灰 (Swiss Style) v3.4 Modified */
-
 :root {
     --sidebar-width: 260px;
     --max-width: 1600px;
@@ -9,6 +7,9 @@
     --border: #e5e5e5;
     --code-bg: rgba(0,0,0,0.04);
     --base-font-size: 14px; 
+    
+    --font-ui: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-mono: "Courier Prime", "Courier New", monospace;
 }
 
 [data-theme="dark"] {
@@ -20,7 +21,7 @@
 }
 
 body {
-    font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+    font-family: var(--font-ui);
     background-color: var(--bg);
     color: var(--fg);
     margin: 0;
@@ -29,7 +30,6 @@ body {
     height: 100vh;
 }
 
-/* --- 侧边栏布局 --- */
 .sidebar {
     position: fixed; top: 0; left: 0; bottom: 0;
     width: var(--sidebar-width);
@@ -42,11 +42,9 @@ body {
     transition: transform 0.3s ease;
 }
 
-/* 侧边栏折叠状态 */
 body.sidebar-closed { padding-left: 0; }
 body.sidebar-closed .sidebar { transform: translateX(-100%); }
 
-/* 1. 顶部控制区 */
 .sidebar-controls {
     flex-shrink: 0;
     border-bottom: 1px solid var(--border);
@@ -60,7 +58,6 @@ body.sidebar-closed .sidebar { transform: translateX(-100%); }
 }
 .back-btn:hover { opacity: 0.6; }
 
-/* 折叠与展开按钮 (新样式) */
 .sidebar-close-btn {
     background: transparent; border: none;
     color: var(--gray-mid); cursor: pointer;
@@ -70,13 +67,12 @@ body.sidebar-closed .sidebar { transform: translateX(-100%); }
 }
 .sidebar-close-btn:hover { color: var(--fg); background: var(--code-bg); }
 
-/* 展开按钮 (悬浮在左侧) */
 #sidebar-expand-trigger {
     position: fixed; 
     top: 26px; 
-    left: 20px; /* 靠屏幕左侧，留有对齐间距 */
+    left: 20px;
     z-index: 800;
-    background: transparent; /* 透明背景更极简 */
+    background: transparent;
     border: none;
     color: var(--gray-mid); 
     padding: 8px; 
@@ -88,13 +84,11 @@ body.sidebar-closed .sidebar { transform: translateX(-100%); }
 }
 #sidebar-expand-trigger:hover { 
     color: var(--fg); 
-    background: var(--code-bg); /* 悬浮时显示淡灰色背景 */
+    background: var(--code-bg);
 }
 body.sidebar-closed #sidebar-expand-trigger { display: flex; }
 
 
-
-/* 2. 目录容器 */
 #toc-container, #label-container {
     flex-grow: 1; overflow-y: auto; padding-right: 10px;
 }
@@ -103,23 +97,21 @@ body.sidebar-closed #sidebar-expand-trigger { display: flex; }
 #toc-container::-webkit-scrollbar-thumb, #label-container::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
 #toc-container::-webkit-scrollbar-thumb:hover { background: var(--gray-mid); }
 
-/* 目录链接样式 (H1-H6) */
 .toc-link, .label-item {
-    display: block; padding: 4px 0; font-size: 0.85rem;
+    display: block; padding: 4px 0;
     color: var(--gray-mid); text-decoration: none !important; border: none !important;
-    line-height: 1.5; transition: color 0.2s;
+    transition: color 0.2s;
 }
 .toc-link:hover, .label-item:hover { color: var(--fg); }
 .toc-link.active, .label-item.active { color: var(--fg); font-weight: 600; }
 
-.toc-h1 { font-weight: 600; color: var(--fg); margin-top: 10px; }
+.toc-h1 { font-weight: 600; color: var(--fg); }
 .toc-h2 { padding-left: 0; }
-.toc-h3 { padding-left: 12px; font-size: 0.8rem; border-left: 1px solid var(--border); }
-.toc-h4 { padding-left: 24px; font-size: 0.75rem; }
-.toc-h5 { padding-left: 32px; font-size: 0.7rem; opacity: 0.9; }
-.toc-h6 { padding-left: 40px; font-size: 0.7rem; opacity: 0.8; }
+.toc-h3 { padding-left: 12px; border-left: 1px solid var(--border); }
+.toc-h4 { padding-left: 24px; }
+.toc-h5 { padding-left: 32px; opacity: 0.9; }
+.toc-h6 { padding-left: 40px; opacity: 0.8; }
 
-/* --- 顶部导航 --- */
 .site-header { 
     max-width: var(--max-width); margin: 0 auto; 
     padding: 60px 40px 40px; 
@@ -136,7 +128,6 @@ body.sidebar-closed #sidebar-expand-trigger { display: flex; }
 #theme-toggle { cursor: pointer; color: var(--gray-mid); transition: color 0.2s; }
 #theme-toggle:hover { color: var(--fg); }
 
-/* --- 文章列表 --- */
 .post-list { max-width: var(--max-width); margin: 20px auto; padding: 0 40px; }
 .post-item {
     display: flex; justify-content: space-between; align-items: baseline;
@@ -146,7 +137,6 @@ body.sidebar-closed #sidebar-expand-trigger { display: flex; }
 .post-title a:hover { opacity: 0.6; }
 .post-meta { font-family: monospace; font-size: 0.8rem; color: var(--gray-mid); }
 
-/* --- 内容区 --- */
 .content-area { width: 100%; box-sizing: border-box; }
 #main-content {
     max-width: var(--max-width); margin: 0 auto; 
@@ -154,17 +144,16 @@ body.sidebar-closed #sidebar-expand-trigger { display: flex; }
     font-size: var(--base-font-size); color: var(--fg);
 }
 
-#main-content h1 { font-size: 2.2em; margin-bottom: 0.6em; margin-top: 0; line-height: 1.2; letter-spacing: -0.02em;}
-#main-content h2 { font-size: 1.6em; margin-top: 2.2em; margin-bottom: 0.8em; border-bottom: 1px solid var(--border); padding-bottom: 0.2em; }
-#main-content h3 { font-size: 1.3em; margin-top: 2em; font-weight: 600; }
-#main-content h4 { font-size: 1.1em; margin-top: 1.8em; font-weight: 600; }
-#main-content h5 { font-size: 1em; margin-top: 1.6em; font-weight: 600; font-style: italic; }
-#main-content h6 { font-size: 0.9em; margin-top: 1.6em; font-weight: 600; text-transform: uppercase; color: var(--gray-mid); }
+#main-content h1 { font-size: 2.2em; margin-top: 0; line-height: 1.2; letter-spacing: -0.02em;}
+#main-content h2 { font-size: 1.6em; margin-bottom: 0.8em; padding-bottom: 0.2em; }
+#main-content h3 { font-size: 1.3em; font-weight: 600; }
+#main-content h4 { font-size: 1.1em; font-weight: 600; }
+#main-content h5 { font-size: 1em; font-weight: 600; font-style: italic; }
+#main-content h6 { font-size: 0.9em; font-weight: 600; text-transform: uppercase; color: var(--gray-mid); }
 
 #main-content a { color: var(--fg); text-decoration: underline; text-underline-offset: 4px; text-decoration-color: var(--border); }
 #main-content a:hover { text-decoration-color: var(--fg); }
 
-/* --- 回到顶部按钮样式 --- */
 #back-to-top {
     position: fixed;
     bottom: 30px;
@@ -174,14 +163,14 @@ body.sidebar-closed #sidebar-expand-trigger { display: flex; }
     height: 40px;
     background: var(--bg);
     border: 1px solid var(--border);
-    border-radius: 4px; /* 或 50% 变成圆形，看你喜好 */
+    border-radius: 4px;
     color: var(--gray-mid);
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
     opacity: 0;
-    pointer-events: none; /* 隐藏时不可点击 */
+    pointer-events: none;
     transition: opacity 0.3s ease, color 0.2s, background 0.2s, transform 0.2s;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
@@ -194,10 +183,9 @@ body.sidebar-closed #sidebar-expand-trigger { display: flex; }
 #back-to-top:hover {
     color: var(--fg);
     background: var(--code-bg);
-    transform: translateY(-2px); /* 轻微上浮效果 */
+    transform: translateY(-2px);
 }
 
-/* --- Markdown 表格样式 --- */
 #main-content table {
     width: 100%; border-collapse: collapse; margin: 2em 0;
     font-size: 0.95em;
@@ -212,18 +200,18 @@ body.sidebar-closed #sidebar-expand-trigger { display: flex; }
 }
 #main-content tr:hover td { background-color: var(--code-bg); }
 
-/* --- Mermaid 流程图样式 --- */
+
 .mermaid {
     margin: 2em auto; text-align: center;
     background: var(--bg);
 }
 
-/* 代码块 & 引用 */
+
 div.highlighter-rouge, figure.highlight {
     background: var(--code-bg); border-radius: 4px; margin: 2em 0;
 }
 div.highlighter-rouge pre, figure.highlight pre {
-    padding: 1.2em; overflow-x: auto; font-family: 'JetBrains Mono', monospace; font-size: 0.85em; color: var(--fg);
+    padding: 1.2em; overflow-x: auto; font-family: "Courier Prime", "Courier New", monospace; font-size: 0.85em; color: var(--fg);
 }
 .highlight .c, .highlight .cm { color: var(--gray-mid); font-style: italic; }
 .highlight .k, .highlight .kt { font-weight: 700; color: var(--fg); }
@@ -234,7 +222,7 @@ div.highlighter-rouge pre, figure.highlight pre {
 }
 #main-content img { max-width: 100%; border-radius: 4px; display: block; margin: 2em auto; }
 
-/* 移动端适配 */
+
 @media (max-width: 850px) {
     body { padding-left: 0; }
     .sidebar { transform: translateX(-100%); }
