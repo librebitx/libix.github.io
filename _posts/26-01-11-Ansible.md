@@ -57,7 +57,7 @@ selinux是否开启?
 [diff]			在运行ansible命令的时候,是否打印变更前和变更前和变更后差异
 
 ```bash
-root@master:~# cat <<EOL> ansible.cfg
+~# cat <<EOL> ansible.cfg
 inventory = ./ansible/inventory
 # 指定主机清单的位置
 
@@ -77,7 +77,7 @@ become = True
 host_key_checking = False        
 # 禁用 SSH 主机密钥验证（默认是 True）
 EOL
-root@master:~#
+~#
 ```
 
 
@@ -230,7 +230,7 @@ ansible-doc [模块名]
 通过 `/bin/sh` 执行命令，支持管道符 `|`、重定向 `>` 和逻辑运算符 `&&`。在 K8s 环境中常用于执行复杂的安装指令。
 
 ```bash
-root@master:~# ansible work -m shell -a "cat > /etc/systemd/system/containerd.service.d/http-proxy.conf <<EOF
+~# ansible work -m shell -a "cat > /etc/systemd/system/containerd.service.d/http-proxy.conf <<EOF
 [Service]
 Environment="HTTP_PROXY=http://192.168.0.5:7897"
 Environment="HTTPS_PROXY=http://192.168.0.5:7897"
@@ -243,8 +243,8 @@ node1 | CHANGED | rc=0 >>
 
 node2 | CHANGED | rc=0 >>
 
-root@master:~# 
-root@master:~# ansible work -m shell -a "cat /etc/systemd/system/containerd.service.d/http-proxy.conf"
+~# 
+~# ansible work -m shell -a "cat /etc/systemd/system/containerd.service.d/http-proxy.conf"
 node2 | CHANGED | rc=0 >>
 [Service]
 Environment=HTTP_PROXY=http://192.168.0.5:7897
@@ -255,7 +255,7 @@ node1 | CHANGED | rc=0 >>
 Environment=HTTP_PROXY=http://192.168.0.5:7897
 Environment=HTTPS_PROXY=http://192.168.0.5:7897
 Environment=NO_PROXY=localhost,127.0.0.1,10.96.0.0/12,192.168.0.0/16,10.244.0.0/16,.svc,.cluster.local
-root@master:~# 
+~# 
 ```
 
 **`script`**：将本地的脚本传输到远程节点并执行。无需在远程节点预留脚本文件。
@@ -352,7 +352,7 @@ notify 所监听的模块只有在发生改变（即状态为 changed）时，�
 # **搭建 NFS**
 
 ```bash
-root@master:~# cat nfs.yaml
+~# cat nfs.yaml
 ---
 - name: 配置所有节点的 NFS 客户端环境
   hosts: work
@@ -394,11 +394,11 @@ root@master:~# cat nfs.yaml
         name: nfs-kernel-server
         state: restarted
         enabled: yes
-root@master:~# 
-root@master:~# ansible-playbook --syntax-check nfs.yaml        # 检验语法
+~# 
+~# ansible-playbook --syntax-check nfs.yaml        # 检验语法
 playbook: nfs.yaml
-root@master:~# 
-root@master:~# ansible-playbook nfs.yaml -b -K
+~# 
+~# ansible-playbook nfs.yaml -b -K
 BECOME password: 
 
 PLAY [配置所有节点的 NFS 客户端环境] ****************************************************************************************************************************************************************************************
@@ -430,7 +430,7 @@ node1                      : ok=2    changed=0    unreachable=0    failed=0    s
 node2                      : ok=2    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
 storage-node               : ok=4    changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
 
-root@master:~# 
+~# 
 
 root@node2:~# mkdir -p /vol-data/nfs
 root@node2:~# mount -t nfs storage-node:/storage/nfs /vol-data/nfs
@@ -457,7 +457,7 @@ root@storage-node:~#
 # 监控
 
 ```bash
-root@master:~# cat > monitor.sh <<'EOF'
+~# cat > monitor.sh <<'EOF'
 #!/bin/bash
 
 # ===== Load Average (1 min) =====
@@ -494,8 +494,8 @@ ip_addr=$(ip -4 addr show scope global \
 
 [ -n "$ip_addr" ] && echo "IPv4 address: $ip_addr"
 EOF
-root@master:~# 
-root@master:~# cat ansible/task.yaml
+~# 
+~# cat ansible/task.yaml
 ---
 - name: task
   hosts: work
@@ -508,12 +508,12 @@ root@master:~# cat ansible/task.yaml
     - name: error
       ansible.builtin.shell: 
         echo "Error"
-root@master:~# 
-root@master:~# ansible-playbook --syntax-check ansible/task.yaml 
+~# 
+~# ansible-playbook --syntax-check ansible/task.yaml 
 
 playbook: ansible/task.yaml
-root@master:~# 
-root@master:~# ansible-playbook ansible/task.yaml 
+~# 
+~# ansible-playbook ansible/task.yaml 
 
 PLAY [task2] ***************************************************************************************************************************************************************************************************************
 
@@ -529,8 +529,8 @@ PLAY RECAP *********************************************************************
 node1                      : ok=2    changed=1    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
 node2                      : ok=2    changed=1    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
 
-root@master:~# 
-root@master:~# ansible work -m shell -a "bash monitor.sh"
+~# 
+~# ansible work -m shell -a "bash monitor.sh"
 node2 | CHANGED | rc=0 >>
 System load (1 min avg): 0.04
 Usage of /: 46% (8.21GB / 17.83GB)
@@ -541,6 +541,6 @@ System load (1 min avg): 0.00
 Usage of /: 46% (8.16GB / 17.83GB)
 Memory usage: 35% (0.68GB / 1.88GB)
 IPv4 address: 192.168.0.11
-root@master:~# 
+~# 
 ```
 

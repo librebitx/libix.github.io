@@ -3280,16 +3280,16 @@ hello-helm/
 ├── Chart.yaml
 ├── charts
 ├── templates
-│   ├── NOTES.txt
-│   ├── _helpers.tpl
-│   ├── deployment.yaml
-│   ├── hpa.yaml
-│   ├── httproute.yaml
-│   ├── ingress.yaml
-│   ├── service.yaml
-│   ├── serviceaccount.yaml
-│   └── tests
-│       └── test-connection.yaml
+│   ├── NOTES.txt
+│   ├── _helpers.tpl
+│   ├── deployment.yaml
+│   ├── hpa.yaml
+│   ├── httproute.yaml
+│   ├── ingress.yaml
+│   ├── service.yaml
+│   ├── serviceaccount.yaml
+│   └── tests
+│       └── test-connection.yaml
 └── values.yaml
 
 3 directories, 11 files
@@ -3346,7 +3346,10 @@ mylocalchart-hello-helm   NodePort    10.98.157.153   <none>        80:32289/TCP
 ```
 
 ### **通用 Chart 模板**
+
 学会 `range`（循环）、`if`（判断）和 `include`（引用辅助模板）。
+
+
 ```bash
 ~# helm create my-app
 Creating my-app

@@ -413,7 +413,7 @@ openbox --reconfigure
 openbox 默认不支持复制粘贴图片
 
 ```bash
-libix@Debian:~$ cat shell/maimshot.sh 
+~$ cat shell/maimshot.sh 
 #!/bin/bash
 
 # 截图保存地址
@@ -424,7 +424,7 @@ FILE="$DIR/$(date +%Y-%m-%d_%H:%M:%S).png"
 
 # 选区截图 -> 保存 -> 同时复制到剪贴板
 maim -s "$FILE" && xclip -selection clipboard -t image/png < "$FILE"
-libix@Debian:~$ 
+~$ 
 
 
 ```
@@ -436,7 +436,7 @@ libix@Debian:~$
 ```bash
 sudo apt install maim xclip
 
-libix@Debian:~$ cat maimshot.sh 
+~$ cat maimshot.sh 
 #!/bin/bash
 # 截图保存地址
 DIR="~/Pictures/screenshots"
@@ -444,7 +444,7 @@ DIR="~/Pictures/screenshots"
 FILE="$DIR/$(date +%Y-%m-%d_%H:%M:%S).png"
 # 选区截图 -> 保存 -> 同时复制到剪贴板
 maim -s "$FILE" && xclip -selection clipboard -t image/png < "$FILE"
-libix@Debian:~$ 
+~$ 
 ```
 
 
@@ -490,7 +490,7 @@ feh --bg-fill ~/Pictures/wallpaper.jpg &
 #### 分辨率调整
 
 ```bash
-libix@Debian:~$ xrandr
+~$ xrandr
 Screen 0: minimum 320 x 200, current 1920 x 1080, maximum 16384 x 16384
 eDP connected primary (normal left inverted right x axis y axis)
    2880x1800    120.00 + 120.00 +  48.00  
@@ -525,7 +525,7 @@ DisplayPort-2 disconnected (normal left inverted right x axis y axis)
 DisplayPort-3 disconnected (normal left inverted right x axis y axis)
 DisplayPort-4 disconnected (normal left inverted right x axis y axis)
 DisplayPort-5 disconnected (normal left inverted right x axis y axis)
-libix@Debian:~$ 
+~$ 
 
 # 设置分辨率（例如 1920×1080）
 xrandr --output eDP-1 --mode 1920x1080
@@ -539,8 +539,8 @@ xrandr --output eDP-1 --mode 1920x1080
 picom
 
 ```bash
-libix@Debian:~$ sudo apt install picom
-libix@Debian:~$ cat ./.config/picom/picom.conf 
+~$ sudo apt install picom
+~$ cat ./.config/picom/picom.conf 
 backend = "glx";
 vsync = true;
 
@@ -616,7 +616,7 @@ wintypes:
   dropdown_menu = { opacity = 1.0; shadow = false; }
   menu = { opacity = 1.0; shadow = false; }
 };
-libix@Debian:~$ 
+~$ 
 
 ```
 

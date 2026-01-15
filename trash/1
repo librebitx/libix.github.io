@@ -29,7 +29,7 @@ cd /root/mylinux
 
 ### 拉取基础系统 (Debootstrap)
 这一步会从 Debian 官网下载最核心的文件（约 300MB）
-``` bash
+```
 # 这里的 bookworm 代表 Debian 12
 debootstrap --arch=amd64 bookworm ./chroot https://mirrors.aliyun.com/debian/
 ```
@@ -40,7 +40,7 @@ debootstrap --arch=amd64 bookworm ./chroot https://mirrors.aliyun.com/debian/
 
 ### 利用 `chroot` 进入新文件夹内部
 
-```  bash
+```
 mkdir -p chroot/{dev,run,proc,sys}
 
 cat > enter-chroot.sh <<EOF
