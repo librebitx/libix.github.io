@@ -140,6 +140,20 @@ Fcitx5 是目前 Linux 社区公认的输入法框架第一选择。与 IBus 相
 
 ```bash
 sudo apt install fcitx5 fcitx5-chinese-addons fcitx5-config-qt fcitx5-frontend-gtk2 fcitx5-frontend-gtk3 fcitx5-frontend-qt5
+
+# 配置输入法环境变量
+~$ cat ~/.xprofile
+#!bin/bash
+
+export GTK_IM_MODULE=fcitx
+export QT_IM_MODULE=fcitx
+export XMODIFIERS=@im=fcitx
+~$ im-config -n fcitx
+~$ cat ~/.xinputrc
+# im-config(8) generated on Sat, 17 Jan 2026 03:28:00 +0800
+run_im fcitx
+# im-config signature: 74bf5c2c7f1d4fa423ebe59063385eb9  -
+~$ 
 ```
 
 以下是关于 fcitx5 皮肤安装的链接：
@@ -152,7 +166,7 @@ sudo apt install fcitx5 fcitx5-chinese-addons fcitx5-config-qt fcitx5-frontend-g
 
 快捷键的配置文件 rc.xml 其中也包括了 openbox 主题的配置信息，需要创建在用户家目录下。
 
-以下是本人在使用的快捷键，大家可以根据自己喜好自定义，系统默认配置在 `/etc/xdg/openbox/rc.xml`。``
+以下是本人在使用的快捷键，大家可以根据自己喜好自定义，系统默认配置在 `/etc/xdg/openbox/rc.xml`。
 
 ```bash
 mkdir -p ~/.config/openbox
@@ -425,8 +439,6 @@ FILE="$DIR/$(date +%Y-%m-%d_%H:%M:%S).png"
 # 选区截图 -> 保存 -> 同时复制到剪贴板
 maim -s "$FILE" && xclip -selection clipboard -t image/png < "$FILE"
 ~$ 
-
-
 ```
 
 

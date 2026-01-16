@@ -231,13 +231,3 @@ div.highlighter-rouge pre, figure.highlight pre {
     #main-content table { display: block; overflow-x: auto; }
     #back-to-top { bottom: 20px;right: 20px; }
 }
-
-code {
-    font-family: var(--font-mono); 
-    font-weight: 700;
-    background: var(--code-bg);
-    padding: 2px 5px;
-    border-radius: 4px;
-    font-size: 0.95em;
-    color: var(--fg);
-}
