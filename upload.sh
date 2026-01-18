@@ -101,7 +101,7 @@ EOF
     #git add "$target_path"
     #default_msg="Add post: $final_name"
     git add .
-    default_msg="Update $(date -d "yesterday" '+%Y/%m/%d-%H:%M:%S')"
+    default_msg="Added a new note $target_path"
 
 # ==========================================
 # 分支 2: 未指定文件 -> 全局同步
@@ -109,7 +109,7 @@ EOF
 else
     echo "📂 未指定具体文件，执行全局 Git 同步..."
     git add .
-    default_msg="Update $(date -d "yesterday" '+%Y/%m/%d-%H:%M:%S')"
+    default_msg="Updated some features $(date -d "yesterday" '+%Y/%m/%d-%H:%M:%S')"
 fi
 
 # ==========================================

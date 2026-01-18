@@ -20,6 +20,7 @@
     --code-bg: rgba(255,255,255,0.06);
 }
 
+/* 修改 body */
 body {
     font-family: var(--font-ui);
     background-color: var(--bg);
@@ -28,6 +29,16 @@ body {
     padding-left: var(--sidebar-width);
     transition: padding-left 0.3s ease, background-color 0.3s, color 0.3s;
     height: 100vh;
+    
+    -webkit-font-smoothing: antialiased; 
+    -moz-osx-font-smoothing: grayscale;
+
+    text-rendering: optimizeLegibility;
+}
+
+/* 全局平滑滚动 */
+html {
+    scroll-behavior: smooth;
 }
 
 .sidebar {
@@ -220,7 +231,20 @@ div.highlighter-rouge pre, figure.highlight pre {
 #main-content blockquote {
     border-left: 2px solid var(--fg); margin: 2em 0; padding-left: 1.2em; color: var(--gray-mid); font-style: italic;
 }
-#main-content img { max-width: 100%; border-radius: 4px; display: block; margin: 2em auto; }
+
+#main-content img { 
+    max-width: 100%; 
+    border-radius: 6px; 
+    display: block; 
+    margin: 2.5em auto; 
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05); /* 极淡的阴影 */
+    transition: transform 0.3s ease;
+}
+
+/* 鼠标放上去稍微浮起 */
+#main-content img:hover {
+    transform: scale(1.01);
+}
 
 
 @media (max-width: 850px) {
