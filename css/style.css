@@ -9,7 +9,7 @@
     --base-font-size: 14px; 
     
     --font-ui: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
-    --font-mono: "Courier Prime", "Courier New", monospace;
+    --font-mono: "Roboto Mono", "Courier New", monospace;
 }
 
 [data-theme="dark"] {

@@ -5,8 +5,6 @@ date:   2025-12-08
 blog-label: Fun
 ---
 
-
-
 在这篇文章中，我将分享如何在 **Debian 13 上构建一个基于 Openbox 的极简桌面环境**，并对窗口管理、菜单、快捷键、美化、常用工具进行配置。
 实现低资源占用、快速响应、自由定制、极简视觉，适合老电脑、虚拟机、极简主义用户等。
 为了保持环境纯净，安装时只需保留最基础的系统。
@@ -79,49 +77,49 @@ cat <<EOL> /etc/xdg/openbox/menu.xml
   <item label="PCManFM">
     <action name="Execute"><execute>pcmanfm</execute></action>
   </item>
-  
+
   <item label="Geany">
     <action name="Execute"><execute>geany</execute></action>
   </item>
 
   <menu id="/Debian" />
   <separator />
-  
+
   <menu id="all-software" label="Common SoftWare">
-	  <menu id="vmware" label="VMware Workstation">
-		  <item label="VMware">
-			<action name="Execute"><execute>vmware</execute></action>
-		  </item>	  
-		  <item label="VMware Network Edior">
-			<action name="Execute"><execute>lxterminal --command='sudo vmware-netcfg'</execute></action>
-		  </item>	  
-	  </menu>
-	  
-	  <item label="QQ">
-		<action name="Execute"><execute>qq</execute></action>
-	  </item>
+      <menu id="vmware" label="VMware Workstation">
+          <item label="VMware">
+            <action name="Execute"><execute>vmware</execute></action>
+          </item>      
+          <item label="VMware Network Edior">
+            <action name="Execute"><execute>lxterminal --command='sudo vmware-netcfg'</execute></action>
+          </item>      
+      </menu>
+
+      <item label="QQ">
+        <action name="Execute"><execute>qq</execute></action>
+      </item>
   </menu>
-  
+
   <separator />
-  
+
   <menu id="diy-software" label="Beauty Tools">
-	  <item label="ObConf">
-		<action name="Execute"><execute>obconf</execute></action>
-	  </item>
-	  <item label="Lxappearance">
-		<action name="Execute"><execute>lxappearance</execute></action>
-	  </item>
+      <item label="ObConf">
+        <action name="Execute"><execute>obconf</execute></action>
+      </item>
+      <item label="Lxappearance">
+        <action name="Execute"><execute>lxappearance</execute></action>
+      </item>
   </menu>
-  
+
   <separator />
-  
+
   <item label="Restart">
     <action name="Restart" />
   </item>
-  
+
     <item label="Lock">
-		<action name="Execute"><execute>slock</execute></action>
-	  </item>
+        <action name="Execute"><execute>slock</execute></action>
+      </item>
 
   <item label="Exit">
     <action name="Exit" />
@@ -131,7 +129,7 @@ cat <<EOL> /etc/xdg/openbox/menu.xml
 </openbox_menu>
 EOL
 
-openbox --reconfigure		# 刷新 openbox 配置，也可以右击鼠标点击 Restart
+openbox --reconfigure        # 刷新 openbox 配置，也可以右击鼠标点击 Restart
 ```
 
 #### 输入法
@@ -441,8 +439,6 @@ maim -s "$FILE" && xclip -selection clipboard -t image/png < "$FILE"
 ~$ 
 ```
 
-
-
 #### 截图
 
 ```bash
@@ -459,8 +455,6 @@ maim -s "$FILE" && xclip -selection clipboard -t image/png < "$FILE"
 ~$ 
 ```
 
-
-
 #### 主题和图标
 
 GTK 主题决定了窗口的样式，可以根据喜好选择，我比较喜欢 Kali Linux 的主题和图标
@@ -472,14 +466,14 @@ mv kali-themes/share/themes ~/.themes
 mkdir -p ~/.icons
 mv kali-themes/share/icons ~/.icons
 
-lxappearance &		# 打开主题设置
+lxappearance &        # 打开主题设置
 ```
 
 https://www.gnome-look.org/browse?cat=135&ord=latest
 
 **openbox 主题**决定了标题栏样式和菜单样式，使用 obconf 设置
 
-``` bash
+```bash
 obconf &
 ```
 
@@ -495,6 +489,7 @@ https://fonts.google.com/
 #### 壁纸
 
 推荐使用 feh 设置桌面壁纸
+
 ```bash
 feh --bg-fill ~/Pictures/wallpaper.jpg &
 ```
@@ -541,10 +536,7 @@ DisplayPort-5 disconnected (normal left inverted right x axis y axis)
 
 # 设置分辨率（例如 1920×1080）
 xrandr --output eDP-1 --mode 1920x1080
-
 ```
-
-
 
 #### 动画与透明
 
@@ -565,7 +557,7 @@ unredir-if-possible = true;
 unredir-if-possible-exclude = [
     "class_g = 'Vlc'"
 ];
-        
+
 corner-radius = 0;
 
 detect-rounded-corners = true;
@@ -629,10 +621,10 @@ wintypes:
   menu = { opacity = 1.0; shadow = false; }
 };
 ~$ 
-
 ```
 
 #### 面板
+
 Polybar 交互式状态栏（能点、能切换、能操作）
 Conky 桌面监控仪表（只显示，不交互）
 因为 polybar 会占用屏幕顶部小部分空间，而我只需要看看时间和机器状态，所以我选择了 conky
@@ -648,14 +640,14 @@ conky.config = {
     own_window_hints = 'undecorated,below,sticky,skip_taskbar,skip_pager',
 
 
-    own_window_colour = '#222222', -- 设置窗口背景颜色（这里是黑色）	
+    own_window_colour = '#222222', -- 设置窗口背景颜色（这里是黑色）    
     -- 设置窗口类名和窗口标题，方便窗口管理器识别和管理该窗口
     own_window_class = 'Conky',
     own_window_title = 'Conky',
 
     -- 位置与大小
     alignment = 'center',
-    gap_x = 20,	-- 水平边距，距离屏幕边缘 20 像素。
+    gap_x = 20,    -- 水平边距，距离屏幕边缘 20 像素。
     gap_y = 20,
     minimum_width = 1500, -- 窗口的最小宽度
     maximum_width = 1500,
@@ -690,7 +682,7 @@ ${font SF Mono:weight=Bold:size=300}${alignc}${time %H:%M}${font}
 
 ${font SF Mono:weight=Light:size=15}${alignc}CPU:    ${cpu cpu0}% | Mem:    ${memperc}% | ↓    ${downspeed wlo1} | ↑    ${upspeed wlo1}${font}
 
-	
+
 ${alignc}${top_mem name 1}   ${top_mem mem_res 1}
 ${alignc}${top_mem name 2}   ${top_mem mem_res 2}
 ${alignc}${top_mem name 3}   ${top_mem mem_res 3}
@@ -699,8 +691,10 @@ ${alignc}${top_mem name 5}   ${top_mem mem_res 5}
 
 ]]
 ```
+
 ![](/assest/DOB/2025-12-08_22:41:42.png)
-``` bash
+
+```bash
 conky.config = {
 
     own_window = true,
@@ -734,7 +728,7 @@ ${execi 60 LC_TIME=C date "+%Y-%m-%d %a %H:%M"} | CPU ${cpu}% | MEM ${memperc}% 
 
 #### 登录界面
 
-``` bash
+```bash
 sudo apt install greetd tuigreet 
 sudo mkdir -p /etc/greetd
 sudo useradd -M -G video greeter
@@ -767,14 +761,14 @@ sudo reboot
 
 #### 推荐软件
 
-文件管理		 pcmanfm / thunar 
-音量控制 		pavucontrol
-剪贴板  			 clipit 
-截图     			flameshot 
-通知     			dunst 
-应用搜索 		   rofi 
-音乐    			amberol （听离线）/ VutronMusic
-视频播放	VLC
+文件管理         pcmanfm / thunar 
+音量控制         pavucontrol
+剪贴板               clipit 
+截图                 flameshot 
+通知                 dunst 
+应用搜索            rofi 
+音乐                        amberol （听离线）
+视频播放            VLC
 
 ![](/assest/DOB/image-20251226081057349.png)
 
@@ -796,7 +790,7 @@ sudo reboot
 使用 startx 启动 openbox 流程是：startx --> ~/.xinitrc
 
 ```bash
-cat ~/.xinitrc		# X 会话启动脚本
+cat ~/.xinitrc        # X 会话启动脚本
 # 不开启会导致部分应用启动时卡住,文件选择对话框延迟
 /usr/libexec/xdg-desktop-portal &
 /usr/libexec/xdg-desktop-portal-gtk &
@@ -810,4 +804,3 @@ exec openbox-session
 ```
 
 如果你用 LightDM 或 GDM 登录 openbox，.xinitrc 则不会被执行。
-

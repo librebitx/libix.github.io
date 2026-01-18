@@ -69,7 +69,7 @@ chmod +x enter-chroot.sh
 
 ### 初始化系统
 
-```
+```bash
 bash enter-chroot.sh
 
 # 设置主机名
@@ -106,7 +106,7 @@ exit
 ## 打包与引导
 ### 提取内核文件
 把内核文件从系统文件夹里放到光盘的启动目录里。
-```
+```bash
 # 提取最新的内核和 initrd 到 live 目录
 cp ./chroot/boot/vmlinuz-* ./image/live/vmlinuz
 cp ./chroot/boot/initrd.img-* ./image/live/initrd.img
@@ -116,14 +116,14 @@ cp ./chroot/boot/initrd.img-* ./image/live/initrd.img
 
 将 `chroot` 目录压缩成只读的 `squashfs` 文件。
 
-```
+```bash
 # 打包文件系统，排除 boot 目录
 mksquashfs ./chroot ./image/live/filesystem.squashfs -comp xz -e boot
 ```
 
 ### 编写 GRUB 启动菜单
 
-```
+```bash
 # 创建 grub.cfg 文件
 cat > ./image/boot/grub/grub.cfg <<EOF
 set default=0
