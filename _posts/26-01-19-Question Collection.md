@@ -1,3 +1,10 @@
+---
+layout: default
+title:   "Question Collection"
+date:   2026-01-18
+blog-label: Notes
+---
+
 **RHEL9** 
 
 **重置 root 密码**

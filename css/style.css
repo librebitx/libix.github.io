@@ -261,11 +261,31 @@ body.sidebar-closed #sidebar-expand-trigger { display: flex; }
 }
 
 
+/* --- 代码块样式 (极简风格 - 无装饰) --- */
 div.highlighter-rouge, figure.highlight {
-    background: var(--code-bg); border-radius: 4px; margin: 2em 0;
+    background: var(--code-bg); 
+    border-radius: 6px; /*稍微小一点的圆角*/
+    margin: 2em 0;
+    border: 1px solid var(--border); /* 保留极淡边框 */
+    position: relative;
 }
+
+/* 重要：去掉 Mac 风格圆点 */
+div.highlighter-rouge::before, figure.highlight::before {
+    content: none;
+    display: none;
+}
+
+/* 恢复正常的内边距 */
 div.highlighter-rouge pre, figure.highlight pre {
-    padding: 1.2em; overflow-x: auto; font-family: var(--font-mono);	 font-size: 0.85em; color: var(--fg);
+    padding: 1.2em; /* 恢复均匀的内边距 */
+    overflow-x: auto; 
+    font-family: var(--font-mono); 
+    font-weight: 400; 
+    font-size: 0.9em; 
+    line-height: 1.6; 
+    color: var(--fg);
+    margin: 0;
 }
 .highlight .c, .highlight .cm { color: var(--gray-mid); font-style: italic; }
 .highlight .k, .highlight .kt { font-weight: 700; color: var(--fg); }
