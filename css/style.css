@@ -141,13 +141,10 @@ body.sidebar-closed #sidebar-expand-trigger { display: flex; }
 
 /* 层级视觉优化 */
 .toc-h1 { 
-    font-weight: 700; 
+    font-weight: 600; 
     color: var(--fg); 
-    margin-top: 15px; 
-    font-size: 0.9rem; /* H1 稍微大一点 */
     border-bottom: 1px solid var(--border); /* H1 下面加个分割线 */
     padding-bottom: 5px;
-    margin-bottom: 5px;
 }
 
 .toc-h2 { 
@@ -157,12 +154,11 @@ body.sidebar-closed #sidebar-expand-trigger { display: flex; }
 
 .toc-h3 { 
     padding-left: 12px; 
-    font-size: 0.8rem; 
     border-left: 2px solid var(--border); /* 左侧加粗线作为视觉引导 */
     color: var(--gray-mid);
 }
 
-.toc-h4 { padding-left: 24px; font-size: 0.75rem; opacity: 0.9; }
+.toc-h4 { padding-left: 24px; opacity: 0.9; }
 .toc-h5 { padding-left: 32px; opacity: 0.9; }
 .toc-h6 { padding-left: 40px; opacity: 0.8; }
 

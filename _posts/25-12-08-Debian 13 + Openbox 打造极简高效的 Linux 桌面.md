@@ -692,7 +692,7 @@ ${alignc}${top_mem name 5}   ${top_mem mem_res 5}
 ]]
 ```
 
-![](/assest/DOB/2025-12-08_22:41:42.png)
+![](/public/DOB/2025-12-08_22:41:42.png)
 
 ```bash
 conky.config = {
@@ -770,7 +770,7 @@ sudo reboot
 音乐                        amberol （听离线）
 视频播放            VLC
 
-![](/assest/DOB/image-20251226081057349.png)
+![](/public/DOB/image-20251226081057349.png)
 
 #### 性能优化建议
 

@@ -13,7 +13,7 @@ blog-label: Notes
 
 当有几十上百台机器时，人已经管不过来了，Kubernetes 就是为了解决这个问题诞生的。
 
-![](/assest/K8S/kubernetes-cluster-architecture.svg)
+![](/public/K8S/kubernetes-cluster-architecture.svg)
 
 # 搭建 Kubernetes 集群
 

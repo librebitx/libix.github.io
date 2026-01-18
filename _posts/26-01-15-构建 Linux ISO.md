@@ -165,7 +165,7 @@ qemu-system-x86_64 -m 8G -smp 2 -cdrom Downloads/mycustomlinux.iso -vga virtio -
 # X 退出
 ```
 
-![](/assest/DOB/image-20260115064252119.png)
+![](/public/DOB/image-20260115064252119.png)
 
 ### 写入 U 盘
 
