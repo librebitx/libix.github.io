@@ -78,25 +78,32 @@ body.sidebar-closed .sidebar { transform: translateX(-100%); }
 }
 .sidebar-close-btn:hover { color: var(--fg); background: var(--code-bg); }
 
+/* --- 修改：展开按钮 (紧贴左侧屏幕) --- */
 #sidebar-expand-trigger {
     position: fixed; 
     top: 26px; 
-    left: 20px;
+    left: 0; /* 紧贴左侧边缘 */
     z-index: 800;
-    background: transparent;
-    border: none;
+    background: var(--bg); /* 给一个背景色，避免文字干扰 */
+    border: 1px solid var(--border);
+    border-left: none; /* 去掉左边框 */
     color: var(--gray-mid); 
-    padding: 8px; 
-    border-radius: 4px;
+    padding: 8px 12px 8px 8px; /* 调整内边距，让图标居中一点 */
+    border-radius: 0 6px 6px 0; /* 只圆润右侧两个角，变成“标签”形状 */
     cursor: pointer; 
     display: none;
     align-items: center; justify-content: center;
     transition: all 0.2s;
+    box-shadow: 2px 2px 5px rgba(0,0,0,0.03); /* 加一点微阴影 */
 }
+
 #sidebar-expand-trigger:hover { 
     color: var(--fg); 
-    background: var(--code-bg);
+    padding-left: 12px; /* 悬停时稍微伸出来一点的动效 */
+    background: var(--code-bg); 
 }
+
+/* 仅在 body 有 sidebar-closed 类时显示 */
 body.sidebar-closed #sidebar-expand-trigger { display: flex; }
 
 
@@ -108,18 +115,54 @@ body.sidebar-closed #sidebar-expand-trigger { display: flex; }
 #toc-container::-webkit-scrollbar-thumb, #label-container::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
 #toc-container::-webkit-scrollbar-thumb:hover { background: var(--gray-mid); }
 
+/* --- 修改：目录样式优化 --- */
 .toc-link, .label-item {
-    display: block; padding: 4px 0;
-    color: var(--gray-mid); text-decoration: none !important; border: none !important;
-    transition: color 0.2s;
+    display: block; 
+    padding: 5px 0; /* 增加垂直间距，防止误触 */
+    font-size: 0.85rem;
+    color: var(--gray-mid); 
+    text-decoration: none !important; 
+    border: none !important;
+    line-height: 1.4; 
+    transition: all 0.2s;
+    position: relative;
 }
-.toc-link:hover, .label-item:hover { color: var(--fg); }
-.toc-link.active, .label-item.active { color: var(--fg); font-weight: 600; }
 
-.toc-h1 { font-weight: 600; color: var(--fg); }
-.toc-h2 { padding-left: 0; }
-.toc-h3 { padding-left: 12px; border-left: 1px solid var(--border); }
-.toc-h4 { padding-left: 24px; }
+.toc-link:hover, .label-item:hover { 
+    color: var(--fg); 
+    transform: translateX(2px); /* 悬停微动效 */
+}
+
+/* 激活状态 */
+.toc-link.active, .label-item.active { 
+    color: var(--fg); 
+    font-weight: 600; 
+}
+
+/* 层级视觉优化 */
+.toc-h1 { 
+    font-weight: 700; 
+    color: var(--fg); 
+    margin-top: 15px; 
+    font-size: 0.9rem; /* H1 稍微大一点 */
+    border-bottom: 1px solid var(--border); /* H1 下面加个分割线 */
+    padding-bottom: 5px;
+    margin-bottom: 5px;
+}
+
+.toc-h2 { 
+    padding-left: 0; 
+    font-weight: 500; /* H2 中等粗细 */
+}
+
+.toc-h3 { 
+    padding-left: 12px; 
+    font-size: 0.8rem; 
+    border-left: 2px solid var(--border); /* 左侧加粗线作为视觉引导 */
+    color: var(--gray-mid);
+}
+
+.toc-h4 { padding-left: 24px; font-size: 0.75rem; opacity: 0.9; }
 .toc-h5 { padding-left: 32px; opacity: 0.9; }
 .toc-h6 { padding-left: 40px; opacity: 0.8; }
 
@@ -254,4 +297,26 @@ div.highlighter-rouge pre, figure.highlight pre {
     #sidebar-expand-trigger, .sidebar-close-btn { display: none !important; }
     #main-content table { display: block; overflow-x: auto; }
     #back-to-top { bottom: 20px;right: 20px; }
+}
+
+/* 整个滚动条 */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+/* 滚动条轨道 */
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+/* 滚动条滑块 */
+::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 3px;
+}
+
+/* 悬停时滑块变深 */
+::-webkit-scrollbar-thumb:hover {
+    background: var(--gray-mid);
 }
