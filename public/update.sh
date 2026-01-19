@@ -109,7 +109,7 @@ EOF
 else
     echo "📂 未指定具体文件，执行全局 Git 同步..."
     git add .
-    default_msg="Updated some features $(date -d "yesterday" '+%Y/%m/%d-%H:%M:%S')"
+    default_msg="Updated some content $(date -d "yesterday" '+%Y/%m/%d-%H:%M:%S')"
 fi
 
 # ==========================================

@@ -260,3 +260,5 @@ libix@Debian:~/Desktop/terraform$
 用代码来描述你想要的基础设施状态，无论它是物理资源还是虚拟资源。
 
 代码写的是期望的资源配置和拓扑，然后 IaC 工具（如 Terraform）帮你自动“申请”、“创建”、“配置”这些资源。
+
+Terraform（管硬件：开服务器） + Ansible（管软件：装配置）

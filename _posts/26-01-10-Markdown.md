@@ -7,8 +7,6 @@ blog-label: test
 
 # 欢迎使用Markdown编辑器写博客
 
-本Markdown编辑器使用[StackEdit][6]修改而来，用它写博客，将会带来全新的体验哦：
-
 - **Markdown和扩展Markdown简洁的语法**
 - **代码块高亮**
 - **图片链接和图片上传**
@@ -41,7 +39,13 @@ blog-label: test
 
 使用简单的符号标识不同的标题，将某些文字标记为**粗体**或者*斜体*，创建一个[链接](http://www.csdn.net)等，详细语法参考帮助？。
 
-本编辑器支持 **Markdown Extra** , 　扩展了很多好用的功能。具体请参考[Github][2].  
+### 目录
+用 `[TOC]`来生成目录：
+
+* 目录
+{:toc}
+
+---
 
 ### 表格
 
@@ -61,23 +65,6 @@ Pipe     | $1
 | Phone     |   12 元 |  12  |
 | Pipe      |    1 元 | 234  |
 
-### 定义列表
-
-**Markdown　Extra**　定义列表语法：
-
-```
-项目１
-项目２
-:   定义 A
-:   定义 B
-
-项目３
-:   定义 C
-
-:   定义 D
-> 定义D内容
-```
-
 ### 代码块
 代码块语法遵循标准markdown代码，例如：
 ``` python
@@ -93,14 +80,9 @@ class SomeClass:
 ... prompt'''
 ```
 
-###脚注
+### 脚注
 生成一个脚注[^footnote].
 [^footnote]: 这里是 **脚注** 的 *内容*.
-
-### 目录
-用 `[TOC]`来生成目录：
-
-[TOC]
 
 ### 数学公式
 使用MathJax渲染*LaTex* 数学公式，详见[math.stackexchange.com][1].
@@ -112,28 +94,23 @@ $$	x = \dfrac{-b \pm \sqrt{b^2 - 4ac}}{2a} $$
 
 更多LaTex语法请参考 [这儿][3].
 
-### UML 图:
+### Mermaid 流程图
 
-可以渲染序列图：
-
-```sequence
-张三->李四: 嘿，小四儿, 写博客了没?
-Note right of 李四: 李四愣了一下，说：
-李四-->张三: 忙得吐血，哪有时间写。
-```
-
-或者流程图：
-
-```flow
-st=>start: 开始
-e=>end: 结束
-op=>operation: 我的操作
-cond=>condition: 确认？
-
-st->op->cond
-cond(yes)->e
-cond(no)->op
-```
+<div class="mermaid">
+graph LR
+    A([开始]) --> B[普通步骤]
+    B --> C{逻辑判断}
+    C -- 是 --> D[[子程序/模块]]
+    C -- 否 --> E[(数据库)]
+    D --> F((结束圆点))
+    E --> G>旗帜状注释]
+    G --> F
+    
+    %% 样式美化
+    style A fill:#f9f,stroke:#333
+    style C fill:#fff4dd,stroke:#d4a017
+    style E fill:#e1f5fe,stroke:#01579b
+</div>
 
 - 关于 **序列图** 语法，参考 [这儿][4],
 - 关于 **流程图** 语法，参考 [这儿][5].
@@ -149,15 +126,6 @@ cond(no)->op
 用户可以选择 <i class="icon-disk"></i> 把正在写的博客保存到服务器草稿箱，即使换浏览器或者清除缓存，内容也不会丢失。
 
 > **注意：**虽然浏览器存储大部分时候都比较可靠，但为了您的数据安全，在联网后，**请务必及时发表或者保存到服务器草稿箱**。
-
-##浏览器兼容
-
- 1. 目前，本编辑器对Chrome浏览器支持最为完整。建议大家使用较新版本的Chrome。
- 3. IE９以下不支持
- 4. IE９，１０，１１存在以下问题
-    1. 不支持离线功能
-    1. IE9不支持文件导入导出
-    1. IE10不支持拖拽文件导入
 
 ---------
 

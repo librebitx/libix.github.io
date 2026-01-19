@@ -1,14 +1,19 @@
 title: Libix's Blog
 description: 记录学习与生活
-url: ""
+url: "https://<你的用户名>.github.io" # 建议填上你的真实地址
+baseurl: "" # 如果是根目录建站，留空；如果是项目子站点，填 /项目名
 show_downloads: false
 
+# 主题设置 (Minima 是 GitHub 默认主题，支持较好)
+theme: minima
+
+# Markdown 引擎设置
 markdown: kramdown
 highlighter: rouge
 permalink: /:year/:month/:day/:title/
 
 kramdown:
   input: GFM
-  hard_wrap: true
-  math_engine: mathjax
+  hard_wrap: false # 建议设为 false，否则回车会被强制换行，不利于排版
+  math_engine: mathjax # 告诉 Jekyll 不要破坏数学公式符号
   syntax_highlighter: rouge
