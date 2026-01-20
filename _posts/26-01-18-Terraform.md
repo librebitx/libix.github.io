@@ -37,20 +37,28 @@ on linux_amd64
 # 卸载	sudo rm /usr/local/bin/terraform
 ```
 
-# **工作机制**
+# 工作机制
 
 Terraform 通过各种 **Provider 插件**，把声明式代码“翻译”成对应**平台**的 API 调用，然后由那些平台自身负责具体执行和管理资源。
 
+> terraform init			# 初始化 Terraform 工作目录
+>
+> terraform plan			# 生成执行计划
+>
+> terraform apply -auto-approve			# 应用配置并实际执行变更
+>
+> terraform destroy -auto-approve			# 销毁所有资源，包括对应的 XML 配置文件和虚拟磁盘文件
+
 ```bash
-~$ mkdir ~/Desktop/terraform & cd ~/Desktop/terraform
-~/Desktop/terraform$ cat main.tf 
+~$ mkdir ~/terraform & cd ~/terraform
+~/terraform$ cat main.tf 
 # 使用本地资源提供者 (Local Provider)
 resource "local_file" "hello_debian" {
   content  = "你好，这是由 Terraform 在 Debian 13 (Trixie) 上自动生成的文件！\n创建时间：2026-01-17"
   filename = "${path.module}/hello_terraform.txt"
 }
-~/Desktop/terraform$ 
-~/Desktop/terraform$ terraform init			# 初始化 Terraform 工作目录
+~/terraform$ 
+~/terraform$ terraform init			# 初始化 Terraform 工作目录
 # 下载并安装所需的 Provider 插件（比如 local Provider）。
 # 初始化工作目录，创建 .terraform 文件夹，并生成 terraform.lock.hcl 文件来记录所需的 Provider 版本	
 Initializing the backend...
@@ -72,18 +80,18 @@ should now work.
 If you ever set or change modules or backend configuration for Terraform,
 rerun this command to reinitialize your working directory. If you forget, other
 commands will detect it and remind you to do so if necessary. 
-libix@Debian:~/Desktop/terraform$ ls -la
+~/terraform$ ls -la
 总计 20
 drwxrwxr-x 3 libix libix 4096 Jan17日 23:38 .
 drwxrwxr-x 6 libix libix 4096 Jan17日 23:37 ..
 -rw-rw-r-- 1 libix libix  260 Jan17日 23:37 main.tf
 drwxr-xr-x 3 libix libix 4096 Jan17日 23:38 .terraform
 -rw-r--r-- 1 libix libix 1153 Jan17日 23:38 .terraform.lock.hcl
-libix@Debian:~/Desktop/terraform$ 
+~/terraform$ 
 # .terraform/ 目录是 Terraform 在初始化一个工作目录时自动创建的文件夹，主要用于存储与 Terraform 工作相关的临时文件和状态信息
 # .terraform.lock.hcl 	记录所需的 Provider 版本
 
-~/Desktop/terraform$ terraform plan			# 生成执行计划
+~/terraform$ terraform plan			# 生成执行计划
 # 根据 main.tf 配置文件，分析并生成一个执行计划，展示将要对基础设施做的修改（比如创建、删除、修改资源）
 # 看到输出 Terraform 将创建一个 local_file 资源（文件），并展示它将要执行的所有操作（+ create）
 Terraform used the selected providers to generate the following execution plan. Resource actions are indicated with the following symbols:
@@ -111,10 +119,10 @@ Terraform will perform the following actions:
 
 Plan: 1 to add, 0 to change, 0 to destroy.
 
-─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 
 Note: You didn't use the -out option to save this plan, so Terraform can't guarantee to take exactly these actions if you run "terraform apply" now.
-~/Desktop/terraform$ terraform apply			# 应用配置并实际执行变更
+~/terraform$ terraform apply			# 应用配置并实际执行变更
 # 根据 terraform plan 生成的执行计划，真正开始创建、修改或删除资源
 Terraform used the selected providers to generate the following execution plan. Resource actions are indicated with the following symbols:
   + create
@@ -151,12 +159,13 @@ local_file.hello_debian: Creating...
 local_file.hello_debian: Creation complete after 0s [id=7185b649cdec3d343015c1d9186d69a1919a0a22]
 
 Apply complete! Resources: 1 added, 0 changed, 0 destroyed.
-~/Desktop/terraform$ ls -a
+~/terraform$ ls -a
 .  ..  hello_terraform.txt  main.tf  .terraform  .terraform.lock.hcl  terraform.tfstate
-~/Desktop/terraform$ cat hello_terraform.txt
+~/terraform$ cat hello_terraform.txt
 你好，这是由 Terraform 在 Debian 13 (Trixie) 上自动生成的文件！
 创建时间：2026-01-17
-~/Desktop/terraform$ terraform destroy			# 销毁所有由 Terraform 管理的资源
+~/terraform$ terraform destroy -auto-approve			# 销毁所有由 Terraform 管理的资源，包括对应的 XML 配置文件和生成的虚拟磁盘文件
+# -auto-approve		跳过确认
 local_file.hello_debian: Refreshing state... [id=7185b649cdec3d343015c1d9186d69a1919a0a22]
 
 Terraform used the selected providers to generate the following execution plan. Resource actions are indicated with the following symbols:
@@ -194,23 +203,21 @@ local_file.hello_debian: Destroying... [id=7185b649cdec3d343015c1d9186d69a1919a0
 local_file.hello_debian: Destruction complete after 0s
 
 Destroy complete! Resources: 1 destroyed.
-~/Desktop/terraform$ 
-~/Desktop/terraform$ ls -a
+~/terraform$ 
+~/terraform$ ls -a
 .  ..  main.tf  .terraform  .terraform.lock.hcl  terraform.tfstate  terraform.tfstate.backup
 # terraform.tfstate 是 Terraform 的状态文件，它保存了 Terraform 管理的基础设施的 实际状态
 #    当使用 terraform apply 创建、修改或删除资源时，Terraform 会将所有的资源状态（如 ID、属性等）保存在这个文件中
 #    通过该文件，Terraform 可以知道基础设施当前的状态，以便在下次执行时进行差异比较，决定哪些资源需要变更
 # terraform.tfstate.backup 是 terraform.tfstate 文件的备份，在 Terraform 执行时，它会自动保存一份状态文件的备份。
 # 	 这个文件用于防止数据丢失，如果主状态文件 terraform.tfstate 损坏或丢失，你可以通过这个备份文件恢复 Terraform 的状态。
-~/Desktop/terraform$ 
+~/terraform$ 
 
 ```
 
 # 虚拟化平台
 
-## 基于 Libvirt/KVM
-
-https://librebitx.github.io/2026/01/15/KVM/#%E5%AE%89%E8%A3%85-kvm
+## 基于 [KVM](https://librebitx.github.io/2026/01/15/KVM/#%E5%AE%89%E8%A3%85-kvm)
 
 **最推荐的 Linux 原生方案**，直接调用 Linux 底层虚拟化，性能最高。
 
@@ -236,29 +243,120 @@ Terraform 不能控制虚拟机开机后的运行时状态。（可以用 Terraf
 
 ```
 
+### 结合 Ansible 搭建 K8S 集群
+
+**main.tf**
+
+**k8s_init.yml**
+
+```bash
+~/terraform$ sudo apt update
+~/terraform$ sudo apt install ansible -y
+~/terraform$ ansible --version
+ansible [core 2.19.4]
+...
+~/terraform$ cat ansible/ansible.cfg
+[defaults]
+inventory = inventory.ini
+host_key_checking = False
+deprecation_warnings = False
+~/terraform$ 
+~/terraform$ terraform init			# 格式化代码
+Initializing the backend...
+Initializing provider plugins...
+- Reusing previous version of dmacvicar/libvirt from the dependency lock file
+- Using previously-installed dmacvicar/libvirt v0.7.6
+Terraform has been successfully initialized!
+...
+~/terraform$ 
+~/terraform$ terraform apply --auto-approve
+...
+Apply complete! Resources: 9 added, 0 changed, 0 destroyed.
+~/terraform$ 
+~/terraform$ sudo virsh list --all
+ Id   名称      状态
+----------------------
+ 41   knode2    运行
+ 42   knode1    运行
+ 43   kmaster   运行
+~/terraform$ 
+~/terraform$ ls ansible/
+ansible.cfg  inventory.ini  terraform.tfstate
+~/terraform$ cat ansible/inventory.ini 
+[masters]
+kmaster ansible_host=192.168.0.10 ansible_user=libix ansible_ssh_private_key_file=~/.ssh/id_ed25519
+
+[workers]
+knode1 ansible_host=192.168.0.11 ansible_user=libix ansible_ssh_private_key_file=~/.ssh/id_ed25519
+knode2 ansible_host=192.168.0.12 ansible_user=libix ansible_ssh_private_key_file=~/.ssh/id_ed25519
+
+[k8s:children]
+masters
+workers
+~/terraform$ 
+~/terraform$ rm -f ~/.ssh/known_hosts*
+~/terraform/ansible$ ansible all -m ping
+[WARNING]: Host 'knode2' is using the discovered Python interpreter at '/usr/bin/python3.12', but future installation of another Python interpreter could cause a different interpreter to be discovered. See https://docs.ansible.com/ansible-core/2.19/reference_appendices/interpreter_discovery.html for more information.
+knode2 | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python3.12"
+    },
+    "changed": false,
+    "ping": "pong"
+}
+[WARNING]: Host 'knode1' is using the discovered Python interpreter at '/usr/bin/python3.12', but future installation of another Python interpreter could cause a different interpreter to be discovered. See https://docs.ansible.com/ansible-core/2.19/reference_appendices/interpreter_discovery.html for more information.
+knode1 | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python3.12"
+    },
+    "changed": false,
+    "ping": "pong"
+}
+[WARNING]: Host 'kmaster' is using the discovered Python interpreter at '/usr/bin/python3.12', but future installation of another Python interpreter could cause a different interpreter to be discovered. See https://docs.ansible.com/ansible-core/2.19/reference_appendices/interpreter_discovery.html for more information.
+kmaster | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python3.12"
+    },
+    "changed": false,
+    "ping": "pong"
+}
+~/terraform/ansible$ ansible-playbook -i inventory.ini k8s_init.yml
+```
+
+
+
+# 云平台
+
+
+
 
 
 # 问题解决
 
 ## 自定义镜像目录后报错
 
-**Error: error creating libvirt domain: 无法访问存储文件 '/home/libix/Desktop/terraform/ubuntu-template.qcow2'（以 uid:64055、gid:64055身份）: 权限不够**
+**Error: error creating libvirt domain: 无法访问存储文件 '/home/libix~/terraform/ubuntu-template.qcow2'（以 uid:64055、gid:64055身份）: 权限不够**
 
 ```bash
 # 添加三行代码
-libix@Debian:~/Desktop/terraform$ sudo cat /etc/libvirt/qemu.conf
+~/terraform$ sudo cat /etc/libvirt/qemu.conf
 ...
 user = "libix"
 group = "libix"
 security_driver = "none"
-libix@Debian:~/Desktop/terraform$ sudo systemctl restart ibvirtd
-libix@Debian:~/Desktop/terraform$
+~/terraform$ sudo systemctl restart ibvirtd
+~/terraform$
 ```
 
-# 基础设施即代码（Infrastructure as Code, IaC）
+**Error: error deleting storage pool: 无法删除池 '/home/libix/terraform': 目录非空** 
 
-用代码来描述你想要的基础设施状态，无论它是物理资源还是虚拟资源。
+```bash
+# 让 Terraform 忘记它曾经管过这个池，而不会去尝试删除物理目录：
 
-代码写的是期望的资源配置和拓扑，然后 IaC 工具（如 Terraform）帮你自动“申请”、“创建”、“配置”这些资源。
+terraform state rm libvirt_pool.image-pool
+```
 
-Terraform（管硬件：开服务器） + Ansible（管软件：装配置）
+在 Terraform 中，当你注释掉或删除一个资源，Terraform 会尝试“销毁”它。对于 Libvirt 的 `dir` 类型存储池，销毁动作意味着**删除该物理文件夹**。但由于文件夹里还有你的代码文件，Libvirt 为了安全拒绝了删除请求。
+
+**教训：** **代码归代码，数据归数据。** 永远不要把存储池路径指向包含代码、配置或隐藏文件（`.terraform`）的目录。
+

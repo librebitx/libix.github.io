@@ -5,9 +5,9 @@ date:   2026-01-18
 blog-label: Notes
 ---
 
-**RHEL9** 
+# **RHEL9** 
 
-**重置 root 密码**
+## **重置 root 密码**
 
 步骤 1：进入 GRUB 引导菜单
 
@@ -47,81 +47,283 @@ touch /.autorelabel
 
 exit reboot -f
 
-**换阿里源**
+## **换阿里源**
 
-sed -i 's/enabled=1/enabled=0/' /etc/yum/pluginconf.d/subscription-manager.conf yum remove subscription-manager -y cat <<EOL> /etc/yum.repos.d/aliyun.repo [BaseOS] name=Aliyun BaseOS baseurl=https://mirrors.aliyun.com/centos-stream/9-stream/BaseOS/x86_64/os/ gpgcheck=0 enabled=1 [AppStream] name=Aliyun AppStream baseurl=https://mirrors.aliyun.com/centos-stream/9-stream/AppStream/x86_64/os/ gpgcheck=0 enabled=1 EOL yum clean all yum makecache
+```bash
+sed -i 's/enabled=1/enabled=0/' /etc/yum/pluginconf.d/subscription-manager.conf
+yum remove subscription-manager -y
 
-**Debian 12 换源**
+cat <<EOL> /etc/yum.repos.d/aliyun.repo
+[BaseOS]
+name=Aliyun BaseOS
+baseurl=https://mirrors.aliyun.com/centos-stream/9-stream/BaseOS/x86_64/os/
+gpgcheck=0
+enabled=1
 
-cat <<EOL> /etc/apt/sources.list deb https://mirrors.tuna.tsinghua.edu.cn/debian/ bookworm main contrib non-free non-free-firmware deb https://mirrors.tuna.tsinghua.edu.cn/debian/ bookworm-updates main contrib non-free non-free-firmware deb https://mirrors.tuna.tsinghua.edu.cn/debian/ bookworm-backports main contrib non-free non-free-firmware EOL # 安装并配置 Sudo（推荐，为了长久使用） su - apt update apt install sudo # 把用户 libix 加入 sudo 组： Debian 的管理员组叫 sudo（RHEL 里叫 wheel）。 usermod -aG sudo libix
+[AppStream]
+name=Aliyun AppStream
+baseurl=https://mirrors.aliyun.com/centos-stream/9-stream/AppStream/x86_64/os/
+gpgcheck=0
+enabled=1
+EOL
 
-**网络配置**
+yum clean all
+yum makecache
+```
+
+
+
+# **Debian 12 **
+
+## **换源**
+
+```bash
+cat <<EOL> /etc/apt/sources.list
+deb https://mirrors.tuna.tsinghua.edu.cn/debian/ bookworm main contrib non-free non-free-firmware
+deb https://mirrors.tuna.tsinghua.edu.cn/debian/ bookworm-updates main contrib non-free non-free-firmware
+deb https://mirrors.tuna.tsinghua.edu.cn/debian/ bookworm-backports main contrib non-free non-free-firmware
+EOL
+
+# 安装并配置 Sudo（推荐，为了长久使用）
+su -
+apt update
+apt install sudo
+
+# 把用户 libix 加入 sudo 组： Debian 的管理员组叫 sudo（RHEL 里叫 wheel）。
+usermod -aG sudo libix
+```
+
+
+
+## **网络配置**
 
 **静态 ip**
 
-\# 修改 /etc/network/interfaces root@debian:~# cat <<EOL> /etc/network/interfaces # This file describes the network interfaces available on your system # and how to activate them. For more information, see interfaces(5). source /etc/network/interfaces.d/* # The loopback network interface auto lo iface lo inet loopback # The primary network interface allow-hotplug enp2s0     iface enp2s0 inet static        address 192.168.0.150        netmask 255.255.255.0        gateway 192.168.0.1        dns-nameservers 192.168.1.1 192.168.0.1 EOL root@debian:~# systemctl restart networking root@debian:~#
+```bash
+# 修改 /etc/network/interfaces
+root@debian:~# cat <<EOL> /etc/network/interfaces
+# This file describes the network interfaces available on your system
+# and how to activate them. For more information, see interfaces(5).
 
-**CentOS**
+source /etc/network/interfaces.d/*
 
-**模板****制作**
+# The loopback network interface
+auto lo
+iface lo inet loopback
 
-\# 1. 清除网卡配置信息 cd /etc/sysconfig/network-scripts/ cat <<EOL> ifcfg-ens32           # 这里根据网卡名称更改 TYPE=Ethernet BOOTPROTO=dhcp NAME=ens32 DEVICE=ens32 ONBOOT=yes EOL cat ifcfg-ens32 # 2. 清除密钥信息 rm -rf /etc/ssh/ssh_host_* # 3. 清除 machine id cat /dev/null > /etc/machine-id cat /etc/machine-id # 6. 关闭防火墙及 selinux setenforce 0 sed -i 's/^SELINUX=enforcing/SELINUX=disabled/' /etc/selinux/config cat /etc/selinux/config | grep ^SELINUX= systemctl stop firewalld ; systemctl disable firewalld # 5. 关闭虚拟机 poweroff 记得不要再开启了，通过完整克隆即可发放新的虚拟机
+# The primary network interface
+allow-hotplug enp2s0    
+iface enp2s0 inet static
+        address 192.168.0.150
+        netmask 255.255.255.0
+        gateway 192.168.0.1
+        dns-nameservers 192.168.1.1 192.168.0.1
+EOL
+root@debian:~# systemctl restart networking
+root@debian:~#
+```
 
-**CentOS 7.9** 
 
-**换源**
+
+# **CentOS**
+
+## 模板制作
+
+```bash
+# 1. 清除网卡配置信息
+cd /etc/sysconfig/network-scripts/
+cat <<EOL> ifcfg-ens32           # 这里根据网卡名称更改
+TYPE=Ethernet
+BOOTPROTO=dhcp
+NAME=ens32
+DEVICE=ens32
+ONBOOT=yes
+EOL
+cat ifcfg-ens32
+
+# 2. 清除密钥信息
+rm -rf /etc/ssh/ssh_host_*
+
+# 3. 清除 machine id
+cat /dev/null > /etc/machine-id
+cat /etc/machine-id
+
+# 6. 关闭防火墙及 selinux
+setenforce 0
+sed -i 's/^SELINUX=enforcing/SELINUX=disabled/' /etc/selinux/config
+cat /etc/selinux/config | grep ^SELINUX=
+systemctl stop firewalld ; systemctl disable firewalld
+
+# 5. 关闭虚拟机
+poweroff
+
+记得不要再开启了，通过完整克隆即可发放新的虚拟机
+```
+
+
+
+## **CentOS 7.9** 
+
+### **换源**
 
 本地源
 
-mount /dev/cdrom /mnt rm -rf /etc/yum.repos.d/* cat <<EOL> /etc/yum.repos.d/local.repo [local] name=local baseurl=file:///mnt enable=1 gpgcheck=0 EOL yum clean all yum makecache
+```bash
+mount /dev/cdrom /mnt
+rm -rf /etc/yum.repos.d/*
+cat <<EOL> /etc/yum.repos.d/local.repo
+[local]
+name=local
+baseurl=file:///mnt
+enable=1
+gpgcheck=0
+EOL
 
-阿里源
+yum clean all
+yum makecache
+```
 
-cd /etc/yum.repos.d rm -rf * ls # 上传两个 repo 文件到 /etc/yum.repos.d sed -i 's/$releasever/7.9.2009/g' /etc/yum.repos.d/Centos-7.repo yum clean all yum makecache sed -i 's/$releasever/7/g' /etc/yum.repos.d/epel-7.repo yum makecache
+### **安装 Docker**
 
-​    ![epel-7.repo](https://note.youdao.com/yws/res/3997/6F7F19C7A9D847898952138D0E94CA96)
+```bash
+yum install -y yum-utils
+yum-config-manager --add-repo http://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo
+yum install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+docker -v
+```
 
-​    ![Centos-7.repo](https://note.youdao.com/yws/res/3996/353075F6499F4648B9CDB0069C3E16AD)
+### **安装图形界面**
 
-**安装 Docker**
+```bash
+sudo yum groupinstall "GNOME Desktop" -y            # 安装 GNOME 桌面环境
+sudo systemctl set-default graphical.target            # 设置图形界面为默认启动目标
+sudo systemctl start graphical.target            # 启动图形界面服务
+```
 
-yum install -y yum-utils yum-config-manager --add-repo http://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo yum install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin docker -v
+### **配置静态 ip**
 
-**WebFtp -- Filebrowser**
+```bash
+cat <<EOL> /etc/sysconfig/network-scripts/ifcfg-ens33           # 这里根据网卡名称更改
+TYPE=Ethernet
+BOOTPROTO=static
+NAME=ens33
+DEVICE=ens33
+ONBOOT=yes
 
-[Installation | File Browser](https://filebrowser.org/installation)
+IPADDR=192.168.1.100
+PREFIX=24
+GATEWAY=192.168.1.1
+DNS1=114.114.114.114
+DNS2=8.8.8.8
+EOL
+cat /etc/sysconfig/network-scripts/ifcfg-ens33
+```
 
-docker run -d --name filebrowser -v "$PWD/filebrowser":/srv -p 8080:80 --user root filebrowser/filebrowser
+## **Centos 8** 
 
-**安装图形界面**
+### **本地源**
 
-sudo yum groupinstall "GNOME Desktop" -y            # 安装 GNOME 桌面环境 sudo systemctl set-default graphical.target            # 设置图形界面为默认启动目标 sudo systemctl start graphical.target            # 启动图形界面服务
+```bash
+mount /dev/cdrom /mnt
 
-**配置静态 ip**
+mkdir /etc/yum.repos.d/bak
+mv /etc/yum.repos.d/*.repo /etc/yum.repos.d/bak/
 
-cat <<EOL> /etc/sysconfig/network-scripts/ifcfg-ens33           # 这里根据网卡名称更改 TYPE=Ethernet BOOTPROTO=static NAME=ens33 DEVICE=ens33 ONBOOT=yes IPADDR=192.168.1.100 PREFIX=24 GATEWAY=192.168.1.1 DNS1=114.114.114.114 DNS2=8.8.8.8 EOL cat /etc/sysconfig/network-scripts/ifcfg-ens33
+cat <<EOF >/etc/yum.repos.d/abc.repo
+[baseos]
+name = baseos
+baseurl = file:///mnt/BaseOS/
+gpgcheck = 0
 
-**Centos 8** 
+[app]
+name = app
+baseurl = file:///mnt/AppStream/
+gpgcheck = 0
+EOF
 
-**本地源**
+yum clean all
+yum repolist all
 
-挂载镜像后
 
-mount /dev/cdrom /mnt mkdir /etc/yum.repos.d/bak mv /etc/yum.repos.d/*.repo /etc/yum.repos.d/bak/ cat <<EOF >/etc/yum.repos.d/abc.repo [baseos] name = baseos baseurl = file:///mnt/BaseOS/ gpgcheck = 0 [app] name = app baseurl = file:///mnt/AppStream/ gpgcheck = 0 EOF yum clean all yum repolist all  yum install -y vim net-tools bash-completion yum-utils
+yum install -y vim net-tools bash-completion yum-utils
+```
 
-**Ubuntu**
+# **Ubuntu**
 
-**模板**
+## **模板**
 
-cat <<EOL> ubuntu.sh #!/bin/bash set -e        # 遇到错误立即停止 ufw disable apt update apt install -y vim net-tools lrzsz wget tree lsof tcpdump screen sysstat unzip iputils-ping apt clean rm -rf /var/lib/apt/lists/* # 清 SSH key rm -f /etc/ssh/ssh_host_* # machine-id truncate -s 0 /etc/machine-id rm -f /var/lib/dbus/machine-id # 清理 Shell 历史和日志 cat /dev/null > /var/log/wtmp cat /dev/null > /var/log/btmp hostnamectl set-hostname localhost poweroff EOL bash ubuntu.sh # 每台虚拟机单独配置静态 IP sudo rm -rf /etc/netplan/50-cloud-init.yaml ls -l /etc/netplan/ sudo cat <<EOF> /etc/netplan/01-static.yaml network:  version: 2  renderer: networkd  ethernets:    ens32:      dhcp4: false      addresses:        - 192.168.0.10/24      routes:        - to: default          via: 192.168.0.1      nameservers:        addresses:          - 192.168.1.1          - 192.168.0.1 EOF ls -l /etc/netplan/ sudo netplan try sudo netplan apply sudo tee /etc/cloud/cloud.cfg.d/99-disable-network-config.cfg <<EOF network: {config: disabled} EOF reboot
+```bash
+cat <<EOL> ubuntu.sh
+#!/bin/bash
+set -e        # 遇到错误立即停止
 
-**卸载 snap**	
+ufw disable
 
-sudo systemctl stop snapd sudo apt purge snapd -y sudo rm -rf /snap /var/snap /var/lib/snapd
+apt update
+apt install -y vim net-tools lrzsz wget tree lsof tcpdump screen sysstat unzip iputils-ping
+apt clean
+rm -rf /var/lib/apt/lists/*
 
-**环境配置**
+# 清 SSH key
+rm -f /etc/ssh/ssh_host_*
 
-**硬盘分区**
+# machine-id
+truncate -s 0 /etc/machine-id
+rm -f /var/lib/dbus/machine-id
+
+# 清理 Shell 历史和日志
+cat /dev/null > /var/log/wtmp
+cat /dev/null > /var/log/btmp
+
+hostnamectl set-hostname localhost
+
+poweroff
+EOL
+bash ubuntu.sh
+
+# 每台虚拟机单独配置静态 IP
+sudo rm -rf /etc/netplan/50-cloud-init.yaml
+ls -l /etc/netplan/
+
+sudo cat <<EOF> /etc/netplan/01-static.yaml
+network:
+  version: 2
+  renderer: networkd
+  ethernets:
+    ens32:
+      dhcp4: false
+      addresses:
+        - 192.168.0.10/24
+      routes:
+        - to: default
+          via: 192.168.0.1
+      nameservers:
+        addresses:
+          - 192.168.1.1
+          - 192.168.0.1
+EOF
+ls -l /etc/netplan/
+sudo netplan try
+sudo netplan apply
+
+sudo tee /etc/cloud/cloud.cfg.d/99-disable-network-config.cfg <<EOF
+network: {config: disabled}
+EOF
+
+reboot
+```
+
+## **卸载 snap**	
+
+```bash
+sudo systemctl stop snapd
+sudo apt purge snapd -y
+sudo rm -rf /snap /var/snap /var/lib/snapd
+```
+
+# **环境配置**
+
+## **硬盘分区**
 
 刚安装的新硬盘被 Linux 系统识别后，并不会立即出现在你的文件系统目录树中任意一个你能直接访问的文件夹里。
 
@@ -385,7 +587,7 @@ root@debian:~# timeshift --restore
 root@debian:~# timeshift --delete --snapshot '2025-09-11_23-50-00'
 ```
 
-## 监控脚本
+# 监控脚本
 
 ```bash
 # ubuntu 官方
@@ -409,7 +611,7 @@ root@node2:~# /etc/update-motd.d/50-landscape-sysinfo
 root@node2:~# 
 ```
 
-## 工具使用
+# 工具使用
 
 ### SCP
 
@@ -477,21 +679,19 @@ unrar x 文件名.rar            # 解压到当前目录
 unrar x 文件名.rar /目标路径/            # 解压到指定目录
 ```
 
+# **常用命令**
 
+## **查看系统信息**
 
-**常用命令**
-
-**查看系统信息**
-
-**Linux 硬件信息**
+### **Linux 硬件信息**
 
 \# 查看系统版本信息 cat /etc/os-release cat /etc/centos-release        # 系统的具体版本信息 uname -r        # 显示内核版本 # 主板信息 dmidecode | grep -i 'serial number' # cpu 信息 1. cat /proc/cpuinfo 2. dmesg | grep -i 'cpu' # 硬盘信息 fdisk -l            # 查看分区情况 df -h            # 查看大小情况 du -h            # 查看使用情况 dmesdg | grep sda            # 查看具体的硬盘设备 # 内存信息 1. cat /proc/meminfo 2. dmesg | grep mem 3. free -m 4. vmstat 5. dmidecode | grep -i mem # 网卡信息 1. demsg | grep -i 'eth' 2. lspci | grep -i 'eth'
 
-**所有监听端口 (TCP & UDP) 并显示进程信息**
+### **所有监听端口 (TCP & UDP) 并显示进程信息**
 
 sudo ss -tulnp -t: 显示 TCP 端口 -u: 显示 UDP 端口 -l: 仅显示监听状态的端口 -n: 不解析服务名称，直接显示端口号 -p: 显示关联的进程信息 (PID 和程序名)
 
-**目标节点开放了哪些端口**
+### **目标节点开放了哪些端口**
 
 telnet （需要安装）只能检查 tcp 端口
 
@@ -503,17 +703,17 @@ telnet <目标IP> <端口号>
 
 Nmap 可以同时检查目标节点开放的 TCP 和 UDP 端口
 
-**查找目标文件**
+### **查找目标文件**
 
 场景：我现在想查找 Linux 系统中的某一个文件
 
 find / -type f -name "kwrt-*.img" -ls 2>/dev/null /    表示从根目录开始搜索 -type f    表示只查找文件（不包括目录） -name "kwrt-*.img"    指定文件名模式 -ls    查看文件详细信息 2>/dev/null    将错误信息重定向到空设备，避免权限不足的提示干扰
 
-**当前正在运行的服务**
+### **当前正在运行的服务**
 
 systemctl list-units --type=service --state=running
 
-**所有已安装的服务及状态**
+### **所有已安装的服务及状态**
 
 service --status-all
 
@@ -523,13 +723,13 @@ service --status-all
 
 带 [ ? ] 表示无法确定（不兼容 systemd 的老脚本）
 
-**进程**
+### **进程**
 
 如果只是想看后台运行的守护进程，可以用：
 
 ps aux | grep daemon 或者更广泛的： ps -ef
 
-**用户组**
+### **用户组**
 
 查看系统所有用户组
 
@@ -539,37 +739,461 @@ cat /etc/group
 
 groups libix id libix
 
-**sed**
+### **sed**
 
 一次性删除配置文件中所有 # 和 ; 开头的注释行，并直接修改原文件，同时保留空行和有效配置
 
 sudo cp <filename> <filename>.bak sudo sed -i '/^\s*[#;]/d' <filename>
 
-**使用 Wordpress + Mariadb 搭建博客**
+# **使用 Wordpress + Mariadb 搭建博客**
 
-\# 在 Centos7.9 系统上 cd /etc/yum.repos.d rm -rf * ls setenforce 0 systemctl stop firewalld # 将 repo 文件传输过去 sed -i 's/$releasever/7.9.2009/g' /etc/yum.repos.d/Centos-7.repo yum clean all yum makecache sed -i 's/$releasever/7/g' /etc/yum.repos.d/epel-7.repo yum makecache yum install httpd -y systemctl start httpd systemctl enable httpd # 安装 php 7.4  yum update -y yum install epel-release -y yum install -y https://rpms.remirepo.net/enterprise/remi-release-7.rpm yum-config-manager --enable remi-php74 yum install -y yum-utils yum install -y php php-cli php-fpm php-common yum install -y php-mysqlnd php-gd php-mbstring php-xml php-curl php-zip php-opcache php -v cat <<EOL> /var/www/html/info.php <!DOCTYPE html> <html> <body>    <?php        phpinfo();    ?> </body> </html> EOL systemctl restart httpd # 此时 http://IP/info.php 可以访问 sudo yum install -y mariadb-server mariadb sudo systemctl start mariadb sudo systemctl enable mariadb sudo mysql_secure_installation # enter > yes >redhat > redhat> yes > no > yes > yes mysql -u root -p CREATE DATABASE wordpress; CREATE USER 'wpuser'@'%' IDENTIFIED BY 'redhat'; GRANT ALL PRIVILEGES ON wordpress.* TO 'wpuser'@'%'; FLUSH PRIVILEGES; EXIT; :>' SHOW DATABASES;            # 显示所有数据库 DROP DATABASE wordpress;            # 彻底删除数据库 DROP USER 'wpuser'@'%';            # 删除用户信息 FLUSH PRIVILEGES;            # 立即刷新权限             ' yum install -y unzip unzip wordpress-*.zip cp -rf wordpress/* /var/www/html/ chown -R apache:apache /var/www/html/ chmod -R 755 /var/www/html/ mkdir -p /var/www/html/wp-content/uploads chown -R apache:apache /var/www/html/wp-content/uploads cd /var/www/html sudo cp wp-config-sample.php wp-config.php  vi wp-config.php define('DB_NAME', 'wordpress'); define('DB_USER', 'wpuser'); define('DB_PASSWORD', 'redhat');  systemctl restart httpd systemctl restart mariadb  # 还原环境 cd /var/www/html rm -rf * mysql -u root -p SHOW DATABASES;  DROP DATABASE wordpress; DROP USER 'wpuser'@'%'; FLUSH PRIVILEGES; EXIT;
+```bash
+# 在 Centos7.9 系统上
+cd /etc/yum.repos.d
+rm -rf *
+ls
+setenforce 0
+systemctl stop firewalld
 
-**科学上网**
+# 将 repo 文件传输过去
+sed -i 's/$releasever/7.9.2009/g' /etc/yum.repos.d/Centos-7.repo
+yum clean all
+yum makecache
+sed -i 's/$releasever/7/g' /etc/yum.repos.d/epel-7.repo
+yum makecache
 
-**安装 Clash Verge**
+yum install httpd -y
+systemctl start httpd
+systemctl enable httpd
+
+
+# 安装 php 7.4 
+yum update -y
+yum install epel-release -y
+yum install -y https://rpms.remirepo.net/enterprise/remi-release-7.rpm
+yum-config-manager --enable remi-php74
+yum install -y yum-utils
+yum install -y php php-cli php-fpm php-common
+yum install -y php-mysqlnd php-gd php-mbstring php-xml php-curl php-zip php-opcache
+php -v
+
+
+cat <<EOL> /var/www/html/info.php
+<!DOCTYPE html>
+<html>
+<body>
+    <?php
+        phpinfo();
+    ?>
+</body>
+</html>
+EOL
+
+systemctl restart httpd
+# 此时 http://IP/info.php 可以访问
+
+sudo yum install -y mariadb-server mariadb
+sudo systemctl start mariadb
+sudo systemctl enable mariadb
+
+sudo mysql_secure_installation
+
+# enter > yes >redhat > redhat> yes > no > yes > yes
+
+mysql -u root -p
+CREATE DATABASE wordpress;
+CREATE USER 'wpuser'@'%' IDENTIFIED BY 'redhat';
+GRANT ALL PRIVILEGES ON wordpress.* TO 'wpuser'@'%';
+FLUSH PRIVILEGES;
+EXIT;
+
+:>'
+SHOW DATABASES;            # 显示所有数据库
+DROP DATABASE wordpress;            # 彻底删除数据库
+DROP USER 'wpuser'@'%';            # 删除用户信息
+FLUSH PRIVILEGES;            # 立即刷新权限            
+'
+yum install -y unzip
+unzip wordpress-*.zip
+
+cp -rf wordpress/* /var/www/html/
+chown -R apache:apache /var/www/html/
+chmod -R 755 /var/www/html/
+mkdir -p /var/www/html/wp-content/uploads
+chown -R apache:apache /var/www/html/wp-content/uploads
+
+cd /var/www/html
+sudo cp wp-config-sample.php wp-config.php
+
+
+vi wp-config.php
+
+define('DB_NAME', 'wordpress');
+define('DB_USER', 'wpuser');
+define('DB_PASSWORD', 'redhat');
+
+
+systemctl restart httpd
+systemctl restart mariadb
+
+
+
+
+
+# 还原环境
+cd /var/www/html
+rm -rf *
+
+mysql -u root -p
+SHOW DATABASES; 
+DROP DATABASE wordpress;
+DROP USER 'wpuser'@'%';
+FLUSH PRIVILEGES;
+EXIT;
+```
+
+# PXE
+
+```bash
+apt update
+apt install dnsmasq -y
+mkdir -p /srv/tftp
+chmod -R 755 /srv/tftp
+cd /srv/tftp
+# 下载适用于 amd64 架构的 Debian 12 (Bookworm) netboot 包
+wget https://ftp.debian.org/debian/dists/bookworm/main/installer-amd64/current/images/netboot/netboot.tar.gz
+tar -xzvf netboot.tar.gz
+mv /etc/dnsmasq.conf /etc/dnsmasq.conf.bak
+vi /etc/dnsmasq.conf
+systemctl restart dnsmasq ; systemctl status dnsmasq
+```
+
+
+
+# **科学上网**
+
+## **安装 Clash Verge**
 
 https://github.com/clash-verge-rev/clash-verge-rev
 
-**Centos 7.9 配置 Xray**
+## **Centos 7.9 配置 Xray**
 
-\# 下载并运行 Xray 安装脚本 sudo bash -c "$(curl -L https://raw.githubusercontent.com/XTLS/Xray-install/main/install-release.sh)" @ install --beta cat <<EOL> /usr/local/etc/xray/config.json {  "log": {    "loglevel": "warning"  },  "dns": {    "hosts": {      "dns.google": "8.8.8.8",      "proxy.example.com": "127.0.0.1"    },    "servers": [      {        "address": "1.1.1.1",        "skipFallback": true,        "domains": [          "domain:googleapis.cn",          "domain:gstatic.com"        ]      },      {        "address": "223.5.5.5",        "skipFallback": true,        "domains": [          "geosite:cn"        ],        "expectIPs": [          "geoip:cn"        ]      },      "1.1.1.1",      "8.8.8.8",      "https://dns.google/dns-query"    ]  },  "inbounds": [    {      "tag": "socks",      "port": 10808,      "listen": "127.0.0.1",      "protocol": "socks",      "sniffing": {        "enabled": true,        "destOverride": [          "http",          "tls"        ],        "routeOnly": false      },      "settings": {        "auth": "noauth",        "udp": true,        "allowTransparent": false      }    }  ],  "outbounds": [    {      "tag": "proxy",      "protocol": "vless",      "settings": {        "vnext": [          {            "address": "216.24.189.26",            "port": 443,            "users": [              {                "id": "3e70fa55-14f3-415b-bff8-f41a5430c7f6",                "email": "t@t.tt",                "security": "auto",                "encryption": "none",                "flow": "xtls-rprx-vision"              }            ]          }        ]      },      "streamSettings": {        "network": "tcp",        "security": "reality",        "realitySettings": {          "serverName": "defineabc.com",          "fingerprint": "chrome",          "show": false,          "publicKey": "R2gKMF0Tetlnesc1pPkZH9NaOeehw-f5_U9JKG_cLjU",          "shortId": "",          "spiderX": ""        }      },      "mux": {        "enabled": false,        "concurrency": -1      }    },    {      "tag": "direct",      "protocol": "freedom"    },    {      "tag": "block",      "protocol": "blackhole"    }  ],  "routing": {    "domainStrategy": "AsIs",    "rules": [      {        "type": "field",        "inboundTag": [          "api"        ],        "outboundTag": "api"      },      {        "type": "field",        "outboundTag": "proxy",        "domain": [          "domain:googleapis.cn",          "domain:gstatic.com"        ]      },      {        "type": "field",        "port": "443",        "network": "udp",        "outboundTag": "block"      },      {        "type": "field",        "outboundTag": "direct",        "ip": [          "geoip:private"        ]      },      {        "type": "field",        "outboundTag": "direct",        "domain": [          "geosite:private"        ]      },      {        "type": "field",        "outboundTag": "direct",        "ip": [          "223.5.5.5",          "223.6.6.6",          "2400:3200::1",          "2400:3200:baba::1",          "119.29.29.29",          "1.12.12.12",          "120.53.53.53",          "2402:4e00::",          "2402:4e00:1::",          "180.76.76.76",          "2400:da00::6666",          "114.114.114.114",          "114.114.115.115",          "114.114.114.119",          "114.114.115.119",          "114.114.114.110",          "114.114.115.110",          "180.184.1.1",          "180.184.2.2",          "101.226.4.6",          "218.30.118.6",          "123.125.81.6",          "140.207.198.6",          "1.2.4.8",          "210.2.4.8",          "52.80.66.66",          "117.50.22.22",          "2400:7fc0:849e:200::4",          "2404:c2c0:85d8:901::4",          "117.50.10.10",          "52.80.52.52",          "2400:7fc0:849e:200::8",          "2404:c2c0:85d8:901::8",          "117.50.60.30",          "52.80.60.30"        ]      },      {        "type": "field",        "outboundTag": "direct",        "domain": [          "domain:alidns.com",          "domain:doh.pub",          "domain:dot.pub",          "domain:360.cn",          "domain:onedns.net"        ]      },      {        "type": "field",        "outboundTag": "direct",        "ip": [          "geoip:cn"        ]      },      {        "type": "field",        "outboundTag": "direct",        "domain": [          "geosite:cn"        ]      }    ]  } } EOL systemctl start xray systemctl status xray systemctl enable xray # 查看实时日志 journalctl -u xray -f # 创建代理配置文件 cat <<EOL> /etc/profile.d/xray_proxy.sh export ALL_PROXY="socks5://127.0.0.1:10808" export http_proxy="http://127.0.0.1:10808" export https_proxy="http://127.0.0.1:10808" export no_proxy="localhost,127.0.0.1,*.internal.com" EOL # 刷新配置 source /etc/profile # 临时配置命令行代理 curl -v -x socks5h://127.0.0.1:10808 https://www.youtube.com/
+```bash
+# 下载并运行 Xray 安装脚本
+sudo bash -c "$(curl -L https://raw.githubusercontent.com/XTLS/Xray-install/main/install-release.sh)" @ install --beta
 
-**拉取 Docker hub 镜像**
+cat <<EOL> /usr/local/etc/xray/config.json
+{
+  "log": {
+    "loglevel": "warning"
+  },
+  "dns": {
+    "hosts": {
+      "dns.google": "8.8.8.8",
+      "proxy.example.com": "127.0.0.1"
+    },
+    "servers": [
+      {
+        "address": "1.1.1.1",
+        "skipFallback": true,
+        "domains": [
+          "domain:googleapis.cn",
+          "domain:gstatic.com"
+        ]
+      },
+      {
+        "address": "223.5.5.5",
+        "skipFallback": true,
+        "domains": [
+          "geosite:cn"
+        ],
+        "expectIPs": [
+          "geoip:cn"
+        ]
+      },
+      "1.1.1.1",
+      "8.8.8.8",
+      "https://dns.google/dns-query"
+    ]
+  },
+  "inbounds": [
+    {
+      "tag": "socks",
+      "port": 10808,
+      "listen": "127.0.0.1",
+      "protocol": "socks",
+      "sniffing": {
+        "enabled": true,
+        "destOverride": [
+          "http",
+          "tls"
+        ],
+        "routeOnly": false
+      },
+      "settings": {
+        "auth": "noauth",
+        "udp": true,
+        "allowTransparent": false
+      }
+    }
+  ],
+  "outbounds": [
+    {
+      "tag": "proxy",
+      "protocol": "vless",
+      "settings": {
+        "vnext": [
+          {
+            "address": "216.24.189.26",
+            "port": 443,
+            "users": [
+              {
+                "id": "3e70fa55-14f3-415b-bff8-f41a5430c7f6",
+                "email": "t@t.tt",
+                "security": "auto",
+                "encryption": "none",
+                "flow": "xtls-rprx-vision"
+              }
+            ]
+          }
+        ]
+      },
+      "streamSettings": {
+        "network": "tcp",
+        "security": "reality",
+        "realitySettings": {
+          "serverName": "defineabc.com",
+          "fingerprint": "chrome",
+          "show": false,
+          "publicKey": "R2gKMF0Tetlnesc1pPkZH9NaOeehw-f5_U9JKG_cLjU",
+          "shortId": "",
+          "spiderX": ""
+        }
+      },
+      "mux": {
+        "enabled": false,
+        "concurrency": -1
+      }
+    },
+    {
+      "tag": "direct",
+      "protocol": "freedom"
+    },
+    {
+      "tag": "block",
+      "protocol": "blackhole"
+    }
+  ],
+  "routing": {
+    "domainStrategy": "AsIs",
+    "rules": [
+      {
+        "type": "field",
+        "inboundTag": [
+          "api"
+        ],
+        "outboundTag": "api"
+      },
+      {
+        "type": "field",
+        "outboundTag": "proxy",
+        "domain": [
+          "domain:googleapis.cn",
+          "domain:gstatic.com"
+        ]
+      },
+      {
+        "type": "field",
+        "port": "443",
+        "network": "udp",
+        "outboundTag": "block"
+      },
+      {
+        "type": "field",
+        "outboundTag": "direct",
+        "ip": [
+          "geoip:private"
+        ]
+      },
+      {
+        "type": "field",
+        "outboundTag": "direct",
+        "domain": [
+          "geosite:private"
+        ]
+      },
+      {
+        "type": "field",
+        "outboundTag": "direct",
+        "ip": [
+          "223.5.5.5",
+          "223.6.6.6",
+          "2400:3200::1",
+          "2400:3200:baba::1",
+          "119.29.29.29",
+          "1.12.12.12",
+          "120.53.53.53",
+          "2402:4e00::",
+          "2402:4e00:1::",
+          "180.76.76.76",
+          "2400:da00::6666",
+          "114.114.114.114",
+          "114.114.115.115",
+          "114.114.114.119",
+          "114.114.115.119",
+          "114.114.114.110",
+          "114.114.115.110",
+          "180.184.1.1",
+          "180.184.2.2",
+          "101.226.4.6",
+          "218.30.118.6",
+          "123.125.81.6",
+          "140.207.198.6",
+          "1.2.4.8",
+          "210.2.4.8",
+          "52.80.66.66",
+          "117.50.22.22",
+          "2400:7fc0:849e:200::4",
+          "2404:c2c0:85d8:901::4",
+          "117.50.10.10",
+          "52.80.52.52",
+          "2400:7fc0:849e:200::8",
+          "2404:c2c0:85d8:901::8",
+          "117.50.60.30",
+          "52.80.60.30"
+        ]
+      },
+      {
+        "type": "field",
+        "outboundTag": "direct",
+        "domain": [
+          "domain:alidns.com",
+          "domain:doh.pub",
+          "domain:dot.pub",
+          "domain:360.cn",
+          "domain:onedns.net"
+        ]
+      },
+      {
+        "type": "field",
+        "outboundTag": "direct",
+        "ip": [
+          "geoip:cn"
+        ]
+      },
+      {
+        "type": "field",
+        "outboundTag": "direct",
+        "domain": [
+          "geosite:cn"
+        ]
+      }
+    ]
+  }
+}
+EOL
 
-\# 使用 daemon.json 配置 Docker 代理 cat <<EOL> /etc/docker/daemon.json {  "proxies": {    "http-proxy": "http://127.0.0.1:10808",    "https-proxy": "http://127.0.0.1:10808",    "no-proxy": "localhost,127.0.0.1,docker-registry.somecorporation.com"  } } EOL # 临时为 Docker CLI 命令设置代理  HTTP_PROXY="http://127.0.0.1:10808" HTTPS_PROXY="http://127.0.0.1:10808" docker pull [镜像名]
+systemctl start xray
+systemctl status xray
+systemctl enable xray
 
-**将服务器配置为代理服务器**
+# 查看实时日志
+journalctl -u xray -f
 
-修改 Xray 配置文件 /usr/local/etc/xray/config.json 修改 inbounds 部分的 listen 地址：将 listen": "127.0.0.1" 改为 listen": "0.0.0.0"。 0.0.0.0 意味着 Xray 会监听服务器上所有的网络接口。  配置代理客户端： 在代理客户端应用中，创建一个新的代理配置： 协议 (Protocol)： 选择 SOCKS5。 地址 (Address/Server)： 填写你 CentOS 服务器的 公网 IP 地址。 端口 (Port)： 填写 10808。 认证 (Authentication)： 你的 Xray 配置中 auth 是 noauth，所以不需要填写用户名和密码。'
+# 创建代理配置文件
+cat <<EOL> /etc/profile.d/xray_proxy.sh
+export ALL_PROXY="socks5://127.0.0.1:10808"
+export http_proxy="http://127.0.0.1:10808"
+export https_proxy="http://127.0.0.1:10808"
+export no_proxy="localhost,127.0.0.1,*.internal.com"
+EOL
+# 刷新配置
+source /etc/profile
+
+# 临时配置命令行代理
+curl -v -x socks5h://127.0.0.1:10808 https://www.youtube.com/
+
+```
+
+## **拉取 Docker hub 镜像**
+
+```bash
+# 使用 daemon.json 配置 Docker 代理
+cat <<EOL> /etc/docker/daemon.json
+{
+  "proxies": {
+    "http-proxy": "http://127.0.0.1:10808",
+    "https-proxy": "http://127.0.0.1:10808",
+    "no-proxy": "localhost,127.0.0.1,docker-registry.somecorporation.com"
+  }
+}
+EOL
+
+# 临时为 Docker CLI 命令设置代理 
+HTTP_PROXY="http://127.0.0.1:10808" HTTPS_PROXY="http://127.0.0.1:10808" docker pull [镜像名]
+```
+
+
+
+### **将服务器配置为代理服务器**
+
+```bash
+修改 Xray 配置文件 /usr/local/etc/xray/config.json
+修改 inbounds 部分的 listen 地址：将 listen": "127.0.0.1" 改为 listen": "0.0.0.0"。
+0.0.0.0 意味着 Xray 会监听服务器上所有的网络接口。
+
+
+配置代理客户端：
+在代理客户端应用中，创建一个新的代理配置：
+协议 (Protocol)： 选择 SOCKS5。
+地址 (Address/Server)： 填写你 CentOS 服务器的 公网 IP 地址。
+端口 (Port)： 填写 10808。
+认证 (Authentication)： 你的 Xray 配置中 auth 是 noauth，所以不需要填写用户名和密码。'
+```
 
 **桌面 Linux**
 
-\### 配置阿里云软件源 sudo cp /etc/apt/sources.list /etc/apt/sources.list.bak cat <<EOL> /etc/apt/sources.list deb https://mirrors.aliyun.com/debian/ bookworm main contrib non-free non-free-firmware deb https://mirrors.aliyun.com/debian-security/ bookworm-security main deb https://mirrors.aliyun.com/debian/ bookworm-updates main contrib non-free deb https://mirrors.aliyun.com/debian/ bookworm-backports main contrib non-free EOL sudo apt update && sudo apt upgrade -y # 显示 Dock 栏 sudo apt install gnome-shell-extension-manager        # 安装扩展管理器  ### 卸载 firefox-esr sudo apt remove firefox-esr  # 卸载Firefox主程序，保留配置文件 sudo apt purge firefox-esr  # 完全删除Firefox及其配置文件 sudo apt autoremove    # 清理残留依赖包 rm -rf ~/.mozilla/firefox-esr  # 删除用户配置目录（书签等数据将被清除） rm -rf ~/.cache/mozilla    # 清理缓存 dpkg -l | grep firefox-esr  # 若输出为空，表示卸载成功  ## 安装的字体位置 /home/libix/.local/share/fonts  ## 卸载 sudo vmware-installer -u vmware-workstation sudo rm -rf /usr/lib/vmware sudo rm -rf /etc/vmware sudo rm -rf ~/.vmware ### snap 安装软件后卸载 sudo snap remove 「软件名」 sudo snap remove --purge 「软件名」
+```bash
+### 配置阿里云软件源
+sudo cp /etc/apt/sources.list /etc/apt/sources.list.bak
+
+cat <<EOL> /etc/apt/sources.list
+deb https://mirrors.aliyun.com/debian/ bookworm main contrib non-free non-free-firmware
+deb https://mirrors.aliyun.com/debian-security/ bookworm-security main
+deb https://mirrors.aliyun.com/debian/ bookworm-updates main contrib non-free
+deb https://mirrors.aliyun.com/debian/ bookworm-backports main contrib non-free
+EOL
+
+sudo apt update && sudo apt upgrade -y
+
+# 显示 Dock 栏
+sudo apt install gnome-shell-extension-manager        # 安装扩展管理器
+
+
+### 卸载 firefox-esr
+sudo apt remove firefox-esr  # 卸载Firefox主程序，保留配置文件
+sudo apt purge firefox-esr  # 完全删除Firefox及其配置文件
+sudo apt autoremove    # 清理残留依赖包
+rm -rf ~/.mozilla/firefox-esr  # 删除用户配置目录（书签等数据将被清除）
+rm -rf ~/.cache/mozilla    # 清理缓存
+dpkg -l | grep firefox-esr  # 若输出为空，表示卸载成功
+
+
+## 安装的字体位置
+/home/libix/.local/share/fonts
+
+
+
+## 卸载
+sudo vmware-installer -u vmware-workstation
+sudo rm -rf /usr/lib/vmware
+sudo rm -rf /etc/vmware
+sudo rm -rf ~/.vmware
+
+### snap 安装软件后卸载
+sudo snap remove 「软件名」
+sudo snap remove --purge 「软件名」
+```
 
 **更改 GNOME 桌面字体**
 
@@ -619,13 +1243,14 @@ stage {
 
 **Vmware Workstation Pro 安装**
 
-\## 下载依赖
+```bash
+## 下载依赖
 
 sudo apt update && sudo apt upgrade -y
 
 sudo apt install build-essential linux-headers-$(uname -r) -y
 
-\# 进入安装包所在目录
+# 进入安装包所在目录
 
 chmod +x VMware-Workstation-Full-*.bundle
 
@@ -633,18 +1258,80 @@ sudo ./VMware-Workstation-Full-*.bundle
 
 sudo vmware-modconfig --console --install-all
 
-\## 出现内核问题，打开虚拟机如下图问题
+## 出现内核问题，打开虚拟机如下图问题
 
 
 
-\# 进入 Bios 将 sercue boot 设置为 disable
+# 进入 Bios 将 sercue boot 设置为 disable
 
 mokutil --sb-state		# 检查 sercue boot 的状态
 
 sudo /etc/init.d/vmware restart
+```
 
-**NAS**
+# **NAS**
 
-**配置自动备份**
+## **配置自动备份**
 
-root@Debian-Server:~# ls backup.log  backup.sh  timeshift root@Debian-Server:~# cat <<EOL> backup.sh #!/bin/bash echo "$(date '+[%Y-%m-%d %H:%M:%S]') - Backup task started." /bin/cp -auv /mnt/fun-share/life/* /mnt/resource-share/life/ /bin/cp -auv /mnt/resource-share/life/* /mnt/fun-share/life/ echo "$(date '+[%Y-%m-%d %H:%M:%S]') - Backup success!" EOL root@Debian-Server:~# crontab -u root -l */10 * * * * /root/backup.sh >> /root/backup.log 2>&1 root@Debian-Server:~#
+```bash
+root@Debian-Server:~# ls
+backup.log  backup.sh  timeshift
+
+root@Debian-Server:~# cat <<EOL> backup.sh
+#!/bin/bash
+echo "$(date '+[%Y-%m-%d %H:%M:%S]') - Backup task started."
+/bin/cp -auv /mnt/fun-share/life/* /mnt/resource-share/life/
+/bin/cp -auv /mnt/resource-share/life/* /mnt/fun-share/life/
+echo "$(date '+[%Y-%m-%d %H:%M:%S]') - Backup success!"
+EOL
+
+root@Debian-Server:~# crontab -u root -l
+*/10 * * * * /root/backup.sh >> /root/backup.log 2>&1
+
+
+root@Debian-Server:~# cat samba.sh
+#!/bin/bash
+
+SERVER="192.168.1.100"
+USER="libix"
+PASS="redhat"   # 这里填你的真实密码，或者用凭证文件更安全
+
+ping $SERVER -c 4
+
+# 挂载点
+MNT_FUN="$HOME/$SERVER/fun"
+MNT_RES="$HOME/$SERVER/resource"
+
+# 创建目录（如果不存在）
+mkdir -p "$MNT_FUN" "$MNT_RES"
+
+# 挂载共享
+smbclient -L $SERVER -U $USER%$PASS --option='client min protocol=SMB2' --option='client max protocol=SMB3'
+
+sudo mount -t cifs "//$SERVER/fun" "$MNT_FUN" -o username=$USER,password=$PASS,vers=3.0,uid=$(id -u),gid=$(id -g)
+sudo mount -t cifs "//$SERVER/resource" "$MNT_RES" -o username=$USER,password=$PASS,vers=3.0,uid=$(id -u),gid=$(id -g)
+
+echo "
+Samba shares mounted:
+  fun      -> $MNT_FUN
+  resource -> $MNT_RES"
+
+ssh root@192.168.1.100
+
+sudo umount "//$SERVER/fun" "$MNT_FUN"
+sudo umount "//$SERVER/resource" "$MNT_RES"
+ 
+echo "
+-------------------------------------------------------------------------------------------------------------------------------------------
+smbclient -L 192.168.1.100 -U libix%redhat --option='client min protocol=SMB2' --option='client max protocol=SMB3'		
+																
+sudo mount -t cifs //192.168.1.100/fun /home/libix/192.168.1.100/fun -o username=libix,password=redhat,vers=3.0,uid=1000,gid=1000
+sudo mount -t cifs //192.168.1.100/resource /home/libix/192.168.1.100/fun -o username=libix,password=redhat,vers=3.0,uid=1000,gid=1000
+																					
+sudo umount //192.168.1.100/fun /home/libix/192.168.1.100/fun
+sudo umount //192.168.1.100/resource /home/libix/192.168.1.100/resource
+------------------------------------------------------------------------------------------------------------------------------------------"
+
+echo "Samba off"
+```
+
