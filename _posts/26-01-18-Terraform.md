@@ -245,9 +245,9 @@ Terraform 不能控制虚拟机开机后的运行时状态。（可以用 Terraf
 
 ### 结合 Ansible 搭建 K8S 集群
 
-**main.tf**
+[**main.tf**](https://librebitx.github.io/2026/01/19/Code/#maintf)
 
-**k8s_init.yml**
+[**k8s_init.yml**](https://librebitx.github.io/2026/01/19/Code/#k8s_inityml)
 
 ```bash
 ~/terraform$ sudo apt update
