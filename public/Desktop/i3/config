@@ -32,7 +32,9 @@ bindsym $mod+Return exec --no-startup-id ~/.config/i3/create_ws.sh
 bindsym $mod+q kill
 
 # start dmenu (a program launcher)
-bindsym $mod+slash exec --no-startup-id dmenu_run
+bindsym $mod+slash exec --no-startup-id /home/libix/scripts/dmenu_launcher.sh
+
+bindsym Print exec --no-startup-id /home/libix/shell/maimshot.sh
 
 # 使用 Win + 方向键 切换窗口焦点
 bindsym $mod+Left focus left
@@ -55,10 +57,9 @@ bindsym $mod+w layout tabbed
 bindsym $mod+e layout toggle split
 
 # 切换当前窗口的平铺/浮动状态
-bindsym $mod+Shift+space floating toggle
+bindsym $mod+space floating toggle
 
 # switch to workspace
-# 这里的 -h string:x-dunst-stack-tag:ws 是为了防止弹窗堆叠
 bindsym $mod+1 workspace 1; exec --no-startup-id notify-send -t 800 -h string:x-dunst-stack-tag:ws "工作区 1"
 bindsym $mod+2 workspace 2; exec --no-startup-id notify-send -t 800 -h string:x-dunst-stack-tag:ws "工作区 2"
 bindsym $mod+3 workspace 3; exec --no-startup-id notify-send -t 800 -h string:x-dunst-stack-tag:ws "工作区 3"
