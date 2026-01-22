@@ -5,20 +5,27 @@ date:   2026-01-09
 blog-label: test
 ---
 
-# 欢迎使用Markdown编辑器写博客
+# Markdown编辑器
 
 - **Markdown和扩展Markdown简洁的语法**
 - **代码块高亮**
 - **图片链接和图片上传**
 - ***LaTex*数学公式**
 - **UML序列图和流程图**
-- **离线写博客**
-- **导入导出Markdown文件**
 - **丰富的快捷键**
 
--------------------
+## Markdown及扩展
 
-## 快捷键
+> Markdown 是一种轻量级标记语言，它允许人们使用易读易写的纯文本格式编写文档，然后转换成格式丰富的HTML页面。    —— <a href="https://zh.wikipedia.org/wiki/Markdown" target="_blank"> [ 维基百科 ]
+
+使用简单的符号标识不同的标题，将某些文字标记为**粗体**或者*斜体*，创建一个[链接](http://www.csdn.net)等，详细语法参考帮助。
+
+### 目录
+用 `[TOC]`来生成目录：
+
+* 目录
+{:toc}
+### 快捷键
 
  - 加粗    `Ctrl + B` 
  - 斜体    `Ctrl + I` 
@@ -32,20 +39,6 @@ blog-label: test
  - 横线    `Ctrl + R`
  - 撤销    `Ctrl + Z`
  - 重做    `Ctrl + Y`
-
-## Markdown及扩展
-
-> Markdown 是一种轻量级标记语言，它允许人们使用易读易写的纯文本格式编写文档，然后转换成格式丰富的HTML页面。    —— <a href="https://zh.wikipedia.org/wiki/Markdown" target="_blank"> [ 维基百科 ]
-
-使用简单的符号标识不同的标题，将某些文字标记为**粗体**或者*斜体*，创建一个[链接](http://www.csdn.net)等，详细语法参考帮助？。
-
-### 目录
-用 `[TOC]`来生成目录：
-
-* 目录
-{:toc}
-
----
 
 ### 表格
 
@@ -105,7 +98,7 @@ graph LR
     D --> F((结束圆点))
     E --> G>旗帜状注释]
     G --> F
-    
+
     %% 样式美化
     style A fill:#f9f,stroke:#333
     style C fill:#fff4dd,stroke:#d4a017
@@ -115,18 +108,6 @@ graph LR
 - 关于 **序列图** 语法，参考 [这儿][4],
 - 关于 **流程图** 语法，参考 [这儿][5].
 
-## 离线写博客
-
-即使用户在没有网络的情况下，也可以通过本编辑器离线写博客（直接在曾经使用过的浏览器中输入[write.blog.csdn.net/mdeditor](http://write.blog.csdn.net/mdeditor)即可。**Markdown编辑器**使用浏览器离线存储将内容保存在本地。
-
-用户写博客的过程中，内容实时保存在浏览器缓存中，在用户关闭浏览器或者其它异常情况下，内容不会丢失。用户再次打开浏览器时，会显示上次用户正在编辑的没有发表的内容。
-
-博客发表后，本地缓存将被删除。　
-
-用户可以选择 <i class="icon-disk"></i> 把正在写的博客保存到服务器草稿箱，即使换浏览器或者清除缓存，内容也不会丢失。
-
-> **注意：**虽然浏览器存储大部分时候都比较可靠，但为了您的数据安全，在联网后，**请务必及时发表或者保存到服务器草稿箱**。
-
 ---------
 
 [1]: http://math.stackexchange.com/
@@ -134,4 +115,3 @@ graph LR
 [3]: http://meta.math.stackexchange.com/questions/5020/mathjax-basic-tutorial-and-quick-reference
 [4]: http://bramp.github.io/js-sequence-diagrams/
 [5]: http://adrai.github.io/flowchart.js/
-[6]: https://github.com/benweet/stackedit
