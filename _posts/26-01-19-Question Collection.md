@@ -73,7 +73,7 @@ yum makecache
 
 
 
-# **Debian 12 **
+# Debian 12
 
 ## **换源**
 

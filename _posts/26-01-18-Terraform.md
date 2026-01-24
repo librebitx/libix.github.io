@@ -250,17 +250,6 @@ Terraform 不能控制虚拟机开机后的运行时状态。（可以用 Terraf
 [**k8s_init.yml**](https://librebitx.github.io/2026/01/19/Code/#k8s_inityml)
 
 ```bash
-~/terraform$ sudo apt update
-~/terraform$ sudo apt install ansible -y
-~/terraform$ ansible --version
-ansible [core 2.19.4]
-...
-~/terraform$ cat ansible/ansible.cfg
-[defaults]
-inventory = inventory.ini
-host_key_checking = False
-deprecation_warnings = False
-~/terraform$ 
 ~/terraform$ terraform init			# 格式化代码
 Initializing the backend...
 Initializing provider plugins...
@@ -279,9 +268,13 @@ Apply complete! Resources: 9 added, 0 changed, 0 destroyed.
  41   knode2    运行
  42   knode1    运行
  43   kmaster   运行
-~/terraform$ 
-~/terraform$ ls ansible/
-ansible.cfg  inventory.ini  terraform.tfstate
+~/terraform$ mkdir -p ansible
+~/terraform$ cat ansible/ansible.cfg 
+[defaults]
+inventory = inventory.ini
+host_key_checking = False
+deprecation_warnings = False
+~/terraform$
 ~/terraform$ cat ansible/inventory.ini 
 [masters]
 kmaster ansible_host=192.168.0.10 ansible_user=libix ansible_ssh_private_key_file=~/.ssh/id_ed25519
@@ -294,7 +287,10 @@ knode2 ansible_host=192.168.0.12 ansible_user=libix ansible_ssh_private_key_file
 masters
 workers
 ~/terraform$ 
+~/terraform$ ls ansible/
+ansible.cfg  inventory.ini  terraform.tfstate
 ~/terraform$ rm -f ~/.ssh/known_hosts*
+~/terraform$ cd ansible/
 ~/terraform/ansible$ ansible all -m ping
 [WARNING]: Host 'knode2' is using the discovered Python interpreter at '/usr/bin/python3.12', but future installation of another Python interpreter could cause a different interpreter to be discovered. See https://docs.ansible.com/ansible-core/2.19/reference_appendices/interpreter_discovery.html for more information.
 knode2 | SUCCESS => {

@@ -21,10 +21,11 @@ pipx ensurepath
 pipx install --include-deps ansible
 
 # 安装依赖
-apt update && apt install python3-pip -y
+sudo apt update && sudo apt install python3-pip -y
 
 # 安装 ansible-navigator
-pip3 install ansible-navigator
+pipx install ansible-navigator
+# pipx 永远用“当前用户”装 CLI 工具,不要 sudo!
 
 # 确保其路径在 $PATH 中（通常是 ~/.local/bin）
 export PATH=$PATH:~/.local/bin

@@ -1,0 +1,205 @@
+{
+  "main": {
+    "id": "e35217b512abd7fb",
+    "type": "split",
+    "children": [
+      {
+        "id": "8c477efedbca28b4",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "97f81367aaa74d06",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "_posts/26-01-15-构建 Linux ISO.md",
+                "mode": "preview",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "26-01-15-构建 Linux ISO"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "bce10e9de8be34aa",
+    "type": "split",
+    "children": [
+      {
+        "id": "b87b1257176318d3",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "286642f6d1d3aff0",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical",
+                "autoReveal": false
+              },
+              "icon": "lucide-folder-closed",
+              "title": "文件列表"
+            }
+          },
+          {
+            "id": "9946be3a3ba6090b",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "搜索"
+            }
+          },
+          {
+            "id": "2b7014953fc8d55c",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {},
+              "icon": "lucide-bookmark",
+              "title": "书签"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "right": {
+    "id": "c0391168a1f3bac6",
+    "type": "split",
+    "children": [
+      {
+        "id": "f15813bed23c004b",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "7c06a9f2d79128c1",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "_posts/26-01-15-构建 Linux ISO.md",
+                "collapseAll": false,
+                "extraContext": true,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": true,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "26-01-15-构建 Linux ISO 的反向链接列表"
+            }
+          },
+          {
+            "id": "3b728a3ffccb7d48",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "file": "_posts/26-01-15-构建 Linux ISO.md",
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "26-01-15-构建 Linux ISO 的出链列表"
+            }
+          },
+          {
+            "id": "760a8542e7eca387",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "标签"
+            }
+          },
+          {
+            "id": "93a04a055b6731d3",
+            "type": "leaf",
+            "state": {
+              "type": "all-properties",
+              "state": {
+                "sortOrder": "frequency",
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-archive",
+              "title": "添加笔记属性"
+            }
+          },
+          {
+            "id": "509923846bf4226a",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "_posts/26-01-15-构建 Linux ISO.md",
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "26-01-15-构建 Linux ISO 的大纲"
+            }
+          },
+          {
+            "id": "c13cbe5760ad51b6",
+            "type": "leaf",
+            "state": {
+              "type": "file-properties",
+              "state": {
+                "file": "_posts/26-01-15-构建 Linux ISO.md"
+              },
+              "icon": "lucide-info",
+              "title": "26-01-15-构建 Linux ISO的笔记属性"
+            }
+          }
+        ],
+        "currentTab": 5
+      }
+    ],
+    "direction": "horizontal",
+    "width": 284.5,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:打开快速切换": false,
+      "graph:查看关系图谱": false,
+      "canvas:新建白板": false,
+      "daily-notes:打开/创建今天的日记": false,
+      "templates:插入模板": false,
+      "command-palette:打开命令面板": false,
+      "bases:新建数据库": false
+    }
+  },
+  "active": "97f81367aaa74d06",
+  "lastOpenFiles": [
+    "_posts/26-01-11-Ansible.md",
+    "未命名.canvas",
+    "_posts/25-12-08-打造极简高效的 Linux 桌面.md"
+  ]
+}
