@@ -741,115 +741,9 @@ groups libix id libix
 
 ### **sed**
 
-一次性删除配置文件中所有 # 和 ; 开头的注释行，并直接修改原文件，同时保留空行和有效配置
-
-sudo cp <filename> <filename>.bak sudo sed -i '/^\s*[#;]/d' <filename>
-
-# **使用 Wordpress + Mariadb 搭建博客**
-
 ```bash
-# 在 Centos7.9 系统上
-cd /etc/yum.repos.d
-rm -rf *
-ls
-setenforce 0
-systemctl stop firewalld
-
-# 将 repo 文件传输过去
-sed -i 's/$releasever/7.9.2009/g' /etc/yum.repos.d/Centos-7.repo
-yum clean all
-yum makecache
-sed -i 's/$releasever/7/g' /etc/yum.repos.d/epel-7.repo
-yum makecache
-
-yum install httpd -y
-systemctl start httpd
-systemctl enable httpd
-
-
-# 安装 php 7.4 
-yum update -y
-yum install epel-release -y
-yum install -y https://rpms.remirepo.net/enterprise/remi-release-7.rpm
-yum-config-manager --enable remi-php74
-yum install -y yum-utils
-yum install -y php php-cli php-fpm php-common
-yum install -y php-mysqlnd php-gd php-mbstring php-xml php-curl php-zip php-opcache
-php -v
-
-
-cat <<EOL> /var/www/html/info.php
-<!DOCTYPE html>
-<html>
-<body>
-    <?php
-        phpinfo();
-    ?>
-</body>
-</html>
-EOL
-
-systemctl restart httpd
-# 此时 http://IP/info.php 可以访问
-
-sudo yum install -y mariadb-server mariadb
-sudo systemctl start mariadb
-sudo systemctl enable mariadb
-
-sudo mysql_secure_installation
-
-# enter > yes >redhat > redhat> yes > no > yes > yes
-
-mysql -u root -p
-CREATE DATABASE wordpress;
-CREATE USER 'wpuser'@'%' IDENTIFIED BY 'redhat';
-GRANT ALL PRIVILEGES ON wordpress.* TO 'wpuser'@'%';
-FLUSH PRIVILEGES;
-EXIT;
-
-:>'
-SHOW DATABASES;            # 显示所有数据库
-DROP DATABASE wordpress;            # 彻底删除数据库
-DROP USER 'wpuser'@'%';            # 删除用户信息
-FLUSH PRIVILEGES;            # 立即刷新权限            
-'
-yum install -y unzip
-unzip wordpress-*.zip
-
-cp -rf wordpress/* /var/www/html/
-chown -R apache:apache /var/www/html/
-chmod -R 755 /var/www/html/
-mkdir -p /var/www/html/wp-content/uploads
-chown -R apache:apache /var/www/html/wp-content/uploads
-
-cd /var/www/html
-sudo cp wp-config-sample.php wp-config.php
-
-
-vi wp-config.php
-
-define('DB_NAME', 'wordpress');
-define('DB_USER', 'wpuser');
-define('DB_PASSWORD', 'redhat');
-
-
-systemctl restart httpd
-systemctl restart mariadb
-
-
-
-
-
-# 还原环境
-cd /var/www/html
-rm -rf *
-
-mysql -u root -p
-SHOW DATABASES; 
-DROP DATABASE wordpress;
-DROP USER 'wpuser'@'%';
-FLUSH PRIVILEGES;
-EXIT;
+# 一次性删除配置文件中所有 # 和 ; 开头的注释行，并直接修改原文件，同时保留空行和有效配置
+sudo cp <filename> <filename>.bak sudo sed -i '/^\s*[#;]/d' <filename>
 ```
 
 # PXE
@@ -1115,27 +1009,7 @@ curl -v -x socks5h://127.0.0.1:10808 https://www.youtube.com/
 
 ```
 
-## **拉取 Docker hub 镜像**
-
-```bash
-# 使用 daemon.json 配置 Docker 代理
-cat <<EOL> /etc/docker/daemon.json
-{
-  "proxies": {
-    "http-proxy": "http://127.0.0.1:10808",
-    "https-proxy": "http://127.0.0.1:10808",
-    "no-proxy": "localhost,127.0.0.1,docker-registry.somecorporation.com"
-  }
-}
-EOL
-
-# 临时为 Docker CLI 命令设置代理 
-HTTP_PROXY="http://127.0.0.1:10808" HTTPS_PROXY="http://127.0.0.1:10808" docker pull [镜像名]
-```
-
-
-
-### **将服务器配置为代理服务器**
+**将服务器配置为代理服务器**
 
 ```bash
 修改 Xray 配置文件 /usr/local/etc/xray/config.json
@@ -1151,7 +1025,7 @@ HTTP_PROXY="http://127.0.0.1:10808" HTTPS_PROXY="http://127.0.0.1:10808" docker 
 认证 (Authentication)： 你的 Xray 配置中 auth 是 noauth，所以不需要填写用户名和密码。'
 ```
 
-**桌面 Linux**
+# 桌面 Linux
 
 ```bash
 ### 配置阿里云软件源
@@ -1170,25 +1044,12 @@ sudo apt update && sudo apt upgrade -y
 sudo apt install gnome-shell-extension-manager        # 安装扩展管理器
 
 
-### 卸载 firefox-esr
+### 卸载软件
 sudo apt remove firefox-esr  # 卸载Firefox主程序，保留配置文件
 sudo apt purge firefox-esr  # 完全删除Firefox及其配置文件
 sudo apt autoremove    # 清理残留依赖包
-rm -rf ~/.mozilla/firefox-esr  # 删除用户配置目录（书签等数据将被清除）
-rm -rf ~/.cache/mozilla    # 清理缓存
 dpkg -l | grep firefox-esr  # 若输出为空，表示卸载成功
 
-
-## 安装的字体位置
-/home/libix/.local/share/fonts
-
-
-
-## 卸载
-sudo vmware-installer -u vmware-workstation
-sudo rm -rf /usr/lib/vmware
-sudo rm -rf /etc/vmware
-sudo rm -rf ~/.vmware
 
 ### snap 安装软件后卸载
 sudo snap remove 「软件名」
@@ -1197,81 +1058,47 @@ sudo snap remove --purge 「软件名」
 
 **更改 GNOME 桌面字体**
 
-在 GNOME 桌面环境中，Tweaks 里修改字体后，不是所有界面字体都会跟着变化
-
-在 Tweaks 中可以设置的几类字体通常有：
-
-​	Interface Text（界面字体）：窗口标题、菜单、按钮等。
-
-​	Document Text（文档字体）：一些 GNOME 应用（如 Gedit）默认使用的字体。
-
-​	Monospace Text（等宽字体）：终端、代码编辑器等使用。
-
-GNOME Shell 自身的 UI（比如顶部面板、通知、日期/时间、系统菜单）字体是独立控制的。Tweaks 默认并不能直接修改 GNOME Shell 的字体。
-
-\### 安装字体
-
-\# 将字体移动到 ~/.local/share/fonts/ 目录下
-
-\# 刷新字体缓存
+```bash
+# 将字体移动到 ~/.local/share/fonts/ 目录下
+# 刷新字体缓存
 
 sudo fc-cache -f -v
 
-\# 确认字体的系统名
+# 确认字体的系统名
 
 fc-scan /path/to/yourinstallfonts.ttf | grep family
+```
 
-\### 更改GNOME shell字体
 
-\# 在 Extensions Manager 中搜索安装并启用 User Themes 扩展
-
-sudo apt install gnome-shell-extensions gnome-tweaks
-
-\# 下载或修改一个 Shell 主题，解压后放入 ~/.themes/主题名/gnome-shell/
-
-\# 编辑该主题下的 gnome-shell.css，搜索 stage 添加高亮代码，修改 yourinstallfonts 为你想要的字体，字体名称需要是系统名
-
-stage {
-
-​    font-family: "yourinstallfonts", sans-serif;
-
-}
-
-\# 在 Tweaks → Appearance → Shell 里选择这个主题
-
-\# 登出 GNOME,再次登录就可以了。
 
 **Vmware Workstation Pro 安装**
 
 ```bash
 ## 下载依赖
-
 sudo apt update && sudo apt upgrade -y
-
 sudo apt install build-essential linux-headers-$(uname -r) -y
 
 # 进入安装包所在目录
-
 chmod +x VMware-Workstation-Full-*.bundle
-
 sudo ./VMware-Workstation-Full-*.bundle
-
 sudo vmware-modconfig --console --install-all
 
 ## 出现内核问题，打开虚拟机如下图问题
 
-
-
 # 进入 Bios 将 sercue boot 设置为 disable
-
 mokutil --sb-state		# 检查 sercue boot 的状态
-
 sudo /etc/init.d/vmware restart
+
+## 卸载
+sudo vmware-installer -u vmware-workstation
+sudo rm -rf /usr/lib/vmware
+sudo rm -rf /etc/vmware
+sudo rm -rf ~/.vmware
 ```
 
-# **NAS**
+# NAS
 
-## **配置自动备份**
+## 配置自动备份
 
 ```bash
 root@Debian-Server:~# ls
@@ -1335,3 +1162,349 @@ sudo umount //192.168.1.100/resource /home/libix/192.168.1.100/resource
 echo "Samba off"
 ```
 
+# AI
+
+## **网页端 VS 命令行**
+
+**网页端（Web UI）**和**命令行（CLI）**的使用场景和交互逻辑完全不同。
+
+对于 Linux 用户来说，最大的区别在于：**网页端是用来“聊天”的，而 CLI 是用来“干活”的（作为工具链的一部分）。**
+
+以下是详细的对比分析：
+
+### 1. 上下文输入
+
+这是 CLI 最核心的优势，符合 Unix 的哲学（一切皆文件，程序间通过文本流通信）。
+
+- **网页端：**
+  - 你需要手动打开文件 -> 全选 -> 复制 -> 切换浏览器 -> 粘贴。
+  - 如果文件太多，或者想把 `ls -la` 的输出给 AI 看，操作非常繁琐。
+- **LLM CLI：**
+  - 你可以直接把任何命令的**输出**或者**文件内容**“喂”给 AI。
+  - **场景举例：**
+    - *帮我写 Git 提交信息：* `git diff | llm "请根据代码变更写一个简洁的 commit message"`
+    - *排查报错：* `tail -n 20 error.log | llm "分析这个报错原因"`
+    - *解释代码：* `cat complex_script.py | llm "解释这段代码的逻辑"`
+
+### 2. 自动化与脚本化
+
+- **网页端：**
+
+  - 每次任务都是一次性的。你很难“保存”一个复杂的动作让他下次自动执行。
+
+- **LLM CLI：**
+
+  - 你可以把常用的 Prompt 封装成 Shell 别名（Alias）或脚本。
+
+  - **场景举例：**
+
+    你可以定义一个别名 `explain`，实际上运行的是 `llm -s "用简短的中文解释这段代码"`。以后你只需要输入 `cat file.c | explain` 即可。
+
+### 3. 数据隐私与历史记录
+
+- **网页端：**
+  - 你的聊天记录都在 Google 的服务器上。
+  - 搜索历史记录比较慢，且难以导出。
+- **LLM CLI (Simon Willison 版)：**
+  - 它默认使用 **SQLite** 在你的本地硬盘（`~/.local/share/llm/`）存储所有对话日志。
+  - **优势：** 你拥有数据的完全控制权。你可以用 SQL 查询你过去问过 AI 的所有问题和它的回答。
+  - *命令：* `llm logs` 可以查看历史。
+
+### 4. 角色设定
+
+- **网页端：**
+  - 虽然现在有“Gems”功能，但切换角色还是需要点击操作。
+- **LLM CLI：**
+  - 支持 **Templates（模板）** 功能。
+  - 你可以预设几十个模板，例如“翻译官”、“Python专家”、“Linux运维”。
+  - *命令：* `llm -t python "如何读取json"` （直接调用预设好的 Python 专家模式）。
+
+### 5. 成本与门槛
+
+- **网页端：**
+  - 通常完全免费（Gemini Advanced 除外），且不限制并发，不用担心 Token 计费细节。
+  - 支持多模态（上传图片/看视频）非常直观，拖进去就行。
+- **LLM CLI：**
+  - 需要申请 **API Key**。
+  - **好消息：** Google Gemini 的 API 目前有**免费层级 (Free Tier)**，对于个人在 CLI 里的使用量来说，几乎是用不完的（限制是每分钟 15 次请求，每日 1500 次请求）。
+  - **坏消息：** 在 CLI 里处理图片（虽然 `llm` 支持）不如网页端直观，通常主要处理纯文本。
+
+### 总结对比表
+
+| **特性**     | **网页端 (Web UI)**            | **命令行 (LLM CLI)**               |
+| ------------ | ------------------------------ | ---------------------------------- |
+| **最佳场景** | 探索性对话、创意写作、看图分析 | 编程辅助、日志分析、脚本自动化     |
+| **输入方式** | 打字、拖拽文件                 | 管道 (`                            |
+| **输出结果** | Markdown 渲染好，好看          | 纯文本，适合直接存入文件           |
+| **历史记录** | 存在云端，网页查看             | 存在本地 SQLite，由于自己掌控      |
+| **结合工具** | 无，独立存在                   | 结合 grep, jq, git, vim 等无限可能 |
+
+## LLM
+
+原生的 `llm` 工具**没有**联网搜索能力。
+
+### 安装
+
+```bash
+libix@Debian:~$ pipx install llm
+  installed package llm 0.28, installed using Python 3.13.5
+  These apps are now globally available
+    - llm
+done! ✨ 🌟 ✨
+libix@Debian:~$ llm install llm-gemini
+...
+Successfully installed ijson-3.4.0.post0 llm-gemini-0.28.2
+libix@Debian:~$ llm keys set gemini
+Enter key: 
+libix@Debian:~$ 
+```
+
+### 基础交互
+
+```bash
+### 配置终端代理
+libix@Debian:~$ echo "export HTTPS_PROXY=http://127.0.0.1:7897" >> ~/.bashrc
+libix@Debian:~$ source ~/.bashrc
+libix@Debian:~$ 
+libix@Debian:~$ llm -m gemini-1.5-flash "你好，请用一句话介绍Debian系统"
+Error: 'Unknown model: gemini-1.5-flash'
+libix@Debian:~$ 
+libix@Debian:~$ llm models			# 列出所有可用模型
+OpenAI Chat: gpt-4o (aliases: 4o)
+OpenAI Chat: chatgpt-4o-latest (aliases: chatgpt-4o)
+OpenAI Chat: gpt-4o-mini (aliases: 4o-mini)
+OpenAI Chat: gpt-4o-audio-preview
+OpenAI Chat: gpt-4o-audio-preview-2024-12-17
+OpenAI Chat: gpt-4o-audio-preview-2024-10-01
+OpenAI Chat: gpt-4o-mini-audio-preview
+OpenAI Chat: gpt-4o-mini-audio-preview-2024-12-17
+OpenAI Chat: gpt-4.1 (aliases: 4.1)
+OpenAI Chat: gpt-4.1-mini (aliases: 4.1-mini)
+OpenAI Chat: gpt-4.1-nano (aliases: 4.1-nano)
+OpenAI Chat: gpt-3.5-turbo (aliases: 3.5, chatgpt)
+OpenAI Chat: gpt-3.5-turbo-16k (aliases: chatgpt-16k, 3.5-16k)
+OpenAI Chat: gpt-4 (aliases: 4, gpt4)
+OpenAI Chat: gpt-4-32k (aliases: 4-32k)
+OpenAI Chat: gpt-4-1106-preview
+OpenAI Chat: gpt-4-0125-preview
+OpenAI Chat: gpt-4-turbo-2024-04-09
+OpenAI Chat: gpt-4-turbo (aliases: gpt-4-turbo-preview, 4-turbo, 4t)
+OpenAI Chat: gpt-4.5-preview-2025-02-27
+OpenAI Chat: gpt-4.5-preview (aliases: gpt-4.5)
+OpenAI Chat: o1
+OpenAI Chat: o1-2024-12-17
+OpenAI Chat: o1-preview
+OpenAI Chat: o1-mini
+OpenAI Chat: o3-mini
+OpenAI Chat: o3
+OpenAI Chat: o4-mini
+OpenAI Chat: gpt-5
+OpenAI Chat: gpt-5-mini
+OpenAI Chat: gpt-5-nano
+OpenAI Chat: gpt-5-2025-08-07
+OpenAI Chat: gpt-5-mini-2025-08-07
+OpenAI Chat: gpt-5-nano-2025-08-07
+OpenAI Chat: gpt-5.1
+OpenAI Chat: gpt-5.1-chat-latest
+OpenAI Chat: gpt-5.2
+OpenAI Chat: gpt-5.2-chat-latest
+OpenAI Completion: gpt-3.5-turbo-instruct (aliases: 3.5-instruct, chatgpt-instruct)
+GeminiPro: gemini/gemini-pro (aliases: gemini-pro)
+GeminiPro: gemini/gemini-1.5-pro-latest (aliases: gemini-1.5-pro-latest)
+GeminiPro: gemini/gemini-1.5-flash-latest (aliases: gemini-1.5-flash-latest)
+GeminiPro: gemini/gemini-1.5-pro-001 (aliases: gemini-1.5-pro-001)
+GeminiPro: gemini/gemini-1.5-flash-001 (aliases: gemini-1.5-flash-001)
+GeminiPro: gemini/gemini-1.5-pro-002 (aliases: gemini-1.5-pro-002)
+GeminiPro: gemini/gemini-1.5-flash-002 (aliases: gemini-1.5-flash-002)
+GeminiPro: gemini/gemini-1.5-flash-8b-latest (aliases: gemini-1.5-flash-8b-latest)
+GeminiPro: gemini/gemini-1.5-flash-8b-001 (aliases: gemini-1.5-flash-8b-001)
+GeminiPro: gemini/gemini-exp-1114 (aliases: gemini-exp-1114)
+GeminiPro: gemini/gemini-exp-1121 (aliases: gemini-exp-1121)
+GeminiPro: gemini/gemini-exp-1206 (aliases: gemini-exp-1206)
+GeminiPro: gemini/gemini-2.0-flash-exp (aliases: gemini-2.0-flash-exp)
+GeminiPro: gemini/learnlm-1.5-pro-experimental (aliases: learnlm-1.5-pro-experimental)
+GeminiPro: gemini/gemma-3-1b-it (aliases: gemma-3-1b-it)
+GeminiPro: gemini/gemma-3-4b-it (aliases: gemma-3-4b-it)
+GeminiPro: gemini/gemma-3-12b-it (aliases: gemma-3-12b-it)
+GeminiPro: gemini/gemma-3-27b-it (aliases: gemma-3-27b-it)
+GeminiPro: gemini/gemma-3n-e4b-it (aliases: gemma-3n-e4b-it)
+GeminiPro: gemini/gemini-2.0-flash-thinking-exp-1219 (aliases: gemini-2.0-flash-thinking-exp-1219)
+GeminiPro: gemini/gemini-2.0-flash-thinking-exp-01-21 (aliases: gemini-2.0-flash-thinking-exp-01-21)
+GeminiPro: gemini/gemini-2.0-flash (aliases: gemini-2.0-flash)
+GeminiPro: gemini/gemini-2.0-pro-exp-02-05 (aliases: gemini-2.0-pro-exp-02-05)
+GeminiPro: gemini/gemini-2.0-flash-lite (aliases: gemini-2.0-flash-lite)
+GeminiPro: gemini/gemini-2.5-pro-exp-03-25 (aliases: gemini-2.5-pro-exp-03-25)
+GeminiPro: gemini/gemini-2.5-pro-preview-03-25 (aliases: gemini-2.5-pro-preview-03-25)
+GeminiPro: gemini/gemini-2.5-flash-preview-04-17 (aliases: gemini-2.5-flash-preview-04-17)
+GeminiPro: gemini/gemini-2.5-pro-preview-05-06 (aliases: gemini-2.5-pro-preview-05-06)
+GeminiPro: gemini/gemini-2.5-flash-preview-05-20 (aliases: gemini-2.5-flash-preview-05-20)
+GeminiPro: gemini/gemini-2.5-pro-preview-06-05 (aliases: gemini-2.5-pro-preview-06-05)
+GeminiPro: gemini/gemini-2.5-flash (aliases: gemini-2.5-flash)
+GeminiPro: gemini/gemini-2.5-pro (aliases: gemini-2.5-pro)
+GeminiPro: gemini/gemini-2.5-flash-lite (aliases: gemini-2.5-flash-lite)
+GeminiPro: gemini/gemini-flash-latest (aliases: gemini-flash-latest)
+GeminiPro: gemini/gemini-flash-lite-latest (aliases: gemini-flash-lite-latest)
+GeminiPro: gemini/gemini-2.5-flash-preview-09-2025 (aliases: gemini-2.5-flash-preview-09-2025)
+GeminiPro: gemini/gemini-2.5-flash-lite-preview-09-2025 (aliases: gemini-2.5-flash-lite-preview-09-2025)
+GeminiPro: gemini/gemini-3-pro-preview (aliases: gemini-3-pro-preview)
+GeminiPro: gemini/gemini-3-flash-preview (aliases: gemini-3-flash-preview)
+Default: gpt-4o-mini
+libix@Debian:~$ 
+libix@Debian:~$ llm -m gemini-2.5-flash "你好，请用一句话介绍Debian系统"
+Debian是一个完全由社区开发和维护的自由开源Linux发行版，以其坚若磐石的稳定性、严格的自由软件原则以及作为众多其他流行Linux发行版（如Ubuntu）的基础而闻名。
+libix@Debian:~$ 
+libix@Debian:~$ llm -m gemini-2.5-pro "最适合桌面使用的Linux系统是哪个？"
+Error: You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. 
+* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_input_token_count, limit: 0, model: gemini-2.5-pro
+* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_input_token_count, limit: 0, model: gemini-2.5-pro
+* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 0, model: gemini-2.5-pro
+* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 0, model: gemini-2.5-pro
+Please retry in 28.397400758s.
+# API Key 没有权限调用它
+libix@Debian:~$ 
+libix@Debian:~$ llm models default gemini-2.5-flash			# 设置默认模型
+libix@Debian:~$ llm models
+...
+Default: gemini/gemini-2.5-flash
+libix@Debian:~$ 
+libix@Debian:~$ llm "你好，打个招呼吧"
+你好！很高兴和你打招呼！有什么我可以帮助你的吗？
+libix@Debian:~$ 
+```
+
+**连续对话模式 (Chat REPL)**
+
+如果你想像在网页上一样多轮对话，进入交互模式：
+
+```
+llm chat
+```
+
+- 输入内容回车即可对话。
+- 输入 `quit` 或 `exit` 退出。
+- *注：这种模式适合纯聊天，但在 CLI 里其实不如单次命令好用。*
+
+**3. 接续上文 (-c / --continue)**
+
+这是 CLI 的核心痛点解决。默认情况下，每次 `llm` 命令都是全新的（没有记忆）。
+
+如果你想基于上一条命令继续问：
+
+```bash
+# 第一步
+llm "帮我生成一个 Python 的 Hello World 代码"
+
+# 第二步（加上 -c）
+llm -c "给这段代码加上详细的中文注释"
+```
+
+- `-c` 会自动读取你本地数据库里的最后一次对话上下文。
+
+------
+
+### 管道流
+
+可以把任何命令的**输出 (Stdout)** 变成 AI 的**输入 (Stdin)**。
+
+**场景 A：代码解释**
+
+把你刚写的代码“喂”给 AI：
+
+```
+cat main.py | llm "请解释这段代码在做什么，并指出潜在的 Bug"
+```
+
+**场景 B：Git 提交信息生成 (神器)**
+
+不需要自己绞尽脑汁写 commit message 了：
+
+```
+git diff | llm "根据这些代码变更，写一个简洁的 git commit message"
+```
+
+**场景 C：日志分析**
+
+服务器报错了？直接把报错日志扔给它：
+
+```
+# 读取最后 20 行系统日志并分析
+sudo journalctl -n 20 | llm "分析这些日志，为什么我的服务启动失败了？"
+```
+
+**场景 D：结果存文件**
+
+AI 的回答直接存入 Markdown 文件，不用复制粘贴：
+
+```
+llm "写一份 Debian 系统初始化配置清单" > debian_setup.md
+```
+
+------
+
+### 角色模板
+
+不想每次都打 "请你作为一个资深 Python 工程师..."？你可以创建 **模板 (Templates)**。
+
+**1. 临时设定角色 (-s)**
+
+```
+llm templates set ops "你是一个运行在 Debian 12 终端里的资深 Linux 系统工程师。你的用户是技术人员。
+规则：
+1. 回答极其简练，直接切入重点，少用客套话。
+2. 默认提供适用于 Debian 的解决方案（例如优先用 apt, systemctl）。
+3. 如果用户输入的是报错日志，直接分析原因并给出修复命令。
+4. 代码和命令必须包含在 Markdown 代码块中。
+5. 对于危险操作（如删除、覆写），必须简短提示风险。"
+```
+
+**2. 保存常用模板**
+
+比如你经常需要翻译英文文档，可以存一个 `fanyi` 模板：
+
+```
+# 创建模板
+llm templates set fanyi "你是一个专业的科技翻译。请直接输出中文翻译结果，不要带任何解释，保留专业术语。"
+
+# 使用模板 (-t)
+cat README.md | llm -t fanyi > README_CN.md
+```
+
+**查看你有哪些模板：**
+
+```
+llm templates list
+```
+
+------
+
+### 历史记录查询
+
+你在终端里和 AI 聊过的所有内容，都被存在了本地的 SQLite 数据库里。
+
+**查看最近的对话：**
+
+```
+llm logs
+```
+
+**查看完整的某条对话（带 ID）：**
+
+```
+# 先看 ID
+llm logs -n 5 
+# 再看详情
+llm logs -c <conversation-id>
+```
+
+### 优化输出内容
+
+原本的输出带有 markwon 格式符号，影响阅读
+
+```bash
+pipx install rich-cli
+llm "你觉得使用Debian 13作为桌面使用怎么样？" | rich --markdown -
+```
+
+
+
+# ---
