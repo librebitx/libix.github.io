@@ -55,26 +55,20 @@ theme = "bitx"
   target = "layouts"
 
 [[module.mounts]]
-  source = "themes"
-  target = "themes"
-
-[[module.mounts]]
-  source = "archetypes"
-  target = "archetypes"
+  source = "data"
+  target = "data"
 
 [[module.mounts]]
   source = "assets"
   target = "assets"
 
 [[module.mounts]]
-  source = "data"
-  target = "data"
+  source = "archetypes"
+  target = "archetypes"
 
-[[module.mounts]]
-  source = "i18n"
-  target = "i18n"
-
-# Mount code directory as static to serve raw files
+# Critical: Mount content/code to public/code as static assets to serve raw files
 [[module.mounts]]
   source = "content/code"
   target = "static/code"
+  includeFiles = ["**"]
+  excludeFiles = ["_index.md", "code-viewer.md"]
