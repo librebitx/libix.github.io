@@ -41,9 +41,6 @@
 5. **快捷提交**
 
    ```bash
-   # 提交前记得删除 public 文件夹
-   sudo rm -rf public
-   
    ./publish.sh "Update"
    ```
 
