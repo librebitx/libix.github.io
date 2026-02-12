@@ -6,7 +6,9 @@ tags:
   - "Notes"
 ---
 
-# [DevOps 工作流](DevOps 工作流.html)
+# DevOps 工作流
+
+[DevOps 工作流.html](DevOps 工作流.html)
 
 ![](Devops 工作流.png)
 
@@ -23,7 +25,7 @@ tags:
 ### 提交
 
 - 将代码提交到仓库
-  - [**Git**](https://librebitx.github.io/2026/01/11/Git/) 负责代码管理和版本控制
+  - [**Git**](https://librebitx.github.io/post/git/) 负责代码管理和版本控制
 
 ### 拉取
 
@@ -57,7 +59,7 @@ tags:
 
 - 用代码来描述你想要的基础设施状态，然后 IaC 工具帮你自动“申请”、“创建”、“配置”这些资源（物理资源或者虚拟资源）
 
-- 生产环境和测试环境是物理上（或逻辑上）隔离的两套服务器，比如在本地测试然后部署到云平台，这时候需要 **[Terraform](https://librebitx.github.io/2026/01/17/Terraform/)** 和 **[Ansible](https://librebitx.github.io/2026/01/10/Ansible/)** 来解决环境一致性的问题
+- 生产环境和测试环境是物理上（或逻辑上）隔离的两套服务器，比如在本地测试然后部署到云平台，这时候需要 **[Terraform](https://librebitx.github.io/post/terraform/)** 和 **[Ansible](https://librebitx.github.io/post/ansible/)** 来解决环境一致性的问题
 - Terraform（管硬件：开服务器）和 Ansible（管软件：装配置）  不会部署到生产环境，通过 Jenkins 调度 
 
 ## 持续交付/部署（CD）
@@ -70,7 +72,7 @@ tags:
 ### 部署
 
 - 将构建测试后的程序部署到真实生产环境
-  - Jenkens 调度 [**Kubernetes**](https://librebitx.github.io/2026/01/09/Kubernetes/) 部署程序，至此，Jenkins 不再工作
+  - Jenkens 调度 [**Kubernetes**](https://librebitx.github.io/post/kubernetes/) 部署程序，至此，Jenkins 不再工作
   - Kbernetes 是给服务器用的容器调度操作系统，通过 IaC 部署到生产环境并持续运行
   
 
@@ -93,3 +95,6 @@ tags:
 
 - 收集客户和监控的需求与分析反馈给开发团队，重复上述流程
 
+
+
+# --

@@ -366,6 +366,7 @@ To https://github.com/librebitx/librebitx.github.io.git
 ## SSH Key
 
 ``` bash
+# 创建密钥
 ssh-keygen -t ed25519 -C "librebitx@github"
 cat ~/.ssh/id_ed25519.pub
 ```
@@ -419,12 +420,6 @@ GitHub → Settings → Developer settings → Personal access tokens → **Fine
 ![](2026-01-12_17_40_58.png)
 
 # 问题解决
-
-## 关联仓库
-
-
-
-
 
 ## 恢复提交
 
@@ -640,7 +635,7 @@ To github.com:librebitx/librebitx.github.io.git
 
 ## Docusaurus
 
-![](/public/Git/image-20260118083636231.png)
+![](image-20260118083636231.png)
 
 ## JekyII
 
