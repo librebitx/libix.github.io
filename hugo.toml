@@ -1,0 +1,43 @@
+baseURL = "http://localhost:1313/"
+languageCode = "zh-CN"
+title = "Libix's blog"
+theme = "bitx"
+
+[params]
+  description = "一个极简的个人博客"
+  author = "Libix"
+  about_url = ""
+  math = true
+  mermaid = true
+
+[menu]
+  [[menu.main]]
+    name = "归档"
+    url = "/archives/"
+    weight = 1
+  [[menu.main]]
+    name = "关于"
+    url = "/about/"
+    weight = 2
+
+[markup]
+  [markup.tableOfContents]
+    startLevel = 1
+    endLevel = 6
+    ordered = false
+    codeFences = false
+    guessSyntax = false
+    [markup.goldmark.renderer]
+      unsafe = true
+    [markup.goldmark.extensions]
+      linkify = true
+      typographer = true
+      table = true
+
+[taxonomies]
+  category = "categories"
+  tag = "tags"
+
+[outputs]
+  home = ["HTML", "RSS"]
+  section = ["HTML", "RSS"]

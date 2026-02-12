@@ -1,0 +1,216 @@
+---
+# ============================================================
+### 基础环境初始化 (幂等化设计)
+# ============================================================
+- hosts: all
+  become: yes
+  vars:
+    # 锁定 K8s 版本，防止自动升级导致不兼容
+    k8s_version: "1.31"
+  tasks:
+    - name: 基础环境 - 禁用 Swap
+      shell: |
+        swapoff -a
+        sed -i '/swap/d' /etc/fstab
+      # 只有当 swap 开启时才运行 (通过查看 /proc/swaps 是否有内容)
+      when: ansible_swaptotal_mb > 0
+
+    - name: 基础环境 - 配置内核模块
+      copy:
+        dest: /etc/modules-load.d/k8s.conf
+        content: |
+          overlay
+          br_netfilter
+    
+    - name: 基础环境 - 加载内核模块
+      community.general.modprobe:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - overlay
+        - br_netfilter
+
+    - name: 基础环境 - 配置网络参数 (sysctl)
+      sysctl:
+        name: "{{ item.key }}"
+        value: "{{ item.value }}"
+        state: present
+        sysctl_file: /etc/sysctl.d/k8s.conf
+        reload: yes
+      loop:
+        - { key: 'net.bridge.bridge-nf-call-iptables', value: '1' }
+        - { key: 'net.bridge.bridge-nf-call-ip6tables', value: '1' }
+        - { key: 'net.ipv4.ip_forward', value: '1' }
+
+    - name: 软件源 - 安装依赖工具
+      apt:
+        name: [apt-transport-https, ca-certificates, curl, gpg]
+        state: present
+        update_cache: yes
+
+    - name: 软件源 - 准备 Keyring 目录
+      file:
+        path: /etc/apt/keyrings
+        state: directory
+        mode: '0755'
+
+    - name: 软件源 - 添加 K8s GPG Key
+      get_url:
+        url: "https://pkgs.k8s.io/core:/stable:/v{{ k8s_version }}/deb/Release.key"
+        dest: /etc/apt/keyrings/kubernetes-apt-keyring.asc
+        mode: '0644'
+        force: no # 如果文件已存在且未损坏，不重新下载
+
+    - name: 软件源 - 添加 K8s 仓库
+      apt_repository:
+        repo: "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.asc] https://pkgs.k8s.io/core:/stable:/v{{ k8s_version }}/deb/ /"
+        filename: kubernetes
+        state: present
+
+    - name: 安装核心组件
+      apt:
+        name: [containerd, kubelet, kubeadm, kubectl, conntrack, socat]
+        state: present
+
+
+    ### 配置 Containerd 走宿主机代理
+    - name: 创建 Containerd Service 目录
+      file:
+        path: /etc/systemd/system/containerd.service.d
+        state: directory
+
+    - name: 注入 HTTP 代理设置
+      copy:
+        dest: /etc/systemd/system/containerd.service.d/http-proxy.conf
+        content: |
+          [Service]
+          Environment="HTTP_PROXY=http://192.168.0.5:7897"
+          Environment="HTTPS_PROXY=http://192.168.0.5:7897"
+          # NO_PROXY 非常重要！千万不能把 K8s 内部流量发给代理
+          Environment="NO_PROXY=localhost,127.0.0.1,10.244.0.0/16,10.96.0.0/12,192.168.0.0/24,.svc,.cluster.local"
+
+    - name: 锁定软件版本
+      dpkg_selections:
+        name: "{{ item }}"
+        selection: hold
+      loop:
+        - kubelet
+        - kubeadm
+        - kubectl
+
+    # --- Containerd 配置幂等化核心 ---
+    - name: Containerd - 创建配置目录
+      file:
+        path: /etc/containerd
+        state: directory
+
+    - name: Containerd - 检查配置文件状态
+      stat:
+        path: /etc/containerd/config.toml
+      register: containerd_config_file
+
+    - name: Containerd - 生成默认配置 (仅当文件缺失时)
+      shell: containerd config default > /etc/containerd/config.toml
+      when: not containerd_config_file.stat.exists
+      notify: 重启 Containerd
+
+    - name: Containerd - 开启 SystemdCgroup (精准替换)
+      replace:
+        path: /etc/containerd/config.toml
+        regexp: 'SystemdCgroup = false'
+        replace: 'SystemdCgroup = true'
+      notify: 重启 Containerd
+
+  handlers:
+    - name: 重启 Containerd
+      service:
+        name: containerd
+        state: restarted
+        daemon_reload: yes
+
+# ============================================================
+### Master 初始化 & 令牌标准化分发
+# ============================================================
+- hosts: masters
+  become: yes
+  tasks:
+    - name: 检查集群状态
+      stat:
+        path: /etc/kubernetes/admin.conf
+      register: kubeadm_init_stat
+
+    - name: 初始化 Master
+      command: >
+        kubeadm init 
+        --pod-network-cidr=10.244.0.0/16 
+        --apiserver-advertise-address={{ ansible_host }}
+      when: not kubeadm_init_stat.stat.exists
+
+    # --- 配置普通用户 kubectl 权限 ---
+    - name: 创建用户 .kube 目录
+      file:
+        path: "/home/{{ ansible_user }}/.kube"
+        state: directory
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
+        mode: '0755'
+
+    - name: 复制 admin.conf
+      copy:
+        src: /etc/kubernetes/admin.conf
+        dest: "/home/{{ ansible_user }}/.kube/config"
+        remote_src: yes
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
+        mode: '0600'
+
+    # --- Calico 网络插件 (幂等性处理) ---
+    - name: 下载 Calico Manifest
+      get_url:
+        url: https://raw.githubusercontent.com/projectcalico/calico/v3.29.1/manifests/calico.yaml
+        dest: /root/calico.yaml
+      
+    - name: 配置 Calico - 启用 CIDR 变量
+      replace:
+        path: /root/calico.yaml
+        regexp: '#\s*- name: CALICO_IPV4POOL_CIDR'
+        replace: '- name: CALICO_IPV4POOL_CIDR'
+
+    - name: 配置 Calico - 设置 Pod 网段
+      replace:
+        path: /root/calico.yaml
+        regexp: '#\s*value: "192.168.0.0/16"'
+        replace: '  value: "10.244.0.0/16"'
+
+    - name: 应用 Calico
+      command: kubectl apply -f /root/calico.yaml --kubeconfig /etc/kubernetes/admin.conf
+      register: calico_result
+      changed_when: "'created' in calico_result.stdout or 'configured' in calico_result.stdout"
+
+    # --- 令牌作用域标准化 (Standardization) ---
+    - name: 生成 Join Token
+      command: kubeadm token create --print-join-command --kubeconfig /etc/kubernetes/admin.conf
+      register: join_command_raw
+      # 即使 Master 已经初始化过，为了让新节点加入，这里总是生成一个新 token 比较保险
+      # 或者使用 kubeadm token list 检查
+    
+    - name: 将 Token 注册到全局内存对象 (Magic Step)
+      add_host:
+        name: "K8S_TOKEN_HOLDER"
+        token: "{{ join_command_raw.stdout }}"
+      # 'K8S_TOKEN_HOLDER' 是一个虚拟主机，它的生命周期贯穿整个 playbook 执行过程
+
+# ============================================================
+### Worker 节点加入
+# ============================================================
+- hosts: workers
+  become: yes
+  tasks:
+    - name: 检查节点加入状态
+      stat:
+        path: /etc/kubernetes/kubelet.conf
+      register: kubelet_conf
+
+    - name: 执行加入命令 (从全局对象获取)
+      command: "{{ hostvars['K8S_TOKEN_HOLDER']['token'] }}"
+      when: not kubelet_conf.stat.exists

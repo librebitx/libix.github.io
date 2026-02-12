@@ -1,0 +1,12 @@
+name = "Bitx"
+license = "MIT"
+licenselink = "https://github.com/yourname/bitx/blob/master/LICENSE"
+description = "A minimal blog theme for Hugo"
+homepage = "https://github.com/yourname/bitx"
+tags = ["blog", "minimal", "responsive"]
+features = ["dark mode", "responsive"]
+min_version = "0.100.0"
+
+[author]
+  name = "Libix"
+  homepage = "https://github.com/libix"

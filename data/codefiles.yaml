@@ -1,0 +1,11 @@
+# 代码文件列表配置
+# 在这里添加你想展示的代码文件
+- name: "main.js"
+  url: "/js/main.js"
+  size: "4.2KB"
+  date: "2026-02-09"
+  
+- name: "style.css"
+  url: "/css/style.css"
+  size: "12KB"
+  date: "2026-02-09"

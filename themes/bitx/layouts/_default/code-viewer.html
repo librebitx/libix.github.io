@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="page-title">Loading...</title>
+    <style>
+        body {
+            margin: 20px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            body {
+                background: #121212;
+                color: #e0e0e0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="code-content">Loading content...</div>
+
+    <script>
+        (function () {
+            const params = new URLSearchParams(window.location.search);
+            const filePath = params.get('file');
+            const titleEl = document.getElementById('page-title');
+            const codeEl = document.getElementById('code-content');
+
+            if (filePath) {
+                // Security check: only allow files in /code/ and prevent path traversal
+                if (!filePath.startsWith('/code/') || filePath.includes('..')) {
+                    titleEl.textContent = 'Invalid Path';
+                    codeEl.textContent = 'Error: Access denied or invalid path.';
+                    return;
+                }
+
+                // Remove /code/ prefix for the tab title
+                const displayPath = filePath.replace(/^\/+code\//, '');
+                titleEl.textContent = displayPath;
+
+                fetch(filePath)
+                    .then(response => {
+                        if (!response.ok) throw new Error('File not found');
+                        return response.text();
+                    })
+                    .then(text => {
+                        codeEl.textContent = text;
+                    })
+                    .catch(err => {
+                        codeEl.textContent = 'Error: ' + err.message;
+                    });
+            } else {
+                titleEl.textContent = 'No file specified';
+                codeEl.textContent = 'Please select a file from the code archive.';
+            }
+        })();
+    </script>
+</body>
+
+</html>

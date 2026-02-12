@@ -1,0 +1,42 @@
+{{ define "main" }}
+<!-- Tag Filter -->
+{{ $allTags := slice }}
+{{ range .Site.RegularPages }}
+{{ with .Params.tags }}
+{{ range . }}
+{{ $allTags = $allTags | append . }}
+{{ end }}
+{{ end }}
+{{ end }}
+{{ $uniqueTags := $allTags | uniq }}
+
+{{ if $uniqueTags }}
+<div class="tag-filter" id="tag-filter">
+    <button class="tag-btn active" data-tag="all">全部</button>
+    {{ range $uniqueTags }}
+    <button class="tag-btn" data-tag="{{ . }}">#{{ . }}</button>
+    {{ end }}
+</div>
+{{ end }}
+
+<div class="post-list" id="post-list">
+    {{ range .Site.RegularPages.ByDate.Reverse }}
+    <article class="post-item" data-tags="{{ with .Params.tags }}{{ delimit . " ," }}{{ end }}">
+        <div class="post-meta">
+            {{ .Date.Format "2006-01-02" }}
+        </div>
+        <h3 class="post-title">
+            <a href="{{ .Permalink }}">{{ .Title }}</a>
+        </h3>
+        {{ if .Summary }}
+        <p class="post-excerpt">{{ .Summary | plainify | truncate 150 }}</p>
+        {{ end }}
+        {{ with .Params.tags }}
+        <div class="post-tags-bottom">
+            {{ range . }}<span class="post-tag">#{{ . }}</span>{{ end }}
+        </div>
+        {{ end }}
+    </article>
+    {{ end }}
+</div>
+{{ end }}

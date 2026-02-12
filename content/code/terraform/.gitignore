@@ -1,0 +1,8 @@
+# .gitignore
+*.tfstate
+*.tfstate.*
+.terraform/
+.terraform.lock.hcl
+ansible/inventory.ini
+*.iso
+ssh_keys/ 

@@ -1,0 +1,56 @@
+{{ $basePath := .path }}
+{{ $allFiles := readDir $basePath }}
+{{ $level := .level | default 0 }}
+{{ $prefixes := .prefixes | default slice }}
+
+{{/* Filter out hidden files and _index.md */}}
+{{ $filteredFiles := slice }}
+{{ range $allFiles }}
+{{ if and (ne .Name "_index.md") (ne .Name "code-viewer.md") (not (hasPrefix .Name ".")) }}
+{{ $filteredFiles = $filteredFiles | append . }}
+{{ end }}
+{{ end }}
+
+{{ $total := len $filteredFiles }}
+{{ range $index, $file := $filteredFiles }}
+{{ $isLast := eq (add $index 1) $total }}
+{{ $currentPath := printf "%s/%s" $basePath .Name }}
+
+{{ if eq $level 0 }}
+{{/* Root level: No connector (Year Style) */}}
+<div class="archive-tree">
+    <div class="tree-node tree-year">
+        <span class="tree-label">{{ .Name }}{{ if .IsDir }}/{{ end }}</span>
+    </div>
+    {{ if .IsDir }}
+    {{ partial "code-tree.html" (dict "path" $currentPath "level" 1 "prefixes" slice) }}
+    {{ end }}
+</div>
+{{ else if and (eq $level 1) .IsDir }}
+{{/* 1st Level Directory: No connector (Month Style) */}}
+<div class="tree-node tree-month">
+    <span class="tree-label">{{ .Name }}</span>
+</div>
+{{ if .IsDir }}
+{{ $nextPrefix := cond $isLast " " "│ " }}
+{{ partial "code-tree.html" (dict "path" $currentPath "level" 2 "prefixes" (append $nextPrefix slice)) }}
+{{ end }}
+{{ else }}
+{{/* Files at any level (>=1) OR Directories at level >=2: tree connectors */}}
+<div class="tree-node tree-post">
+    <span class="tree-connector">{{ range $prefixes }}{{ . }}{{ end }}{{ if $isLast }}└── {{ else }}├── {{ end }}</span>
+    {{ if .IsDir }}
+    <span class="tree-label">{{ .Name }}</span>
+    {{ else }}
+    {{ $relativeUrl := replace $currentPath "content/code/" "" }}
+    <a href="/code-viewer/?file=/code/{{ $relativeUrl }}" target="_blank" class="tree-link">{{ .Name }}</a>
+    <span class="tree-date">{{ .ModTime.Format "01-02" }}</span>
+    {{ end }}
+</div>
+{{ if .IsDir }}
+{{ $nextPrefix := cond $isLast " " "│ " }}
+{{ partial "code-tree.html" (dict "path" $currentPath "level" (add $level 1) "prefixes" (append $nextPrefix $prefixes))
+}}
+{{ end }}
+{{ end }}
+{{ end }}

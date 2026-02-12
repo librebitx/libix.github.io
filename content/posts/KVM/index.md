@@ -1,0 +1,488 @@
+---
+title: "KVM"
+date: 2026-01-15T07:59:10+08:00
+draft: false
+tags:
+  - "Notes"
+---
+
+# 什么是 KVM？
+**KVM (Kernel-based Virtual Machine)**，字面意思就是“基于内核的虚拟机”。
+它不是安装在 Linux 上的一个软件，它就是 Linux 内核的一部分。
+相比于其他虚拟化软件，在 Linux 中创建 Linux 虚拟机 KVM 拥有极致的性能，虚拟机直接调用 CPU 的虚拟化指令，性能几乎等同于物理机。只要 Linux 内核升级变强了，KVM 立刻、自动、免费地跟着变强。它不需要像其他虚拟化软件那样单独开发一套内核。
+阿里云、腾讯云、AWS、Google Cloud、OpenStack…… 它们底层跑的 90% 都是 KVM。
+
+# 安装 KVM
+
+
+```bash
+sudo apt update
+sudo apt install qemu-kvm qemu-system-x86 libvirt-daemon-system libvirt-clients libvirt-dev bridge-utils virt-manager virtinst libguestfs-tools
+sudo systemctl enable --now libvirtd
+
+# 将自己加入 libvirt 和 kvm 组
+sudo usermod -aG libvirt,kvm $USER
+
+# 激活组更改（或者直接注销并重新登录系统）
+newgrp libvirt
+newgrp kvm
+
+# 验证现在是否可以访问 system 级别
+virsh -c qemu:///system list --all
+
+# 启动默认网络
+sudo virsh net-start default
+# 设置开机自启（防止下次重启又报错）
+sudo virsh net-autostart default
+```
+
+# 命令行
+
+```bash
+sudo virsh list --all		# 查看所有虚拟机
+sudo virsh start demo-vm		# 启动虚拟机
+sudo virsh shutdown demo-vm		# 关机
+sudo virsh destroy demo-vm		# 强制关机
+sudo virsh autostart demo-vm		# 设置开机自启
+sudo virsh undefine demo-vm		# 删除虚拟机 (删除配置，但保留磁盘文件)
+# 删除虚拟机的同时，把磁盘文件也一起删掉
+sudo virsh undefine demo-vm --remove-all-storage
+
+sudo virsh console demo-vm			# 连接到虚拟机
+
+sudo virsh dominfo demo-vm			# 查看实例信息
+
+# 查看虚拟机 IP
+sudo virsh domifaddr demo-vm
+
+# 查看镜像中 /root 目录的内容
+sudo virt-ls -a your_image.qcow2 -l /root
+
+# 挂载镜像到目录
+guestmount -a your_image.qcow2 -i ~/mnt_image
+# 卸载
+guestunmount ~/mnt_image
+```
+
+# KVM 网络
+
+## NAT (virbr0)
+默认模式，KVM 在你的宿主机里虚拟了一个“路由器”（通常叫 `virbr0`），你的虚拟机插在这个路由器上。
+    虚拟机可以上网（通过宿主机转发）。
+    宿主机可以通过 IP 连接虚拟机。
+    局域网里的其他电脑（比如你的手机、同事的电脑）访问不到这台虚拟机。
+
+```bash
+# 配置
+--network network=default
+```
+
+
+## 桥接 (Bridge)
+使虚拟机像一台真实的物理机一样，拥有和宿主机同一网段的 IP，让局域网里的所有设备都能直接访问它。
+**标准的 Linux 网桥不支持无线网卡 (WiFi)。这是无线协议（802.11）的限制。**
+
+```bash
+# 创建网桥 (br0)
+# 创建一个名为 br0 的虚拟交换机。
+sudo nmcli con add type bridge ifname br0 con-name br0
+
+# 把物理网卡绑定给网桥，替换 enp3s0 为真实网卡名
+sudo nmcli con add type ethernet slave-type bridge con-name bridge-slave-enp3s0 ifname enp3s0 master br0
+
+# 关闭 STP (生成树协议)
+# 做实验不需要这个防环路协议，关掉可以加快启动速度，防止连不上网。
+sudo nmcli con modify br0 bridge.stp no
+
+# 启用网桥
+# 这步操作后，你的网络会重连。物理网卡自己不再持有 IP，IP 会转移到 br0 上。
+# 关闭当前的物理连接
+sudo nmcli con down enp3s0
+# (注：名字可能是 "System enp3s0" 或其他，用 nmcli con show 查看)
+
+# 启动网桥
+sudo nmcli con up br0
+
+### 物理网卡变成了一个“傻瓜交换机端口”，网桥 br0 变成了系统里唯一能上网的“虚拟网卡”。
+### br0 的 MAC 地址通常会“继承”（复制）物理网卡的 MAC 地址。
+
+# 把物理网卡变成网桥的一个“端口” (Slave)
+sudo nmcli con add type ethernet slave-type bridge con-name bridge-slave-enx ifname enp3s0 master br0
+# 激活这个连接 (这一步会断网重连)
+sudo nmcli con up bridge-slave-enx
+
+# 修改 ip 
+sudo nmcli con modify br0 ipv4.addresses 192.168.0.5/24
+sudo nmcli con modify br0 ipv4.gateway 192.168.0.1
+sudo nmcli con modify br0 ipv4.dns "192.168.1.1 192.168.0.1"
+sudo nmcli con modify br0 ipv4.method manual
+sudo nmcli con down br0 && sudo nmcli con up br0
+```
+
+```bash
+# 配置: 在 virt-install 时添加
+--network bridge=br0,model=virtio
+# model=virtio 	网卡类型
+```
+
+# Cockpit Web
+
+Web 界面管理服务器。Debian 自带，叫 **Cockpit**。
+
+```bash
+sudo apt install cockpit cockpit-machines -y			# 安装 Cockpit 和 KVM 插件
+sudo systemctl enable --now cockpit.socket
+```
+
+**使用**：
+打开浏览器（Chrome/Firefox），访问：`http://localhost:9090`
+输入你的 Debian 用户名和密码。
+点击左侧的 **"Virtual Machines"**。
+
+# 快照 / 克隆
+
+```bash
+### 快照
+# 创建快照
+# 语法：virsh snapshot-create-as 虚拟机名 快照名 "描述"
+sudo virsh snapshot-create-as VMNAME SNAPNAME "SNAP"
+sudo virsh snapshot-create-as --domain VMNAME --name SNAPNAME --description "SNAP" --atomic
+# --atomic		出现快照失败则全部回滚
+
+# 查看快照
+sudo virsh snapshot-list devops-node
+
+# 还原快照
+sudo virsh snapshot-revert devops-node fresh-install
+
+# 删除快照
+sudo virsh snapshot-delete devops-node fresh-install
+
+### 克隆
+# 完整克隆
+sudo virt-clone --original devops-node --name devops-worker-01 --auto-clone
+# --original: 源虚拟机名字
+# --name: 新虚拟机名字
+# --auto-clone: 自动处理磁盘路径和 MAC 地址
+
+# 链接克隆
+sudo qemu-img create -f qcow2 -F qcow2 -b debian12-cloud.qcow2 worker-02.qcow2
+# -b: 指定母盘
+# -f: 指定格式
+# -F: 指定母盘格式
+sudo virt-install --name devops-worker-02 --memory 2048 --vcpus 2 --disk /var/lib/libvirt/images/worker-02.qcow2 --import --os-variant debian12 --graphics none
+# 对于“虚拟机内部的操作系统”来说，完整克隆和链接克隆完全没有区别
+```
+
+# 使用
+虚拟机启动后，虚拟机系统中的配置默认存放在 **/var/lib/libvirt/images/** 的 .qcow2 中；
+
+虚拟机的硬件信息存放在 **/etc/libvirt/qemu/** 的 .xml 文件中 
+
+**.qcow2** 全称是 **QEMU Copy On Write (写时复制)**。它有两个特性：
+**动态分配**：给虚拟机分了 10GB 硬盘，实际上刚创建时，`.qcow2` 文件可能只有 **2MB**（仅包含元数据）。它**用多少、占多少**，直到达到 10GB 上限。这为你节省了大量硬盘空间。
+
+**支持快照/克隆**；
+
+不要手动重命名或移动虚拟机的 QCOW2 文件！
+
+​	需要先关机，改文件名，然后用 `virsh edit 虚拟机名` 修改 XML 里的 `<source file='...'/>` 路径，保存后才能开机。
+
+> Ubuntu 有个坑：它的文件后缀通常是 `.img`，但其实它就是 qcow2 格式！建议手动把后缀改成 `.qcow2`，以免自己弄混。
+>
+> https://cloud-images.ubuntu.com/
+>
+> https://cloud.debian.org/images/cloud/
+>
+> https://cloud.centos.org/centos/
+>
+> https://www.rockylinux.cn/download
+
+## 自定义镜像目录
+
+/var/lib/libvirt/images/ 只是默认目录，实验环境可以把镜像放在自定义目录，生产环境不建议。
+
+```bash
+~$ cd /media/libix/Storage/K8s/
+/media/libix/Storage/K8s$ sudo chmod o+x /media/libix
+/media/libix/Storage/K8s$ sudo chmod o+x /media/libix/Storage
+/media/libix/Storage/K8s$ sudo chmod o+x /media/libix/Storage/K8s
+/media/libix/Storage/K8s$ sudo chown libvirt-qemu:libvirt-qemu /media/libix/Storage/K8s/*.qcow2
+/media/libix/Storage/K8s$ ls -lh
+总计 598M
+-rw-rw-r-- 1 libvirt-qemu libvirt-qemu 598M Jan16日 00:24 ubuntu-template.qcow2
+/media/libix/Storage/K8s$ 
+```
+
+## 修改虚拟机镜像
+
+```bash
+# virt-customize 在虚拟机启动前直接修改磁盘镜像，拥有至高无上的 Root 权限
+/var/lib/libvirt/images$ sudo mv noble-server-cloudimg-amd64.qcow2 ubuntu-template.qcow2
+/var/lib/libvirt/images$ sudo qemu-img resize ubuntu-template.qcow2 20G			# 设置磁盘大小上限为20G
+Image resized.
+/var/lib/libvirt/images$ sudo virt-customize -a ubuntu-template.qcow2 \
+  --root-password password:123456 \
+  --timezone Asia/Shanghai \
+  --hostname ubuntu-template \
+  --write /etc/cloud/cloud.cfg.d/99_local.cfg:"datasource_list: [ NoCloud, None ]" \
+  --run-command 'rm /etc/ssh/sshd_config.d/60-cloudimg-settings.conf' \
+  --run-command 'useradd -m -s /bin/bash -G sudo libix' \
+  --run-command "echo 'libix: ' | chpasswd" \
+  --run-command 'echo "libix ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/libix' \
+  --chmod 0440:/etc/sudoers.d/libix \
+  --upload /home/libix/shell/parper.sh:/root/net-init.sh \
+  --run-command 'mkdir -p /etc/systemd/system/systemd-networkd-wait-online.service.d' \
+  --run-command 'printf "[Service]\nTimeoutStartSec=10\nExecStart=\nExecStart=/lib/systemd/systemd-networkd-wait-online --any\n" > /etc/systemd/system/systemd-networkd-wait-online.service.d/override.conf'		# 设置 DHCP 等待时间为 10s
+  
+/var/lib/libvirt/images$ 
+# -o /var/lib/libvirt/images/devops-node.qcow2		输出磁盘文件
+# 可选参数：
+# --USER-password password:123456
+# --write /etc/cloud/cloud.cfg.d/99_local.cfg:"datasource_list: [ NoCloud, None ]"			跳过网络搜寻直接执行初始化
+# --ssh-inject USER:file:KEY_FILE				注入 SSH 公钥
+# --run-command 'systemctl enable qemu-guest-agent'			修改镜像时立刻执行命令
+# --firstboot-command 'dpkg-reconfigure openssh-server'			首次启动时执行命令
+# --run libix-setup.sh			上传脚本并执行
+# --upload /home/libix/k8s.conf:/etc/sysctl.d/k8s.conf			上传文件
+# --install qemu-guest-agent			安装软件；不推荐，常常连不上网
+# 在 KVM/Libvirt 环境下，虚拟机（VM）通过 cloud-init 直接连接 Wi-Fi 几乎是不可能的
+```
+
+## 启动虚拟机
+
+```bash
+# 母盘做好之后克隆的虚拟机可直接启动
+/var/lib/libvirt/images$ sudo virt-install \
+  --name ubuntu-template \
+  --memory 2048 \
+  --vcpus 2 \
+  --disk ubuntu-template.qcow2 \
+  --import \
+  --network bridge=br0,model=virtio \
+  --os-variant ubuntu24.04 \
+  --graphics none \
+  --noautoconsole
+WARNING  为操作系统 ubuntu24.04 请求的内存大小 2048 MiB 小于建议值 3072 MiB
+开始安装......
+创建域......                                                                                                   |         00:00:00     
+域创建完成。
+/var/lib/libvirt/images$ 
+# virt-install			创建虚拟机
+# --disk /var/lib/libvirt/images/xxx.qcow2			使用已生成的磁盘
+# --import			不安装系统，直接使用 qcow2 硬盘开机
+# --os-variant debian12 		指定系统
+# --graphics none		不配置图形显卡，也不启动 VNC/SPICE 远程桌面服务
+# 可选参数：
+# --console pty,target_type=serial	启动时进入虚拟机的终端窗口
+
+/var/lib/libvirt/images$ sudo virsh list --all
+ Id   名称              状态
+------------------------------
+ 9    ubuntu-template   运行
+
+/var/lib/libvirt/images$ 
+/var/lib/libvirt/images$ sudo virsh console ubuntu-template
+连接到域 'ubuntu-template'
+转义字符是 ^] (Ctrl + ])
+ubuntu-template login:  
+```
+
+## 制作模板母盘
+
+```bash
+root@ubuntu-template:/# cat > /etc/apt/sources.list <<EOF
+deb https://mirrors.aliyun.com/ubuntu/ noble main restricted universe multiverse
+deb https://mirrors.aliyun.com/ubuntu/ noble-updates main restricted universe multiverse
+deb https://mirrors.aliyun.com/ubuntu/ noble-backports main restricted universe multiverse
+deb https://mirrors.aliyun.com/ubuntu/ noble-security main restricted universe multiverse
+EOF
+root@ubuntu-template:/# apt update
+root@ubuntu-template:/# apt install -y curl vim wget tree lsof tcpdump sysstat unzip iputils-ping bash-completion qemu-guest-agent
+root@ubuntu-template:~# sudo systemctl enable qemu-guest-agent
+# Ctrl + ] 退出终端
+/var/lib/libvirt/images$ 
+### 深度清理系统
+/var/lib/libvirt/images$ sudo virt-customize -a ubuntu-template.qcow2 \
+  --run-command 'apt-get autoremove -y' \
+  --run-command 'apt-get clean' \
+  --run-command 'rm -rf /var/lib/apt/lists/*' \
+  --run-command 'rm -rf /tmp/* /var/tmp/*'
+  
+### 移除身份信息 (Machine ID, SSH Keys, Logs, Cloud-init history)
+/var/lib/libvirt/images$ sudo virt-sysprep -a ubuntu-template.qcow2 \
+  --operations defaults \
+  --delete /var/lib/cloud/instances \
+  --delete /var/lib/cloud/data \
+  --delete /etc/machine-id \
+  --delete /var/lib/dbus/machine-id
+
+/var/lib/libvirt/images$ 
+# --operations defaults: 执行标准的清洗（重置 Machine ID、删除 SSH Host Key、清空日志、删除 DHCP 租约、清理临时文件等）
+# --delete ...: 强行删除 Cloud-init 的“记忆文件”
+
+### 稀疏化镜像
+# 磁盘里有空白区域，QCOW2 就不分配物理空间，只在元数据里记一笔“这里是空的”
+/var/lib/libvirt/images$ sudo env TMPDIR=$(pwd) virt-sparsify ubuntu-template.qcow2 ubuntu-template-final.qcow2
+/var/lib/libvirt/images$ sudo mv ubuntu-template-final.qcow2 ubuntu-template.qcow2 
+mv: 是否替换 'ubuntu-template.qcow2'，而忽略模式 0444 (r--r--r--)？y
+/var/lib/libvirt/images$ ls -hl
+总计 914M
+-rw-r--r-- 1 root         root         914M Jan17日 01:09 ubuntu-template.qcow2
+/var/lib/libvirt/images$ 
+/var/lib/libvirt/images$ sudo chmod a-w ubuntu-template.qcow2                     # 防止误操作修改母盘，撤销所有人的“写”权限
+```
+
+## 创建链接克隆
+
+```bash
+/var/lib/libvirt/images$ sudo qemu-img create -f qcow2 -F qcow2 -b ubuntu-template.qcow2 kmaster.qcow2
+Formatting 'kmaster.qcow2', fmt=qcow2 cluster_size=65536 extended_l2=off compression_type=zlib size=21474836480 backing_file=ubuntu-template.qcow2 backing_fmt=qcow2 lazy_refcounts=off refcount_bits=16
+/var/lib/libvirt/images$ ls -lh
+总计 601M
+-rw-r--r-- 1 root  root  193K Jan16日 23:45 kmaster.qcow2
+-r--r--r-- 1 libix libix 600M Jan16日 23:38 ubuntu-template.qcow2
+/var/lib/libvirt/images$ 
+
+
+# 链接克隆自动继承母盘的虚拟大小
+# 一旦母盘有了孩子，母盘就必须变为“只读”，任何人都不能以“读写模式”直接使用它。
+```
+
+## 脚本初始化
+
+```bash
+root@ubuntu-template:~# bash net-init.sh 
+>>> 当前脚本已预定义以下节点配置：
+ - kmaster 	(IP: 192.168.0.10)
+ - storage-node 	(IP: 192.168.0.20)
+ - knode1 	(IP: 192.168.0.11)
+ - knode2 	(IP: 192.168.0.12)
+----------------------------------------
+请输入当前机器的角色名称 (例如 kmaster): kmaster
+已选中: kmaster -> 将配置 IP 为: 192.168.0.10
+确认继续吗? [y/N]: y
+使用网卡接口: enp1s0
+设置系统主机名...
+检测到系统: ubuntu, 正在写入网络配置...
+Netplan 配置已生效
+正在更新 /etc/hosts ...
+>>> 配置完成！
+当前节点: kmaster (192.168.0.10)
+Hosts 文件已包含集群内 4 个节点记录。
+root@ubuntu-template:~# 
+root@ubuntu-template:~# ip a
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+    inet6 ::1/128 scope host noprefixroute 
+       valid_lft forever preferred_lft forever
+2: enp1s0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UP group default qlen 1000
+    link/ether 52:54:00:d0:9f:ec brd ff:ff:ff:ff:ff:ff
+    inet 192.168.0.10/24 brd 192.168.0.255 scope global enp1s0
+       valid_lft forever preferred_lft forever
+    inet6 fe80::5054:ff:fed0:9fec/64 scope link 
+       valid_lft forever preferred_lft forever
+root@ubuntu-template:~# 
+root@ubuntu-template:~# cat /etc/hosts
+127.0.1.1	kmaster
+127.0.0.1 localhost
+
+# The following lines are desirable for IPv6 capable hosts
+::1 ip6-localhost ip6-loopback
+fe00::0 ip6-localnet
+ff00::0 ip6-mcastprefix
+ff02::1 ip6-allnodes
+ff02::2 ip6-allrouters
+ff02::3 ip6-allhosts
+
+# K8s-Cluster-Nodes
+192.168.0.10	kmaster
+192.168.0.20	storage-node
+192.168.0.11	knode1
+192.168.0.12	knode2
+root@ubuntu-template:~# bash
+root@kmaster:~# 
+```
+
+## 配置 SSH 免密和 sudo 提权
+
+```bash
+useradd -m -s /bin/bash libix && echo "libix:123456" | chpasswd
+
+
+usermod -aG sudo user
+# CentOS/RedHat 系统:	usermod -aG wheel user
+~$ ssh-keygen -t ed25519 
+# 可选：
+# -f ~/.ssh/libix_ed25519		指定密钥名称
+
+~$ ls .ssh/
+id_ed25519  id_ed25519.pub known_hosts  known_hosts.old
+# ~/.ssh/id_ed25519        ← 私钥
+# ~/.ssh/id_ed25519.pub    ← 公钥
+~$ ssh-copy-id -i ~/.ssh/id_ed25519.pub libix@192.168.0.10
+~$ 
+~$ ssh -i /home/libix/.ssh/id_ed25519 'libix@192.168.0.10'
+Welcome to Ubuntu 24.04.3 LTS (GNU/Linux 6.8.0-90-generic x86_64)
+libix@kmaster:~$ exit
+~$ cat .ssh/config
+Host kmaster
+    HostName 192.168.0.10
+    User libix
+    IdentityFile ~/.ssh/id_ed25519
+~$ ssh kmaster
+Welcome to Ubuntu 24.04.3 LTS (GNU/Linux 6.8.0-90-generic x86_64)
+
+libix@kmaster:~$ 
+libix@kmaster:~$ ls /etc/sudoers.d/
+ls: cannot open directory '/etc/sudoers.d/': Permission denied
+libix@kmaster:~$ echo "libix ALL=(ALL) NOPASSWD:ALL" | sudo tee /etc/sudoers.d/libix			# 加了 sudo，普通用户就是 root
+[sudo] password for libix: 
+libix ALL=(ALL) NOPASSWD:ALL
+libix@kmaster:~$ 
+libix@kmaster:~$ sudo chmod 0440 /etc/sudoers.d/libix
+libix@kmaster:~$ sudo rm /etc/sudoers.d/90-cloud-init-users
+libix@kmaster:~$ sudo visudo -c
+/etc/sudoers: parsed OK
+/etc/sudoers.d/README: parsed OK
+/etc/sudoers.d/libix: parsed OK
+libix@kmaster:~$ 
+libix@kmaster:~$ sudo ls /etc/sudoers.d/			# 这时不需要输入密码
+libix  README
+libix@kmaster:~$ exit
+
+```
+
+## 删除虚拟机
+
+```bash
+~$ sudo virsh list --all
+ Id   名称      状态
+----------------------
+ -    kmaster   关闭
+ -    knode1    关闭
+~$ sudo virsh undefine kmaster --remove-all-storage
+error: 取消域 'kmaster' 定义失败
+error: 所需操作无效：无法删除具有 1 快照的不活跃域
+~$ sudo virsh snapshot-list kmaster
+ 名称   生成时间                    状态
+---------------------------------------------
+ 0      2026-01-16 04:26:45 +0800   shutoff
+~$ 
+~$ sudo virsh snapshot-delete kmaster 0
+已删除域快照 0
+# 如果一台虚拟机有快照，禁止直接删除这台虚拟机
+~$ sudo virsh undefine kmaster --remove-all-storage
+domain 'kmaster' 已被解除定义
+已删除卷 'vda'(/var/lib/libvirt/images/noble-server-cloudimg-amd64.qcow2)。
+~$ sudo virsh undefine knode1 --remove-all-storage
+domain 'knode1' 已被解除定义
+已删除卷 'vda'(/var/lib/libvirt/images/knode1.qcow2)。
+~$ sudo virsh list --all
+ Id   名称   状态
+-------------------
+~$ 
+```
+
