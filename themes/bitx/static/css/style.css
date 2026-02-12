@@ -1622,7 +1622,7 @@ a:hover {
    Bottom Tags 
    ======================================== */
 .post-tags-bottom {
-  margin-top: 30px;
+  margin-top: 12px;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
