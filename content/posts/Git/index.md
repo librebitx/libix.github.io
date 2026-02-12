@@ -527,11 +527,11 @@ aa
 注意：**公共项目要慎用！**
 
 ```bash
-~/github/libix.github.io$ ls -a
+~/github/lib$ ls -a
 .  ..  public  _config.yml  css  .git  index.html  _layouts  LICENSE  _posts  README.md  resume.html  upload.sh
-~/github/libix.github.io$ rm -rf .git
-~/github/libix.github.io$ 
-~/github/libix.github.io$ git init
+~/github/lib$ rm -rf .git
+~/github/lib$ 
+~/github/lib$ git init
 提示： 使用 'master' 作为初始分支的名称。这个默认分支名称可能会更改。要在新仓库中
 提示： 配置使用初始分支名，并消除这条警告，请执行：
 提示：
@@ -541,14 +541,14 @@ aa
 提示： 可以通过以下命令重命名刚创建的分支：
 提示：
 提示： 	git branch -m <name>
-已初始化空的 Git 仓库于 /home/libix/github/libix.github.io/.git/
-~/github/libix.github.io$ git branch
-~/github/libix.github.io$ git branch -M main
-~/github/libix.github.io$ git branch
-~/github/libix.github.io$ git branch -M main
-~/github/libix.github.io$ 
-~/github/libix.github.io$ git add .
-~/github/libix.github.io$ git commit -m "Initial commit"
+已初始化空的 Git 仓库于 /home/libix/github/lib/.git/
+~/github/lib$ git branch
+~/github/lib$ git branch -M main
+~/github/lib$ git branch
+~/github/lib$ git branch -M main
+~/github/lib$ 
+~/github/lib$ git add .
+~/github/lib$ git commit -m "Initial commit"
 [main（根提交） 3033a10] Initial commit
  20 files changed, 7078 insertions(+)
  create mode 100644 LICENSE
@@ -561,13 +561,13 @@ aa
  create mode 100644 index.html
  create mode 100644 resume.html
  create mode 100755 upload.sh
-~/github/libix.github.io$ git remote set-url origin git@github.com:librebitx/librebitx.github.io.git
-~/github/libix.github.io$ 
-~/github/libix.github.io$ git remote -v
+~/github/lib$ git remote set-url origin git@github.com:librebitx/librebitx.github.io.git
+~/github/lib$ 
+~/github/lib$ git remote -v
 origin	git@github.com:librebitx/librebitx.github.io.git (fetch)
 origin	git@github.com:librebitx/librebitx.github.io.git (push)
-~/github/libix.github.io$ 
-~/github/libix.github.io$ git push -u origin main
+~/github/lib$ 
+~/github/lib$ git push -u origin main
 枚举对象中: 28, 完成.
 对象计数中: 100% (28/28), 完成.
 使用 16 个线程进行压缩
@@ -576,20 +576,20 @@ origin	git@github.com:librebitx/librebitx.github.io.git (push)
 总共 28（差异 0），复用 0（差异 0），包复用 0（来自  0 个包）
 To github.com:librebitx/librebitx.github.io.git
  + 80c7ffb...3033a10 main -> main (forced update)
-~/github/libix.github.io$ 
-~/github/libix.github.io$ git log
+~/github/lib$ 
+~/github/lib$ git log
 commit 3033a103d9b34ad2b719acefb9a99f577205cf10 (HEAD -> main, origin/main)
 Author: libix <younglibix@outlook.com>
 Date:   Mon Jan 12 23:44:48 2026 +0800
 
     Initial commit
-~/github/libix.github.io$ 
-~/github/libix.github.io$ git status
+~/github/lib$ 
+~/github/lib$ git status
 位于分支 main
 您的分支与上游分支 'origin/main' 一致。
 
 无文件要提交，干净的工作区
-~/github/libix.github.io$ 
+~/github/lib$ 
 ```
 
 ## 信任目录
@@ -597,16 +597,16 @@ Date:   Mon Jan 12 23:44:48 2026 +0800
 解决 git 目录移动后无法提交问题
 
 ```bash
-/srv/samba/share01$ cd Desktop/libix.github.io/
-/srv/samba/libix.github.io$ 
-/srv/samba/libix.github.io$ ./update.sh 
+/srv/samba/share01$ cd Desktop/lib/
+/srv/samba/lib$ 
+/srv/samba/lib$ ./update.sh 
 ❌ 错误: 当前目录不是 Git 仓库。
-/srv/samba/libix.github.io$ ls
+/srv/samba/lib$ ls
 C  _config.yml  css  _includes  index.html  _layouts  LICENSE  _posts  public  README.md  shell  terraform  update.sh
-/srv/samba/libix.github.io$ 
-/srv/samba/libix.github.io$ git config --global --add safe.directory /srv/samba/libix.github.io
-/srv/samba/libix.github.io$ 
-/srv/samba/libix.github.io$ ./update.sh 
+/srv/samba/lib$ 
+/srv/samba/lib$ git config --global --add safe.directory /srv/samba/lib
+/srv/samba/lib$ 
+/srv/samba/lib$ ./update.sh 
 📂 未指定具体文件，执行全局 Git 同步...
 ----------------------------------------
 📝 请输入提交信息 (回车使用默认值):
@@ -626,7 +626,7 @@ remote: Resolving deltas: 100% (12/12), completed with 11 local objects.
 To github.com:librebitx/librebitx.github.io.git
    4dbcc65..7f6bf13  main -> main
 🎉 完成!
-/srv/samba/libix.github.io$ 
+/srv/samba/lib$ 
 ```
 
 

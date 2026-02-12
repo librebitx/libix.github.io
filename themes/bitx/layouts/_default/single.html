@@ -8,9 +8,13 @@
       {{ .Date.Format "2006-01-02" }}
       ·
       {{ .ReadingTime }} min read
-      {{ with .Params.categories }}
+      {{ if .Params.tags }}
       ·
-      {{ range . }}{{ . }}{{ end }}
+      <span class="post-tags-inline">
+        {{ range .Params.tags }}
+        <span class="post-tag">#{{ . }}</span>
+        {{ end }}
+      </span>
       {{ end }}
     </div>
   </header>

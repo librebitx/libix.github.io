@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title id="page-title">Loading...</title>
+    <title>文件查看</title>
     <style>
         body {
             margin: 20px;
@@ -23,41 +23,39 @@
 </head>
 
 <body>
-    <div id="code-content">Loading content...</div>
+    <div id="code-content">正在载入内容...</div>
 
     <script>
         (function () {
             const params = new URLSearchParams(window.location.search);
             const filePath = params.get('file');
-            const titleEl = document.getElementById('page-title');
             const codeEl = document.getElementById('code-content');
 
             if (filePath) {
-                // Security check: only allow files in /code/ and prevent path traversal
+                // Security check
                 if (!filePath.startsWith('/code/') || filePath.includes('..')) {
-                    titleEl.textContent = 'Invalid Path';
-                    codeEl.textContent = 'Error: Access denied or invalid path.';
+                    document.title = '无效路径';
+                    codeEl.textContent = '错误: 访问被拒绝或路径无效。';
                     return;
                 }
 
-                // Remove /code/ prefix for the tab title
                 const displayPath = filePath.replace(/^\/+code\//, '');
-                titleEl.textContent = displayPath;
+                document.title = displayPath;
 
                 fetch(filePath)
                     .then(response => {
-                        if (!response.ok) throw new Error('File not found');
+                        if (!response.ok) throw new Error('找不到该文件');
                         return response.text();
                     })
                     .then(text => {
                         codeEl.textContent = text;
                     })
                     .catch(err => {
-                        codeEl.textContent = 'Error: ' + err.message;
+                        codeEl.textContent = '错误: ' + err.message;
                     });
             } else {
-                titleEl.textContent = 'No file specified';
-                codeEl.textContent = 'Please select a file from the code archive.';
+                document.title = '未指定文件';
+                codeEl.textContent = '请选择一个文件查看。';
             }
         })();
     </script>

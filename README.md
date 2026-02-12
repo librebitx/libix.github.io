@@ -41,7 +41,10 @@
 5. **快捷提交**
 
    ```
-   ./publish.sh "Update: Simplified deployment flow"
+   # 提交前记得删除 public 文件夹
+   sudo rm -rf public
+
+   ./publish.sh "Update"
    ```
 
 ## 目录结构

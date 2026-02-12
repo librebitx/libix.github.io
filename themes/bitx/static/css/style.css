@@ -579,25 +579,20 @@ a:hover {
 
 .tag-btn {
   background: none;
-  border: 1px solid var(--border-color);
-  padding: 4px 14px;
-  font-size: 0.82rem;
+  border: none;
+  padding: 4px 0;
+  font-size: 0.9rem;
   color: var(--text-muted);
   cursor: pointer;
-  border-radius: 20px;
-  transition: all 0.2s;
+  transition: color 0.2s;
   font-family: inherit;
+  margin-right: 12px;
 }
 
-.tag-btn:hover {
-  color: var(--text-color);
-  border-color: var(--text-color);
-}
-
+.tag-btn:hover,
 .tag-btn.active {
-  background: var(--text-color);
-  color: var(--bg-color);
-  border-color: var(--text-color);
+  color: var(--text-color);
+  text-decoration: underline;
 }
 
 .post-tags {
@@ -605,12 +600,9 @@ a:hover {
 }
 
 .post-tag {
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   color: var(--text-muted);
-  background: var(--tag-bg);
-  padding: 2px 8px;
-  border-radius: 10px;
-  margin-left: 4px;
+  margin-left: 8px;
 }
 
 /* ========================================
@@ -1089,15 +1081,15 @@ a:hover {
   font-family: 'JetBrains Mono', ui-monospace, monospace;
   font-size: 0.9em;
   background: var(--tag-bg);
-  color: #e74c3c;
-  /* Subtle red for generic inline code */
+  color: var(--text-color);
+  /* Corrected from red to black/main text color */
   padding: 0.2em 0.4em;
   border-radius: 3px;
   word-break: break-word;
 }
 
 [data-theme="dark"] .post-content code:not(pre code) {
-  color: #ff7b72;
+  color: var(--text-color);
 }
 
 .post-content pre {
@@ -1631,18 +1623,24 @@ a:hover {
    Bottom Tags 
    ======================================== */
 .post-tags-bottom {
-  margin-top: 15px;
+  margin-top: 30px;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
+  gap: 12px;
+}
+
+.post-tags-inline {
+  display: inline-flex;
   gap: 8px;
-  /* Added gap */
+}
+
+.post-tags-inline .post-tag {
+  color: var(--text-muted);
+  font-size: 0.85rem;
 }
 
 .post-tags-bottom .post-tag {
-  background: var(--tag-bg);
-  padding: 2px 8px;
-  border-radius: 10px;
   font-size: 0.85rem;
   color: var(--text-muted);
 }
@@ -1795,9 +1793,6 @@ body.is-article-page .post-meta {
 }
 
 .skill-tags span {
-  padding: 3px 10px;
-  background: var(--tag-bg);
-  border-radius: 4px;
   font-size: 0.85rem;
   color: var(--text-secondary);
 }
@@ -1906,9 +1901,6 @@ body.is-article-page .post-meta {
 .tech-stack span {
   font-size: 0.8rem;
   color: var(--text-muted);
-  background: var(--tag-bg);
-  padding: 2px 6px;
-  border-radius: 3px;
 }
 
 /* Responsive & Print */
