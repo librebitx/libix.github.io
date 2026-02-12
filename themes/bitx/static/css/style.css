@@ -769,10 +769,14 @@ a:hover {
 
 @media (max-width: 768px) {
   .hero-title {
-    font-size: 1.5rem;
+    font-size: clamp(0.9rem, 6vw, 2.2rem);
     white-space: nowrap;
     padding: 0 10px;
-    /* Prevent edge touching */
+    width: 100%;
+    max-width: 100vw;
+    overflow: hidden;
+    text-overflow: clip;
+    text-align: center;
   }
 
   .hero-subtitle {
@@ -1484,11 +1488,6 @@ a:hover {
 }
 
 @media (max-width: 768px) {
-  .hero-title {
-    font-size: 2rem;
-    padding: 0 10px;
-    /* Prevent edge touching */
-  }
 
   .hero-subtitle {
     font-size: 1rem;

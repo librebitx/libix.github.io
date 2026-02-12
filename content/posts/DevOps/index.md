@@ -8,8 +8,6 @@ tags:
 
 # DevOps 工作流
 
-[DevOps 工作流.html](devops.html)
-
 ![](devops.png)
 
 ## 持续集成（CI）
