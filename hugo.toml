@@ -1,4 +1,4 @@
-baseURL = "http://localhost:1313/"
+baseURL = "https://github.com/librebitx/librebitx.github.io.git"
 languageCode = "zh-CN"
 title = "Libix's blog"
 theme = "bitx"
