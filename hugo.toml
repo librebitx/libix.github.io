@@ -41,34 +41,3 @@ theme = "bitx"
 [outputs]
   home = ["HTML", "RSS"]
   section = ["HTML", "RSS"]
-
-[[module.mounts]]
-  source = "content"
-  target = "content"
-
-[[module.mounts]]
-  source = "static"
-  target = "static"
-
-[[module.mounts]]
-  source = "layouts"
-  target = "layouts"
-
-[[module.mounts]]
-  source = "data"
-  target = "data"
-
-[[module.mounts]]
-  source = "assets"
-  target = "assets"
-
-[[module.mounts]]
-  source = "archetypes"
-  target = "archetypes"
-
-# Critical: Mount content/code to public/code as static assets to serve raw files
-[[module.mounts]]
-  source = "content/code"
-  target = "static/code"
-  includeFiles = ["**"]
-  excludeFiles = ["_index.md", "code-viewer.md"]
