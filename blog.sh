@@ -62,7 +62,6 @@ function deploy() {
     fi
 }
 
-echo -e "${GREEN}=== Hugo Blog Manager ===${NC}"
 echo "1) New Post  (新建文章)"
 echo "2) Preview   (本地预览)"
 echo "3) Deploy    (提交发布)"
