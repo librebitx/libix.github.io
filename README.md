@@ -20,29 +20,24 @@
    cd librebitx.github.io
    ```
 
-2. **启动 Hugo 服务器**
+2. [**安装 Hugo**](https://github.com/gohugoio/hugo?tab=readme-ov-file#installation)
+
+3. **部署到 GitHub**
+
+   可以参考我的 Git 笔记
+
+4. **便捷管理**
 
    ```bash
-   # 包含了草稿预览
-   hugo server -D
+   ～$ ./blog.sh
+   1) New Post  (新建文章)
+   2) Preview   (本地预览)
+   3) Deploy    (提交发布)
+   q) Quit      (退出)
+   Select option:
    ```
 
-3. **访问**
-   打开浏览器访问 `http://localhost:1313`
 
-4. **添加文章**
-
-   ```bash
-   hugo new posts/my-post/index.md
-   ```
-
-   这样可以直接把图片放在 `content/posts/my-post/` 文件夹内，在 Markdown 中直接引用即可。
-
-5. **快捷提交**
-
-   ```bash
-   ./publish.sh "Update"
-   ```
 
 ## 目录结构
 

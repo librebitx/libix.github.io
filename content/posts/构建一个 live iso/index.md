@@ -1,5 +1,5 @@
 ---
-title: "构建 Linux ISO"
+title: "构建一个 live iso"
 date: 2025-12-24T07:59:10+08:00
 draft: false
 tags:

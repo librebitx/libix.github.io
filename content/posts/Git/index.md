@@ -12,13 +12,16 @@ tags:
 Git 是管理代码版本的工具，帮助团队协作和代码管理，让开发更高效、更安全。
 Git 可以随时回到之前的版本；多人可以同时修改代码；能合并和管理冲突；可以在不同分支上开发不同功能，互不干扰；代码历史存在本地和远程，防止丢失。
 # 安装与配置
- [git-scm.com](https://git-scm.com/) 下载安装完成后，需要告诉 Git 你是谁（这步必须做，否则无法提交）。
+ [git-scm.com](https://git-scm.com/) 下载安装完成后，需要告诉 Git 你是谁。
+
+在giyhub 上这步必须做，否则不会显示提交）。
+
 ```bash
 # 设置你的名字
-git config --global user.name "你的名字"
+git config --global user.name "用户名"
 
 # 设置你的邮箱
-git config --global user.email "你的邮箱@example.com"
+git config --global user.email "邮箱@example.com"
 # Git 的设计哲学是责任到人。 
 # 当你以后使用 git commit（提交存档）命令时，Git 必须知道这行代码是谁写的。 
 # Git 会自动把你设置的“名字”和“邮箱”烙印在那个版本（Commit）里。
@@ -633,15 +636,9 @@ To github.com:librebitx/librebitx.github.io.git
 
 # GitHub Pages
 
-## Docusaurus
+## Hugo
+
+部署 Hugo 要确保 Pages 选项选择 GitHub Actions
 
 ![](image-20260118083636231.png)
-
-## JekyII
-
-```bash
-printf "source 'https://rubygems.org'\ngem 'github-pages', group: :jekyll_plugins" > Gemfile
-bundle install
-bundle exec jekyll serve
-```
 
