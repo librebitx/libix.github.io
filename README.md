@@ -40,16 +40,16 @@
 
 5. **快捷提交**
 
-   ```
+   ```bash
    # 提交前记得删除 public 文件夹
    sudo rm -rf public
-
+   
    ./publish.sh "Update"
    ```
 
 ## 目录结构
 
-```
+```bash
 .
 ├── .github/                # GitHub Actions 自动化部署配置
 │   └── workflows/
@@ -73,7 +73,6 @@
 └── README.md               # 项目自述文件
 ```
 
----
 ## License
 
 本博客所有文章均采用 [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/) 许可协议。转载请注明出处。
