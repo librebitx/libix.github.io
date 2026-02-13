@@ -644,3 +644,12 @@ To github.com:librebitx/librebitx.github.io.git
 
 ![](image-20260118083636231.png)
 
+
+
+## 配置使用自定义域名
+
+
+
+![image-20260213195551682](image-20260213195551682.png)
+
+![image-20260213185144952](image-20260213185144952.png)

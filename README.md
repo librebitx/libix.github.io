@@ -43,7 +43,7 @@
 
 ## 目录结构
 
-```bash
+```
 .
 ├── .github/                # GitHub Actions 自动化部署配置
 │   └── workflows/

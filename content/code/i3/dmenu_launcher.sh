@@ -1,6 +1,9 @@
 #!/bin/bash
 
-choice=$(dmenu_path | dmenu -i -p "Run:")
+export LANG=en_US.UTF-8
+export LC_ALL=C	
+
+choice=$(dmenu_path | XMODIFIERS= dmenu -i -p "Run:")
 
 [ -z "$choice" ] && exit
 
