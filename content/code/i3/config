@@ -28,6 +28,10 @@ bindsym $mod+i exec --no-startup-id ~/.config/i3/sys_info.sh
 # 跳转新桌面
 bindsym $mod+Return exec --no-startup-id ~/.config/i3/create_ws.sh
 
+# 屏幕亮度调节 (使用 brightnessctl)
+bindsym XF86MonBrightnessUp exec --no-startup-id brightnessctl set +5%
+bindsym XF86MonBrightnessDown exec --no-startup-id brightnessctl set 5%-
+
 # kill focused window
 bindsym $mod+q kill
 

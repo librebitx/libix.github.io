@@ -134,6 +134,14 @@ libix@Debian:~$ sudo systemctl restart getty@tty{1..6}
 libix@Debian:~$ 
 ```
 
+## 安装软件代理
+
+```bash
+sudo apt -o Acquire::http::Proxy="http://127.0.0.1:7897/" \
+-o Acquire::https::Proxy="http://127.0.0.1:7897/" \
+install antigravity
+```
+
 
 
 # **CentOS**
@@ -168,12 +176,12 @@ systemctl stop firewalld ; systemctl disable firewalld
 # 5. 关闭虚拟机
 poweroff
 
-记得不要再开启了，通过完整克隆即可发放新的虚拟机
+# 记得不要再开启了，通过完整克隆即可发放新的虚拟机
 ```
 
 
 
-## **CentOS 7.9** 
+## **CentOS 7.9**
 
 ```bash
 # 本地源

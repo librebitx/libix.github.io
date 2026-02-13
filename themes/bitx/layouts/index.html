@@ -21,16 +21,33 @@
 
 <div class="post-list" id="post-list">
     {{ range .Site.RegularPages.ByDate.Reverse }}
-    <article class="post-item" data-tags="{{ with .Params.tags }}{{ delimit . " ," }}{{ end }}">
+    {{ $isBlog := false }}
+    {{ with .Params.tags }}
+    {{ if in . "blog" }}
+    {{ $isBlog = true }}
+    {{ end }}
+    {{ end }}
+
+    <article class="post-item{{ if $isBlog }} blog-post{{ end }}" data-tags="{{ with .Params.tags }}{{ delimit . " ,"
+        }}{{ end }}">
         <div class="post-meta">
             {{ .Date.Format "2006-01-02" }}
         </div>
+
+        {{ if $isBlog }}
+        <h3 class="post-title">{{ .Title }}</h3>
+        <div class="post-content">
+            {{ .Content }}
+        </div>
+        {{ else }}
         <h3 class="post-title">
             <a href="{{ .Permalink }}">{{ .Title }}</a>
         </h3>
         {{ if .Summary }}
         <p class="post-excerpt">{{ .Summary | plainify | truncate 150 }}</p>
         {{ end }}
+        {{ end }}
+
         {{ with .Params.tags }}
         <div class="post-tags-bottom">
             {{ range . }}<span class="post-tag">#{{ . }}</span>{{ end }}
