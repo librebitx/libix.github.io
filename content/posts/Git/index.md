@@ -311,7 +311,8 @@ Password for 'https://librebitx@github.com':
 remote: Invalid username or token. Password authentication is not supported for Git operations.
 致命错误：'https://github.com/librebitx/librebitx.github.io.git/' 鉴权失败
 # GitHub 已经彻底禁用了“密码登录”。
-# 两种解决方案：
+
+### 两种解决方案：
 # SSH Key（一次配置，终身舒服）；这是企业/运维/后端/开源项目的标准做法。
 # Personal Access Token（不推荐长期用），适合：临时/CI/没法用 SSH 的环境
 ~/git/librebitx.github.io$ git push origin main:test
