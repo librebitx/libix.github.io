@@ -4,10 +4,17 @@
 [![Hugo](https://img.shields.io/badge/Generator-Hugo-pink?style=flat-square)](https://gohugo.io)
 [![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 
-## 关于
+欢迎来到我的个人博客。这里是本人博客的源代码仓库。
 
-这里是本人博客的源代码仓库。
 原本基于 **Jekyll** 构建，现已全面迁移至 **Hugo**，并使用 **GitHub Actions** 实现自动化部署。
+
+这里主要用于记录技术学习过程、项目经验总结以及一些生活随笔。
+
+如果您发现文中存在技术错误或表述不当，恳请不吝赐教。
+
+您的每一次[指正](https://github.com/librebitx/librebitx.github.io/issues)都是我 Day Day UP 的动力！
+
+希望我的文章能对你有所帮助！
 
 ## 本地部署
 

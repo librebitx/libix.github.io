@@ -1278,9 +1278,76 @@ a:hover {
   top: 0;
   left: 0;
   width: 0;
-  height: 2px;
+  height: 3px;
+  /* Slightly thicker */
   background: var(--text-color);
-  z-index: 1000;
+  z-index: 1200;
+  /* Above sticky header */
+}
+
+/* ========================================
+   Image Grid (9-Grid Style)
+   ======================================== */
+.post-image-grid {
+  display: grid;
+  gap: 4px;
+  margin-top: 10px;
+  width: 100%;
+  max-width: 100%;
+  /* Full width */
+}
+
+.post-image-grid .grid-item {
+  position: relative;
+  width: 100%;
+  padding-top: 100%;
+  /* Square aspect ratio 1:1 */
+  overflow: hidden;
+}
+
+.post-image-grid img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  cursor: zoom-in;
+  margin: 0;
+  /* Override default post img margin */
+  border-radius: 2px;
+}
+
+/* 1 Image */
+.grid-1 {
+  display: block;
+  /* No grid for single image */
+  max-width: 100%;
+}
+
+.grid-1 .grid-item {
+  padding-top: 0;
+  /* Remove fixed aspect ratio */
+  width: auto;
+  max-width: 100%;
+  max-height: 500px;
+}
+
+.grid-1 img {
+  position: relative;
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: 500px;
+  object-fit: contain;
+  border-radius: 4px;
+}
+
+/* 2 Images & 4 Images -> 2 Columns */
+.grid-2,
+.grid-4 {
+  grid-template-columns: repeat(2, 1fr);
+  /* max-width removed to allow full width */
 }
 
 /* ========================================
@@ -1371,35 +1438,79 @@ a:hover {
   align-items: baseline;
   gap: 20px;
   padding: 12px 0;
-  border-bottom: 1px dashed var(--border-color);
+  border-bottom: none;
+  /* Removed border */
 }
 
 .archive-item:last-child {
   border-bottom: none;
 }
 
-.archive-date {
-  font-size: 0.85rem;
-  color: var(--text-muted);
-  font-family: 'JetBrains Mono', monospace;
-  min-width: 50px;
+.archives-page {
+  max-width: 800px;
+  /* Font inherited from body (sans-serif) */
 }
 
-.archive-title {
+/* Force no border/underline on all links in archives/code pages */
+.archives-page a,
+.archives-page a:hover,
+.tree-link,
+.tree-link:hover {
+  border-bottom: none !important;
+  text-decoration: none !important;
+}
+
+.tree-node {
+  display: flex;
+  align-items: center;
+  padding: 4px 0;
+}
+
+.tree-connector {
+  color: var(--text-muted);
+  margin-right: 8px;
+  white-space: pre;
+  /* Preserve spaces */
+  font-family: 'JetBrains Mono', monospace;
+  /* Keep connectors aligned */
+}
+
+
+.tree-year .tree-label {
+  font-weight: bold;
+  color: var(--accent-color);
+}
+
+.tree-month .tree-label {
   color: var(--text-color);
+  font-weight: 500;
+}
+
+.tree-link {
+  color: var(--text-color);
+  text-decoration: none;
   flex: 1;
 }
 
-.archive-title:hover {
-  color: var(--text-secondary);
+.tree-link:hover {
+  color: var(--accent-color);
+  text-decoration: none !important;
+  /* No underline on hover */
 }
+
+
+.tree-date {
+  color: var(--text-muted);
+  font-size: 0.85em;
+  margin-left: 10px;
+}
+
 
 /* ========================================
    Code Page
    ======================================== */
-.code-page {
-  max-width: 700px;
-}
+
+
 
 .code-desc {
   color: var(--text-muted);
@@ -2144,4 +2255,159 @@ body.is-article-page .post-meta {
     top: 10px;
     right: 20px;
   }
+}
+
+.reading-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 3px;
+  /* Slightly thicker */
+  background: var(--text-color);
+  z-index: 1200;
+  /* Above sticky header */
+}
+
+/* ========================================
+   Image Grid (9-Grid Style)
+   ======================================== */
+.post-image-grid {
+  display: grid;
+  gap: 4px;
+  margin-top: 10px;
+  width: 100%;
+  max-width: 100%;
+  /* Full width */
+}
+
+.post-image-grid .grid-item {
+  position: relative;
+  width: 100%;
+  padding-top: 100%;
+  /* Square aspect ratio 1:1 */
+  overflow: hidden;
+}
+
+.post-image-grid img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  cursor: zoom-in;
+  margin: 0;
+  /* Override default post img margin */
+  border-radius: 2px;
+}
+
+/* 1 Image */
+.grid-1 {
+  display: block;
+  /* No grid for single image */
+  max-width: 100%;
+}
+
+.grid-1 .grid-item {
+  padding-top: 0;
+  /* Remove fixed aspect ratio */
+  width: auto;
+  max-width: 100%;
+  max-height: 500px;
+}
+
+.grid-1 img {
+  position: relative;
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: 500px;
+  object-fit: contain;
+  border-radius: 4px;
+}
+
+/* 2 Images & 4 Images -> 2 Columns */
+.grid-2,
+.grid-4 {
+  grid-template-columns: repeat(2, 1fr);
+  /* max-width removed to allow full width */
+}
+
+/* 3, 5-9 Images -> 3 Columns */
+.grid-3,
+.grid-5,
+.grid-6,
+.grid-7,
+.grid-8,
+.grid-9 {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+/* Lightbox Adjustments */
+.lightbox {
+  display: none;
+  position: fixed;
+  z-index: 2000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.9);
+  cursor: zoom-out;
+  /* Click anywhere to close */
+  display: flex;
+  /* Use flexbox for centering */
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+  /* Initially hidden */
+}
+
+.lightbox.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.lightbox-content {
+  max-width: 90%;
+  max-height: 90%;
+  margin: 0;
+  /* Reset margin */
+  border-radius: 4px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+  object-fit: contain;
+}
+
+.lightbox-caption {
+  position: absolute;
+  bottom: 20px;
+  left: 0;
+  width: 100%;
+  text-align: center;
+  color: #ccc;
+  padding: 10px;
+  font-size: 0.9rem;
+}
+
+.lightbox-close {
+  position: absolute;
+  top: 20px;
+  right: 30px;
+  color: #f1f1f1;
+  font-size: 40px;
+  font-weight: bold;
+  transition: 0.3s;
+  cursor: pointer;
+  line-height: 1;
+  z-index: 2001;
+}
+
+.lightbox-close:hover,
+.lightbox-close:focus {
+  color: #bbb;
+  text-decoration: none;
+  cursor: pointer;
 }

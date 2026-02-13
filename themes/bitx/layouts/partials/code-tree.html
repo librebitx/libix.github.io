@@ -1,7 +1,7 @@
 {{ $basePath := .path }}
 {{ $allFiles := readDir $basePath }}
-{{ $level := .level | default 0 }}
 {{ $prefixes := .prefixes | default slice }}
+{{ $level := .level | default 0 }}
 
 {{/* Filter out hidden files and _index.md */}}
 {{ $filteredFiles := slice }}
@@ -17,30 +17,10 @@
 {{ $currentPath := printf "%s/%s" $basePath .Name }}
 
 {{ if eq $level 0 }}
-{{/* Root level: No connector (Year Style) */}}
-<div class="archive-tree">
-    <div class="tree-node tree-year">
-        <span class="tree-label">{{ .Name }}{{ if .IsDir }}/{{ end }}</span>
-    </div>
+{{/* Level 0: Header style without connectors */}}
+<div class="tree-node tree-year">
     {{ if .IsDir }}
-    {{ partial "code-tree.html" (dict "path" $currentPath "level" 1 "prefixes" slice) }}
-    {{ end }}
-</div>
-{{ else if and (eq $level 1) .IsDir }}
-{{/* 1st Level Directory: No connector (Month Style) */}}
-<div class="tree-node tree-month">
-    <span class="tree-label">{{ .Name }}</span>
-</div>
-{{ if .IsDir }}
-{{ $nextPrefix := cond $isLast " " "│ " }}
-{{ partial "code-tree.html" (dict "path" $currentPath "level" 2 "prefixes" (append $nextPrefix slice)) }}
-{{ end }}
-{{ else }}
-{{/* Files at any level (>=1) OR Directories at level >=2: tree connectors */}}
-<div class="tree-node tree-post">
-    <span class="tree-connector">{{ range $prefixes }}{{ . }}{{ end }}{{ if $isLast }}└── {{ else }}├── {{ end }}</span>
-    {{ if .IsDir }}
-    <span class="tree-label">{{ .Name }}</span>
+    <span class="tree-label">{{ .Name }}/</span>
     {{ else }}
     {{ $relativeUrl := replace $currentPath "static/code/" "" }}
     <a href="/code-viewer/?file=/code/{{ $relativeUrl }}&v={{ now.Unix }}" target="_blank" class="tree-link">{{ .Name
@@ -48,10 +28,33 @@
     <span class="tree-date">{{ .ModTime.Format "01-02" }}</span>
     {{ end }}
 </div>
+
+{{ if .IsDir }}
+{{/* Call children with level 1 and NO initial prefix */}}
+{{ partial "code-tree.html" (dict "path" $currentPath "level" 1 "prefixes" slice) }}
+{{ end }}
+
+{{ else }}
+{{/* Level > 0: Standard Tree Structure */}}
+<div class="tree-node tree-item">
+    <span class="tree-connector">{{ range $prefixes }}{{ . }}{{ end }}{{ if $isLast }}└── {{ else }}├── {{ end }}</span>
+
+    {{ if .IsDir }}
+    <span class="tree-label">{{ .Name }}/</span>
+    {{ else }}
+    {{ $relativeUrl := replace $currentPath "static/code/" "" }}
+    <a href="/code-viewer/?file=/code/{{ $relativeUrl }}&v={{ now.Unix }}" target="_blank" class="tree-link">{{ .Name
+        }}</a>
+    <span class="tree-date">{{ .ModTime.Format "01-02" }}</span>
+    {{ end }}
+</div>
+
 {{ if .IsDir }}
 {{ $nextPrefix := cond $isLast " " "│ " }}
 {{ partial "code-tree.html" (dict "path" $currentPath "level" (add $level 1) "prefixes" (append $nextPrefix $prefixes))
 }}
 {{ end }}
+
 {{ end }}
+
 {{ end }}

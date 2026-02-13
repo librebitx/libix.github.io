@@ -3,7 +3,7 @@ title: "Linux 桌面"
 date: 2025-12-08T07:59:10+08:00
 draft: false
 tags:
-  - "Fun"
+  - "fun"
 ---
 
 # Linux 桌面

@@ -39,6 +39,17 @@
         <div class="post-content">
             {{ .Content }}
         </div>
+
+        {{ $images := .Resources.ByType "image" }}
+        {{ if gt (len $images) 0 }}
+        <div class="post-image-grid grid-{{ len $images }}">
+            {{ range $images }}
+            <div class="grid-item">
+                <img src="{{ .RelPermalink }}" alt="{{ .Name }}" loading="lazy">
+            </div>
+            {{ end }}
+        </div>
+        {{ end }}
         {{ else }}
         <h3 class="post-title">
             <a href="{{ .Permalink }}">{{ .Title }}</a>

@@ -3,7 +3,7 @@ title: "Ansible"
 date: 2025-04-03T07:59:10+08:00
 draft: false
 tags:
-  - "Notes"
+  - "notes"
 ---
 
 # 什么是 Ansible？

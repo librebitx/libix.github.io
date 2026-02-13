@@ -3,7 +3,7 @@ title: "DevOps"
 date: 2026-01-18T07:59:10+08:00
 draft: false
 tags:
-  - "Notes"
+  - "notes"
 ---
 
 # DevOps 工作流

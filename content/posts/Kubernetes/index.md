@@ -3,7 +3,7 @@ title: "Kubernetes"
 date: 2025-03-25T07:59:10+08:00
 draft: false
 tags:
-  - "Notes"
+  - "notes"
 ---
 
 # 什么是 kubernetes？

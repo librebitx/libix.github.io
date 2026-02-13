@@ -15,8 +15,9 @@ header_visible: true
 
 如果您发现文中存在技术错误或表述不当，恳请不吝赐教。
 
-您的每一次[指正](https://github.com/librebitx/librebitx.github.io/issues)都是我 Day Day UP 的动力。
+您的每一次[指正](https://github.com/librebitx/librebitx.github.io/issues)都是我 Day Day UP 的动力！
 
 * **GitHub:** [librebitx](https://github.com/librebitx) 
 
 希望我的文章能对你有所帮助！
+

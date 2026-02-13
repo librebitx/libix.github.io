@@ -1,28 +1,32 @@
 {{ define "main" }}
 <div class="archives-page">
-    {{ range (where .Site.RegularPages "Layout" "ne" "code-viewer").GroupByDate "2006" }}
     <div class="archive-tree">
+        {{ $years := (where .Site.RegularPages "Layout" "ne" "code-viewer").GroupByDate "2006" }}
+        {{ range $yearIdx, $yearGroup := $years }}
+
         <div class="tree-node tree-year">
             <span class="tree-label">{{ .Key }}</span>
         </div>
+
         {{ $months := .Pages.GroupByDate "January" }}
         {{ range $monthIdx, $month := $months }}
-        {{ $isLastMonth := eq $monthIdx (sub (len $months) 1) }}
+
         <div class="tree-node tree-month">
             <span class="tree-label">{{ .Key }}</span>
         </div>
+
         {{ $pages := .Pages.ByDate.Reverse }}
         {{ range $pageIdx, $page := $pages }}
         {{ $isLastPost := eq $pageIdx (sub (len $pages) 1) }}
         <div class="tree-node tree-post">
-            <span class="tree-connector">{{ if $isLastMonth }} {{ else }}│ {{ end }}{{ if $isLastPost }}└── {{ else
-                }}├── {{ end }}</span>
+            <span class="tree-connector">{{ if $isLastPost }}└── {{ else }}├── {{ end }}</span>
             <a href="{{ $page.Permalink }}" class="tree-link">{{ $page.Title }}</a>
             <span class="tree-date">{{ $page.Date.Format "01-02" }}</span>
         </div>
         {{ end }}
         {{ end }}
+
+        {{ end }}
     </div>
-    {{ end }}
 </div>
 {{ end }}

@@ -3,7 +3,7 @@ title: "Terraform"
 date: 2026-01-17T07:59:10+08:00
 draft: false
 tags:
-  - "Notes"
+  - "notes"
 ---
 
 # 什么是 Terraform？

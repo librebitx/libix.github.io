@@ -3,7 +3,7 @@ title: "问题收集"
 date: 2025-03-05T07:59:10+08:00
 draft: false
 tags:
-  - "Notes"
+  - "notes"
 ---
 
 # RHEL9 
