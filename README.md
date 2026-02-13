@@ -16,7 +16,9 @@
 1. **克隆仓库**
 
    ```bash
-   git clone --recursive https://github.com/librebitx/librebitx.github.io.git
+   git clone --depth 1 --recursive https://github.com/librebitx/librebitx.github.io.git
+   # --depth 1 表示只下载最后一次提交，不下载过去的历史记录
+   
    cd librebitx.github.io
    ```
 
@@ -24,7 +26,7 @@
 
 3. **部署到 GitHub**
 
-   可以参考我的 Git 笔记
+   可以参考我的 [Git](https://librebitx.github.io/posts/git/) 笔记
 
 4. **便捷管理**
 
