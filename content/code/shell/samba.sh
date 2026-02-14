@@ -2,7 +2,7 @@
 
 SERVER="192.168.0.100"
 USER="libix"
-PASS="redhat"   # 这里填你的真实密码，或者用凭证文件更安全
+PASS="xxx"   # 这里填你的真实密码，或者用凭证文件更安全
 
 ping $SERVER -c 4
 
