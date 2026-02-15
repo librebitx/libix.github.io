@@ -4,7 +4,7 @@ description: "Libix"
 date: 2026-02-11
 menu: "main"
 weight: 2
-header_visible: true
+weight: 2
 ---
 
 欢迎来到我的个人博客。

@@ -346,13 +346,7 @@ a:hover {
   scrollbar-color: var(--text-muted) transparent;
 }
 
-.post-content {
-  flex: 0 1 1100px;
-  min-width: 0;
-  width: 100%;
-  margin: 0;
-  /* Reset margin */
-}
+/* Old .post-content definition removed */
 
 /* ========================================
    TOC Sidebar
@@ -2382,32 +2376,49 @@ body.is-article-page .post-meta {
 }
 
 .lightbox-caption {
-  position: absolute;
-  bottom: 20px;
-  left: 0;
-  width: 100%;
-  text-align: center;
-  color: #ccc;
-  padding: 10px;
-  font-size: 0.9rem;
+  display: none !important;
+  /* Hide image name */
 }
 
 .lightbox-close {
-  position: absolute;
-  top: 20px;
-  right: 30px;
-  color: #f1f1f1;
-  font-size: 40px;
-  font-weight: bold;
-  transition: 0.3s;
-  cursor: pointer;
-  line-height: 1;
-  z-index: 2001;
+  display: none !important;
+  /* Hide close button as requested */
 }
 
-.lightbox-close:hover,
-.lightbox-close:focus {
-  color: #bbb;
+/* ... existing code ... */
+
+.post-content {
+  flex: 1;
+  /* Fill all available width */
+  min-width: 0;
+  width: 100%;
+  margin: 0;
+  font-size: 1.05rem;
+  /* Increased size */
+  line-height: 1.8;
+  /* Increased line height */
+  letter-spacing: 0.05em;
+  /* Added letter spacing */
+}
+
+.post-content p {
+  margin-bottom: 1.5em;
+  /* Evaluation spacing */
+}
+
+.post-summary-link {
+  color: inherit;
   text-decoration: none;
-  cursor: pointer;
+  display: block;
+  border-bottom: none !important;
+}
+
+.post-summary-link:hover {
+  opacity: 0.8;
+  color: var(--text-secondary);
+}
+
+.post-summary-link .post-excerpt {
+  color: var(--text-secondary);
+  /* Ensure excerpt text color is consistent */
 }

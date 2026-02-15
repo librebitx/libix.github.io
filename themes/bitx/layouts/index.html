@@ -55,7 +55,14 @@
             <a href="{{ .Permalink }}">{{ .Title }}</a>
         </h3>
         {{ if .Summary }}
-        <p class="post-excerpt">{{ .Summary | plainify | truncate 150 }}</p>
+        {{ $plainSummary := .Summary | plainify }}
+        {{ $cleanSummary := $plainSummary }}
+        {{ if hasPrefix $plainSummary .Title }}
+        {{ $cleanSummary = substr $plainSummary (len .Title) }}
+        {{ end }}
+        <a href="{{ .Permalink }}" class="post-summary-link">
+            <p class="post-excerpt">{{ $cleanSummary | truncate 150 }}</p>
+        </a>
         {{ end }}
         {{ end }}
 
