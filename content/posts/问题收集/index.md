@@ -93,7 +93,7 @@ usermod -aG sudo libix
 
 ```bash
 # 修改 /etc/network/interfaces
-root@debian:~# cat <<EOL> /etc/network/interfaces
+~# cat <<EOL> /etc/network/interfaces
 # This file describes the network interfaces available on your system
 # and how to activate them. For more information, see interfaces(5).
 
@@ -111,27 +111,27 @@ iface enp2s0 inet static
         gateway 192.168.0.1
         dns-nameservers 192.168.1.1 192.168.0.1
 EOL
-root@debian:~# systemctl restart networking
-root@debian:~#
+~# systemctl restart networking
+~#
 ```
 
 ## 配置 tty 终端熄屏
 
 ```bash
-libix@Debian:~$ sudo mkdir -p /etc/systemd/system/getty@.service.d
-libix@Debian:~$ 
-libix@Debian:~$ sudo cat /etc/systemd/system/getty@.service.d/override.conf
+~$ sudo mkdir -p /etc/systemd/system/getty@.service.d
+~$ 
+~$ sudo cat /etc/systemd/system/getty@.service.d/override.conf
 [Service]
 # 指定终端类型，防止 setterm 报错
 Environment=TERM=linux
 # - 符号表示即使命令失败也不阻断服务启动
 # powerdown 0 关闭 VESA 电源管理防止休眠冲突，blank 5 设置 5 分钟黑屏
 ExecStartPost=-/bin/sh -c '/usr/bin/setterm -blank 5 -powersave off -powerdown 0 > /dev/%I'
-libix@Debian:~$ 
-libix@Debian:~$ 
-libix@Debian:~$ sudo systemctl daemon-reload
-libix@Debian:~$ sudo systemctl restart getty@tty{1..6}
-libix@Debian:~$ 
+~$ 
+~$ 
+~$ sudo systemctl daemon-reload
+~$ sudo systemctl restart getty@tty{1..6}
+~$ 
 ```
 
 ## 安装软件代理
@@ -341,15 +341,15 @@ sudo rm -rf /snap /var/snap /var/lib/snapd
 ## 配置终端永久代理
 
 ```bash
-libix@bogon ~ % touch .zshrc
-libix@bogon ~ % cat .zshrc
+~ % touch .zshrc
+~ % cat .zshrc
 # Proxy Settings
 export http_proxy="http://127.0.0.1:7897"
 export https_proxy="http://127.0.0.1:7897"
 export all_proxy="socks5://127.0.0.1:7897"
 # 关键：排除本地和内网地址
 export no_proxy="localhost,127.0.0.1,::1,192.168.*,10.*,*.local"
-libix@bogon ~ % 
+~ % 
 ```
 
 
@@ -357,7 +357,7 @@ libix@bogon ~ %
 ## 配置SSH免密
 
 ```bash
-libix@libixs-MBP ~ % ssh-keygen -t ed25519 -C "MBP_to_Debian"
+~ % ssh-keygen -t ed25519 -C "MBP_to_Debian"
 Generating public/private ed25519 key pair.
 Enter file in which to save the key (/Users/libix/.ssh/id_ed25519): 
 Enter passphrase (empty for no passphrase): 
@@ -378,8 +378,8 @@ The key's randomart image is:
 |         .o o+=BE|
 |         ... ..*O|
 +----[SHA256]-----+
-libix@libixs-MBP ~ % 
-libix@libixs-MBP ~ % ssh-copy-id -i ~/.ssh/id_ed25519.pub libix@192.168.0.5
+~ % 
+~ % ssh-copy-id -i ~/.ssh/id_ed25519.pub libix@192.168.0.5
 /usr/bin/ssh-copy-id: INFO: Source of key(s) to be installed: "/Users/libix/.ssh/id_ed25519.pub"
 /usr/bin/ssh-copy-id: INFO: attempting to log in with the new key(s), to filter out any that are already installed
 /usr/bin/ssh-copy-id: INFO: 1 key(s) remain to be installed -- if you are prompted now it is to install the new keys
@@ -390,11 +390,11 @@ Number of key(s) added:        1
 Now try logging into the machine, with:   "ssh 'libix@192.168.0.5'"
 and check to make sure that only the key(s) you wanted were added.
 
-libix@libixs-MBP ~ % 
-libix@libixs-MBP ~ % pwd
+~ % 
+~ % pwd
 /Users/libix
-libix@libixs-MBP ~ % cd .ssh
-libix@libixs-MBP .ssh % ls -la
+~ % cd .ssh
+.ssh % ls -la
 total 32
 drwx------   6 libix  staff  192  2  8 17:34 .
 drwxr-x---+ 27 libix  staff  864  2  8 17:30 ..
@@ -402,23 +402,23 @@ drwxr-x---+ 27 libix  staff  864  2  8 17:30 ..
 -rw-r--r--   1 libix  staff   95  2  8 17:33 id_ed25519.pub
 -rw-------   1 libix  staff  831  2  8 17:30 known_hosts
 -rw-r--r--   1 libix  staff   93  2  8 17:30 known_hosts.old
-libix@libixs-MBP .ssh % 
-libix@libixs-MBP .ssh % cat config
+.ssh % 
+.ssh % cat config
 Host debian                # 起别名，以后 ssh debian 就行
     HostName 192.168.0.5  # Debian 的 IP
     User libix       # Debian 的用户名
     Port 22
     IdentityFile ~/.ssh/id_ed25519
-libix@libixs-MBP .ssh % 
-libix@libixs-MBP .ssh % ssh debian
+.ssh % 
+.ssh % ssh debian
 Linux Debian 6.12.63+deb13-amd64 #1 SMP PREEMPT_DYNAMIC Debian 6.12.63-1 (2025-12-30) x86_64
  
 Last login: Sun Feb  8 17:30:27 2026 from 192.168.0.3
-libix@Debian:~$ 
-libix@Debian:~$ exit
+~$ 
+~$ exit
 logout
 Connection to 192.168.0.5 closed.
-libix@libixs-MBP .ssh %
+.ssh %
 ```
 
 
@@ -433,7 +433,7 @@ libix@libixs-MBP .ssh %
 ### 查看新硬盘的设备名
 
 # 确认系统是否识别了硬盘以及它的设备名。
-root@192:~# lsblk
+~# lsblk
 NAME   MAJ:MIN RM   SIZE RO TYPE MOUNTPOINTS
 sda      8:0    0  59.6G  0 disk
 |-sda1   8:1    0  58.7G  0 part /
@@ -442,14 +442,14 @@ sda      8:0    0  59.6G  0 disk
 sdb      8:16   1 465.8G  0 disk
 `-sdb1   8:17   1 465.8G  0 part
 sdc      8:32   1 465.8G  0 disk            # 这就是新硬盘，没有分区和挂载点
-root@192:~#
+~#
 # 从命令输出中，找到你的新硬盘。它通常显示为 sdb、sdc 等（sd 后按字母顺序递增），并且没有相关的分区和挂载点信息。
 # 新硬盘必须挂载到目录树中的一个目录（这个目录称为挂载点）上，才能通过该目录访问。
 
 ### 为硬盘分区和创建文件系统
 
 # fdisk 直接操作的是磁盘的分区表（如 MBR/GPT），而不是分区内部的文件系统或子分区
-root@192:~# fdisk /dev/sdc
+~# fdisk /dev/sdc
 
 Welcome to fdisk (util-linux 2.38.1).
 Changes will remain in memory only, until you decide to write them.
@@ -476,9 +476,9 @@ The partition table has been altered.
 Calling ioctl() to re-read partition table.
 Syncing disks.
 
-root@192:~#
+~#
 
-root@192:~# lsblk
+~# lsblk
 NAME   MAJ:MIN RM   SIZE RO TYPE MOUNTPOINTS
 sda      8:0    0  59.6G  0 disk
 |-sda1   8:1    0  58.7G  0 part /
@@ -488,10 +488,10 @@ sdb      8:16   1 465.8G  0 disk
 `-sdb1   8:17   1 465.8G  0 part
 sdc      8:32   1 465.8G  0 disk
 `-sdc1   8:33   1 465.8G  0 part            # 这里可以看到 sdc1 分区
-root@192:~#
+~#
 
 ### 创建文件系统
-root@192:~# mkfs.ext4 /dev/sdc1
+~# mkfs.ext4 /dev/sdc1
 mke2fs 1.47.0 (5-Feb-2023)
 Creating filesystem with 122096390 4k blocks and 30531584 inodes
 Filesystem UUID: 41b7efb0-9513-4466-a8fb-b71958a32c1a
@@ -505,20 +505,20 @@ Writing inode tables: done
 Creating journal (262144 blocks): done
 Writing superblocks and filesystem accounting information: done
 
-root@192:~#
+~#
 # 此操作会清除该分区上所有数据！
 
 ### 创建挂载点：挂载点就是一个普通的空目录。通常可以在 /mnt 或 /media 下创建
-root@192:~# mkdir -p /mnt/disk-02
+~# mkdir -p /mnt/disk-02
 
 ### 挂载硬盘：将硬盘分区挂载到刚刚创建的目录
-root@192:~# mount /dev/sdc1 /mnt/disk-02
+~# mount /dev/sdc1 /mnt/disk-02
 mount: (hint) your fstab has been modified, but systemd still uses
        the old version; use 'systemctl daemon-reload' to reload.
-root@192:~#
+~#
 
 ### 验证挂载
-root@192:~# df -h
+~# df -h
 Filesystem      Size  Used Avail Use% Mounted on
 udev            3.8G     0  3.8G   0% /dev
 tmpfs           771M  752K  771M   1% /run
@@ -527,7 +527,7 @@ tmpfs           3.8G     0  3.8G   0% /dev/shm
 tmpfs           5.0M     0  5.0M   0% /run/lock
 tmpfs           771M     0  771M   0% /run/user/0
 /dev/sdc1       458G   28K  435G   1% /mnt/disk-02
-root@192:~#
+~#
 ```
 
 ## 自动挂载
@@ -536,23 +536,23 @@ root@192:~#
 ### 设置开机自动挂载
 # 手动挂载的硬盘在重启后会失效。如需开机自动挂载，需编辑 /etc/fstab 文件
 ## 获取分区的 UUID（推荐使用UUID而非设备名，更稳定）
-root@192:~# blkid /dev/sdc1
+~# blkid /dev/sdc1
 /dev/sdc1: UUID="41b7efb0-9513-4466-a8fb-b71958a32c1a" BLOCK_SIZE="4096" TYPE="ext4" PARTUUID="65126148-01"
-root@192:~#
-root@192:~# ls /dev/disk/by-uuid/
+~#
+~# ls /dev/disk/by-uuid/
 41b7efb0-9513-4466-a8fb-b71958a32c1a  51f48aa2-9e13-4ae9-a13b-b9b9723ee8a0  dd21c31c-48d0-4ab9-b273-64fb033c6ac4  df9baabb-96f4-4450-b700-08bbc1857091
-root@192:~#
+~#
 
 ## 编辑 /etc/fstab
-root@192:~# echo "/dev/disk/by-uuid/41b7efb0-9513-4466-a8fb-b71958a32c1a /mnt/disk-02 ext4 defaults 0 3" >> /etc/fstab
-root@192:~# cat /etc/fstab
+~# echo "/dev/disk/by-uuid/41b7efb0-9513-4466-a8fb-b71958a32c1a /mnt/disk-02 ext4 defaults 0 3" >> /etc/fstab
+~# cat /etc/fstab
 UUID=51f48aa2-9e13-4ae9-a13b-b9b9723ee8a0 /               ext4    errors=remount-ro 0       1
 UUID=dd21c31c-48d0-4ab9-b273-64fb033c6ac4 none            swap    sw              0       0
 UUID=df9baabb-96f4-4450-b700-08bbc1857091 /mnt/disk-01    ext4    defaults        0       2
 /dev/disk/by-uuid/41b7efb0-9513-4466-a8fb-b71958a32c1a /mnt/disk-02 ext4 defaults 0 3
-root@192:~#
+~#
 ## 测试配置
-root@ubuntu:/# mount -a
+/# mount -a
 # 如果没报错，说明配置正确，下次开机就会自动挂载
 ```
 
@@ -567,18 +567,18 @@ root@ubuntu:/# mount -a
 ## 定时任务
 
 ```bash
-root@ubuntu:~# cat /root/copy.sh
+~# cat /root/copy.sh
 #!/bin/bash
 /bin/cp -auv /mnt/disk_sdb/* /mnt/disk_sdc
 echo "Copy sucess!"
-root@ubuntu:~#
-root@ubuntu:~# crontab -e -u root
+~#
+~# crontab -e -u root
 
-root@ubuntu:~# crontab -l -u root
+~# crontab -l -u root
 
 * * * * * /root/copy.sh >> /root/copy.log 2>&1
 
-root@ubuntu:~#
+~#
 ```
 
 ## 服务配置
@@ -588,7 +588,7 @@ root@ubuntu:~#
 指定用户可以通过 Samba 访问共享目录并具有写权限，而普通用户依然是只读或 guest 访问
 
 ```bash
-root@debian:~# cat <<EOL> /etc/samba/smb.conf
+~# cat <<EOL> /etc/samba/smb.conf
 [global]
    # 基本信息
    workgroup = WORKGROUP
@@ -619,10 +619,10 @@ root@debian:~# cat <<EOL> /etc/samba/smb.conf
    guest ok = yes
    write list = libix
 EOL  
-root@debian:~#
+~#
 
-root@debian:~# smbpasswd -a libix
-root@debian:~# smbpasswd -e libix
+~# smbpasswd -a libix
+~# smbpasswd -e libix
 # -a ：Add（添加用户到 Samba 数据库）；将指定系统用户添加到 Samba 用户数据库中
 # -e ：Enable（启用 Samba 用户）；启用之前添加的 Samba 用户；如果不启用，该用户即使在数据库里也无法登录 Samba
 # 先 -a 添加，再 -e 启用
@@ -631,13 +631,13 @@ sudo chown -R libix:libix /mnt/disk
 
 # -------------不推荐，风险较高--------------
 # 把 libix 加入 root 组
-root@debian:~# usermod -aG root libix
+~# usermod -aG root libix
 -a → append（追加，不会把用户从其他组里移除）
 -G → 指定附加组
 
 # 使 root 组可以读写和执行共享目录
-root@debian:~# chmod -R 775 /mnt/disk-01/*
-root@debian:~# ls /mnt/ -l
+~# chmod -R 775 /mnt/disk-01/*
+~# ls /mnt/ -l
 total 12
 drwxrwxr-x 6 root root 4096 Sep 11 23:38 disk-01
 drwxr-xr-x 2 root root 4096 Sep 10 00:44 disk-02
@@ -650,11 +650,11 @@ drwxr-xr-x 2 root root 4096 Sep 10 00:44 disk-02
 
 ```bash
 ### 安装 Timeshift
-root@debian:~# apt update
-root@debian:~# apt install timeshift
+~# apt update
+~# apt install timeshift
 
 ### 创建快照，在命令行里指定快照存放位置
-root@debian:~# timeshift --create --comments "snapshot $(date +%F-%H%M)" --snapshot-device /dev/sdc1
+~# timeshift --create --comments "snapshot $(date +%F-%H%M)" --snapshot-device /dev/sdc1
 '
 --create 表示创建一个新的快照。
 --comments "snapshot $(date +%F-%H%M)"    # 给快照加备注
@@ -665,29 +665,29 @@ root@debian:~# timeshift --create --comments "snapshot $(date +%F-%H%M)" --snaps
 '
 
 # 列出已有快照：
-root@debian:~# timeshift --list
+~# timeshift --list
 
 ### 恢复快照
-root@debian:~# timeshift --restore
+~# timeshift --restore
 # 会交互式选择你想恢复的快照
 
 ### 删除单个快照
-root@debian:~# timeshift --delete --snapshot '2025-09-11_23-50-00'
+~# timeshift --delete --snapshot '2025-09-11_23-50-00'
 ```
 
 ## NFS
 
 ```BASH
-libix@Debian:~$ sudo mkdir -p /mnt/nfs
-libix@Debian:~$ 
-libix@Debian:~$ sudo chown -R nobody:nogroup /mnt/nfs/
-libix@Debian:~$ sudo chmod 777 /mnt/nfs/
-libix@Debian:~$ sudo cat /etc/exports 
+~$ sudo mkdir -p /mnt/nfs
+~$ 
+~$ sudo chown -R nobody:nogroup /mnt/nfs/
+~$ sudo chmod 777 /mnt/nfs/
+~$ sudo cat /etc/exports 
 /mnt/nfs 192.168.0.0/24(rw,sync,all_squash,anonuid=65534,anongid=65534,no_subtree_check,insecure)
-libix@Debian:~$
-libix@Debian:~$ sudo exportfs -arv
+~$
+~$ sudo exportfs -arv
 exporting 192.168.0.0/24:/mnt/nfs
-libix@Debian:~$ 
+~$ 
 ```
 
 # 监控脚本
@@ -703,7 +703,7 @@ chmod +x /etc/update-motd.d/50-landscape-sysinfo
 # 彻底删除那个法律免责声明文件
 sudo rm -f /etc/legal
 
-root@node2:~# /etc/update-motd.d/50-landscape-sysinfo
+~# /etc/update-motd.d/50-landscape-sysinfo
 
  System information as of Sun Dec 21 10:12:49 PM UTC 2025
 
@@ -711,7 +711,7 @@ root@node2:~# /etc/update-motd.d/50-landscape-sysinfo
   Usage of /:   42.5% of 17.83GB   Users logged in:        1
   Memory usage: 37%                IPv4 address for ens32: 192.168.0.12    
   Swap usage:   0%
-root@node2:~# 
+~# 
 ```
 
 # 工具使用
@@ -834,13 +834,15 @@ ps aux | grep daemon 或者更广泛的： ps -ef
 
 ### 用户组
 
-查看系统所有用户组
-
+```bash
+# 查看系统所有用户组
 cat /etc/group
 
-查看某个用户（例如 libix）属于哪些组
-
+# 查看某个用户（例如 libix）属于哪些组
 groups libix id libix
+```
+
+
 
 ## sed
 
@@ -1490,30 +1492,30 @@ echo "Samba off"
 ### 安装
 
 ```bash
-libix@Debian:~$ pipx install llm
+~$ pipx install llm
   installed package llm 0.28, installed using Python 3.13.5
   These apps are now globally available
     - llm
 done! ✨ 🌟 ✨
-libix@Debian:~$ llm install llm-gemini
+~$ llm install llm-gemini
 ...
 Successfully installed ijson-3.4.0.post0 llm-gemini-0.28.2
-libix@Debian:~$ llm keys set gemini
+~$ llm keys set gemini
 Enter key: 
-libix@Debian:~$ 
+~$ 
 ```
 
 ### 基础交互
 
 ```bash
 ### 配置终端代理
-libix@Debian:~$ echo "export HTTPS_PROXY=http://127.0.0.1:7897" >> ~/.bashrc
-libix@Debian:~$ source ~/.bashrc
-libix@Debian:~$ 
-libix@Debian:~$ llm -m gemini-1.5-flash "你好，请用一句话介绍Debian系统"
+~$ echo "export HTTPS_PROXY=http://127.0.0.1:7897" >> ~/.bashrc
+~$ source ~/.bashrc
+~$ 
+~$ llm -m gemini-1.5-flash "你好，请用一句话介绍Debian系统"
 Error: 'Unknown model: gemini-1.5-flash'
-libix@Debian:~$ 
-libix@Debian:~$ llm models			# 列出所有可用模型
+~$ 
+~$ llm models			# 列出所有可用模型
 OpenAI Chat: gpt-4o (aliases: 4o)
 OpenAI Chat: chatgpt-4o-latest (aliases: chatgpt-4o)
 OpenAI Chat: gpt-4o-mini (aliases: 4o-mini)
@@ -1593,11 +1595,11 @@ GeminiPro: gemini/gemini-2.5-flash-lite-preview-09-2025 (aliases: gemini-2.5-fla
 GeminiPro: gemini/gemini-3-pro-preview (aliases: gemini-3-pro-preview)
 GeminiPro: gemini/gemini-3-flash-preview (aliases: gemini-3-flash-preview)
 Default: gpt-4o-mini
-libix@Debian:~$ 
-libix@Debian:~$ llm -m gemini-2.5-flash "你好，请用一句话介绍Debian系统"
+~$ 
+~$ llm -m gemini-2.5-flash "你好，请用一句话介绍Debian系统"
 Debian是一个完全由社区开发和维护的自由开源Linux发行版，以其坚若磐石的稳定性、严格的自由软件原则以及作为众多其他流行Linux发行版（如Ubuntu）的基础而闻名。
-libix@Debian:~$ 
-libix@Debian:~$ llm -m gemini-2.5-pro "最适合桌面使用的Linux系统是哪个？"
+~$ 
+~$ llm -m gemini-2.5-pro "最适合桌面使用的Linux系统是哪个？"
 Error: You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. 
 * Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_input_token_count, limit: 0, model: gemini-2.5-pro
 * Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_input_token_count, limit: 0, model: gemini-2.5-pro
@@ -1605,15 +1607,15 @@ Error: You exceeded your current quota, please check your plan and billing detai
 * Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 0, model: gemini-2.5-pro
 Please retry in 28.397400758s.
 # API Key 没有权限调用它
-libix@Debian:~$ 
-libix@Debian:~$ llm models default gemini-2.5-flash			# 设置默认模型
-libix@Debian:~$ llm models
+~$ 
+~$ llm models default gemini-2.5-flash			# 设置默认模型
+~$ llm models
 ...
 Default: gemini/gemini-2.5-flash
-libix@Debian:~$ 
-libix@Debian:~$ llm "你好，打个招呼吧"
+~$ 
+~$ llm "你好，打个招呼吧"
 你好！很高兴和你打招呼！有什么我可以帮助你的吗？
-libix@Debian:~$ 
+~$ 
 ```
 
 **连续对话模式 (Chat REPL)**

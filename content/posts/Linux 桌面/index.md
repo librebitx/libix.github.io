@@ -457,7 +457,7 @@ sudo vmware-modconfig --console --install-all
 
 # 进入 Bios 将 sercue boot 设置为 disable
 mokutil --sb-state		# 检查 sercue boot 的状态
-sudo /etc/init.d/vmware restart
+sudo /etc/init.d/vmware restart		# 全部 done 即可
 
 ## 卸载
 sudo vmware-installer -u vmware-workstation
