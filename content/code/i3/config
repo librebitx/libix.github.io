@@ -109,8 +109,17 @@ focus_follows_mouse no
 
 bindsym $mod+l exec slock
 
+# --- 触控板 ---
+
+bindsym $mod+Shift+t exec --no-startup-id ~/.config/i3/touchpad_toggle.sh
+
 # 开启轻触点击 (Tap to click)
 exec_always xinput set-prop "SYNA32EC:00 06CB:CEE7 Touchpad" "libinput Tapping Enabled" 1
-
 # 开启自然滚动 (向上滑页面向下走)
 exec_always xinput set-prop "SYNA32EC:00 06CB:CEE7 Touchpad" "libinput Natural Scrolling Enabled" 1
+# 设置点击手感 (2指右键，3指中键)
+exec --no-startup-id xinput set-prop "SYNA32EC:00 06CB:CEE7 Touchpad" "libinput Click Method Enabled" 0, 1
+# 调节指针速度，0.5 左右比较接近苹果的丝滑感
+exec --no-startup-id xinput set-prop "SYNA32EC:00 06CB:CEE7 Touchpad" "libinput Accel Speed" 0.5
+# 打字时禁用触控板 (1 为开启，0 为关闭)
+exec_always --no-startup-id xinput set-prop "SYNA32EC:00 06CB:CEE7 Touchpad" "libinput Disable While Typing Enabled" 1
