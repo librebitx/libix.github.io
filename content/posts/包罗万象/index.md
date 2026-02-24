@@ -1,81 +1,64 @@
 ---
-title: "问题收集"
+title: "包罗万象"
 date: 2025-03-05T07:59:10+08:00
 draft: false
 tags:
   - "notes"
 ---
 
-# RHEL9 
+# Debian/Ubuntu
+
+## 模板
 
 ```bash
-# 换阿里源
-sed -i 's/enabled=1/enabled=0/' /etc/yum/pluginconf.d/subscription-manager.conf
-yum remove subscription-manager -y
+### ubuntu
+cat <<EOL> ubuntu.sh
+#!/bin/bash
+set -e        # 遇到错误立即停止
 
-cat <<EOL> /etc/yum.repos.d/aliyun.repo
-[BaseOS]
-name=Aliyun BaseOS
-baseurl=https://mirrors.aliyun.com/centos-stream/9-stream/BaseOS/x86_64/os/
-gpgcheck=0
-enabled=1
+# 设置时区
+sudo timedatectl set-timezone Asia/Shanghai
+timedatectl
 
-[AppStream]
-name=Aliyun AppStream
-baseurl=https://mirrors.aliyun.com/centos-stream/9-stream/AppStream/x86_64/os/
-gpgcheck=0
-enabled=1
+ufw disable
+
+apt update
+apt install -y vim wget tree lsof tcpdump screen sysstat unzip iputils-ping
+apt clean
+rm -rf /var/lib/apt/lists/*
+
+# 清 SSH key
+rm -f /etc/ssh/ssh_host_*
+
+# machine-id
+truncate -s 0 /etc/machine-id
+rm -f /var/lib/dbus/machine-id
+
+# 清理 Shell 历史和日志
+cat /dev/null > /var/log/wtmp
+cat /dev/null > /var/log/btmp
+
+hostnamectl set-hostname localhost
+
+poweroff
 EOL
-
-yum clean all
-yum makecache
+bash ubuntu.sh
 ```
 
-
-
-## 重置 root 密码
+## 换源
 
 ```bash
-### 进入 GRUB 引导菜单
-# 重启系统，在启动界面出现时快速按下 Esc 或 e 键（不同硬件可能不同）进入 GRUB 菜单。
-# 选择默认的启动条目（通常是第一个），按 e 键进入编辑模式。
-
-### 修改内核启动参数
-# 找到以 linux 开头的行（可能以 linuxefi 或 linux16 开头）。
-# 在行尾追加以下参数（注意空格）
-rd.break console=tty0
-# 按 Ctrl+X 或 F10 继续启动
-
-### 挂载文件系统并重置密码
-# 系统将进入紧急模式（Emergency Shell），执行以下命令挂载根分区为可写
-mount -o remount,rw /sysroot
-
-# 切换根目录到系统环境
-cd / chroot /sysroot
-
-# 重置密码
-passwd root 
-# 输入两次新密码，成功后显示 "passwd: all authentication tokens updated successfully"
-
-### 处理 SELinux 安全上下文
-# RHEL 9 默认启用 SELinux，需更新文件标签
-touch /.autorelabel
-
-# 退出并重启
-exit 
-reboot -f
-```
-
-# Debian 12
-
-```bash
-# 换源
+### deb
 cat <<EOL> /etc/apt/sources.list
 deb https://mirrors.tuna.tsinghua.edu.cn/debian/ bookworm main contrib non-free non-free-firmware
 deb https://mirrors.tuna.tsinghua.edu.cn/debian/ bookworm-updates main contrib non-free non-free-firmware
 deb https://mirrors.tuna.tsinghua.edu.cn/debian/ bookworm-backports main contrib non-free non-free-firmware
 EOL
+```
 
+## sudo
+
+```bash
 # 安装并配置 Sudo（推荐，为了长久使用）
 su -
 apt update
@@ -83,17 +66,21 @@ apt install sudo
 
 # 把用户 libix 加入 sudo 组： Debian 的管理员组叫 sudo（RHEL 里叫 wheel）。
 usermod -aG sudo libix
+
+# sudo 免密
+echo "libix ALL=(ALL) NOPASSWD:ALL" | sudo tee /etc/sudoers.d/libix
+sudo chmod 0440 /etc/sudoers.d/libix
 ```
 
 
 
 ## 网络配置
 
-**静态 ip**
-
 ```bash
+# Debian
+### 静态 IP
 # 修改 /etc/network/interfaces
-~# cat <<EOL> /etc/network/interfaces
+~$ cat <<EOL> /etc/network/interfaces
 # This file describes the network interfaces available on your system
 # and how to activate them. For more information, see interfaces(5).
 
@@ -111,11 +98,43 @@ iface enp2s0 inet static
         gateway 192.168.0.1
         dns-nameservers 192.168.1.1 192.168.0.1
 EOL
-~# systemctl restart networking
-~#
+~$ systemctl restart networking
+~$
+
+# Ubuntu
+### 静态 IP
+sudo rm -rf /etc/netplan/50-cloud-init.yaml
+ls -l /etc/netplan/
+
+sudo touch /etc/netplan/01-static.yaml
+sudo cat <<EOF> /etc/netplan/01-static.yaml
+network:
+  version: 2
+  renderer: networkd
+  ethernets:
+    enx002432238a18:
+      dhcp4: false
+      addresses:
+        - 192.168.0.5/24
+      routes:
+        - to: default
+          via: 192.168.0.1
+      nameservers:
+        addresses:
+          - 192.168.1.1
+          - 192.168.0.1
+EOF
+
+ls -l /etc/netplan/
+sudo netplan try
+sudo netplan apply
+
+sudo tee /etc/cloud/cloud.cfg.d/99-disable-network-config.cfg <<EOF
+network: {config: disabled}
+EOF
 ```
 
-## 配置 tty 终端熄屏
+## 配置 tty 终端自动熄屏
 
 ```bash
 ~$ sudo mkdir -p /etc/systemd/system/getty@.service.d
@@ -134,7 +153,21 @@ ExecStartPost=-/bin/sh -c '/usr/bin/setterm -blank 5 -powersave off -powerdown 0
 ~$ 
 ```
 
-## 安装软件代理
+## 系统代理
+
+```bash
+echo '
+export http_proxy=http://192.168.0.6:7897
+export https_proxy=http://192.168.0.6:7897
+export all_proxy=socks5://192.168.0.6:7897
+
+export no_proxy="localhost,127.0.0.1,::1"
+' >> ~/.bashrc
+
+source .bashrc
+```
+
+## 软件代理
 
 ```bash
 sudo apt -o Acquire::http::Proxy="http://127.0.0.1:7897/" \
@@ -142,9 +175,31 @@ sudo apt -o Acquire::http::Proxy="http://127.0.0.1:7897/" \
 install antigravity
 ```
 
+## Ubuntu 特色
+
+### **卸载 snap**
+
+```bash
+sudo systemctl stop snapd
+sudo apt purge snapd -y
+sudo rm -rf /snap /var/snap /var/lib/snapd
+# APT 优先级锁定
+sudo cat <<EOF | sudo tee /etc/apt/preferences.d/nosnap.pref
+Package: snapd
+Pin: release a=*
+Pin-Priority: -10
+EOF
+```
+
+### 关闭登录广告
+
+```bash
+sudo chmod -x /etc/update-motd.d/10-help-text /etc/update-motd.d/50-motd-news /etc/update-motd.d/60-unminimize
+```
 
 
-# **CentOS**
+
+# **RHEL**
 
 ## 模板
 
@@ -235,10 +290,31 @@ EOL
 cat /etc/sysconfig/network-scripts/ifcfg-ens33
 ```
 
-## Centos 8
+## 换源
 
 ```bash
-# 本地源
+# RHEL9
+sed -i 's/enabled=1/enabled=0/' /etc/yum/pluginconf.d/subscription-manager.conf
+yum remove subscription-manager -y
+
+cat <<EOL> /etc/yum.repos.d/aliyun.repo
+[BaseOS]
+name=Aliyun BaseOS
+baseurl=https://mirrors.aliyun.com/centos-stream/9-stream/BaseOS/x86_64/os/
+gpgcheck=0
+enabled=1
+
+[AppStream]
+name=Aliyun AppStream
+baseurl=https://mirrors.aliyun.com/centos-stream/9-stream/AppStream/x86_64/os/
+gpgcheck=0
+enabled=1
+EOL
+
+yum clean all
+yum makecache
+
+# Centos8 本地源
 mount /dev/cdrom /mnt
 
 mkdir /etc/yum.repos.d/bak
@@ -263,93 +339,53 @@ yum repolist all
 yum install -y vim net-tools bash-completion yum-utils
 ```
 
-# Ubuntu
-
-## 模板
+## 重置 root 密码
 
 ```bash
-cat <<EOL> ubuntu.sh
-#!/bin/bash
-set -e        # 遇到错误立即停止
+### 进入 GRUB 引导菜单
+# 重启系统，在启动界面出现时快速按下 Esc 或 e 键（不同硬件可能不同）进入 GRUB 菜单。
+# 选择默认的启动条目（通常是第一个），按 e 键进入编辑模式。
 
-ufw disable
+### 修改内核启动参数
+# 找到以 linux 开头的行（可能以 linuxefi 或 linux16 开头）。
+# 在行尾追加以下参数（注意空格）
+rd.break console=tty0
+# 按 Ctrl+X 或 F10 继续启动
 
-apt update
-apt install -y vim net-tools lrzsz wget tree lsof tcpdump screen sysstat unzip iputils-ping
-apt clean
-rm -rf /var/lib/apt/lists/*
+### 挂载文件系统并重置密码
+# 系统将进入紧急模式（Emergency Shell），执行以下命令挂载根分区为可写
+mount -o remount,rw /sysroot
 
-# 清 SSH key
-rm -f /etc/ssh/ssh_host_*
+# 切换根目录到系统环境
+cd / chroot /sysroot
 
-# machine-id
-truncate -s 0 /etc/machine-id
-rm -f /var/lib/dbus/machine-id
+# 重置密码
+passwd root 
+# 输入两次新密码，成功后显示 "passwd: all authentication tokens updated successfully"
 
-# 清理 Shell 历史和日志
-cat /dev/null > /var/log/wtmp
-cat /dev/null > /var/log/btmp
+### 处理 SELinux 安全上下文
+# RHEL 9 默认启用 SELinux，需更新文件标签
+touch /.autorelabel
 
-hostnamectl set-hostname localhost
-
-poweroff
-EOL
-bash ubuntu.sh
-
-# 每台虚拟机单独配置静态 IP
-sudo rm -rf /etc/netplan/50-cloud-init.yaml
-ls -l /etc/netplan/
-
-sudo cat <<EOF> /etc/netplan/01-static.yaml
-network:
-  version: 2
-  renderer: networkd
-  ethernets:
-    ens32:
-      dhcp4: false
-      addresses:
-        - 192.168.0.10/24
-      routes:
-        - to: default
-          via: 192.168.0.1
-      nameservers:
-        addresses:
-          - 192.168.1.1
-          - 192.168.0.1
-EOF
-ls -l /etc/netplan/
-sudo netplan try
-sudo netplan apply
-
-sudo tee /etc/cloud/cloud.cfg.d/99-disable-network-config.cfg <<EOF
-network: {config: disabled}
-EOF
-
-reboot
+# 退出并重启
+exit 
+reboot -f
 ```
 
-## **卸载 snap**	
-
-```bash
-sudo systemctl stop snapd
-sudo apt purge snapd -y
-sudo rm -rf /snap /var/snap /var/lib/snapd
-```
-
-# MacOS
+# macOS
 
 ## 配置终端永久代理
 
 ```bash
-~ % touch .zshrc
-~ % cat .zshrc
+~$ touch .zshrc
+~$ cat .zshrc
 # Proxy Settings
 export http_proxy="http://127.0.0.1:7897"
 export https_proxy="http://127.0.0.1:7897"
 export all_proxy="socks5://127.0.0.1:7897"
 # 关键：排除本地和内网地址
 export no_proxy="localhost,127.0.0.1,::1,192.168.*,10.*,*.local"
-~ % 
+~$ 
 ```
 
 
@@ -357,7 +393,7 @@ export no_proxy="localhost,127.0.0.1,::1,192.168.*,10.*,*.local"
 ## 配置SSH免密
 
 ```bash
-~ % ssh-keygen -t ed25519 -C "MBP_to_Debian"
+~$ ssh-keygen -t ed25519 -C "MBP_to_Debian"
 Generating public/private ed25519 key pair.
 Enter file in which to save the key (/Users/libix/.ssh/id_ed25519): 
 Enter passphrase (empty for no passphrase): 
@@ -378,8 +414,8 @@ The key's randomart image is:
 |         .o o+=BE|
 |         ... ..*O|
 +----[SHA256]-----+
-~ % 
-~ % ssh-copy-id -i ~/.ssh/id_ed25519.pub libix@192.168.0.5
+~$ 
+~$ ssh-copy-id -i ~/.ssh/id_ed25519.pub libix@192.168.0.5
 /usr/bin/ssh-copy-id: INFO: Source of key(s) to be installed: "/Users/libix/.ssh/id_ed25519.pub"
 /usr/bin/ssh-copy-id: INFO: attempting to log in with the new key(s), to filter out any that are already installed
 /usr/bin/ssh-copy-id: INFO: 1 key(s) remain to be installed -- if you are prompted now it is to install the new keys
@@ -390,11 +426,11 @@ Number of key(s) added:        1
 Now try logging into the machine, with:   "ssh 'libix@192.168.0.5'"
 and check to make sure that only the key(s) you wanted were added.
 
-~ % 
-~ % pwd
+~$ 
+~$ pwd
 /Users/libix
-~ % cd .ssh
-.ssh % ls -la
+~$ cd .ssh
+.ssh$ ls -la
 total 32
 drwx------   6 libix  staff  192  2  8 17:34 .
 drwxr-x---+ 27 libix  staff  864  2  8 17:30 ..
@@ -402,15 +438,15 @@ drwxr-x---+ 27 libix  staff  864  2  8 17:30 ..
 -rw-r--r--   1 libix  staff   95  2  8 17:33 id_ed25519.pub
 -rw-------   1 libix  staff  831  2  8 17:30 known_hosts
 -rw-r--r--   1 libix  staff   93  2  8 17:30 known_hosts.old
-.ssh % 
-.ssh % cat config
+.ssh$ 
+.ssh$ cat config
 Host debian                # 起别名，以后 ssh debian 就行
     HostName 192.168.0.5  # Debian 的 IP
     User libix       # Debian 的用户名
     Port 22
     IdentityFile ~/.ssh/id_ed25519
-.ssh % 
-.ssh % ssh debian
+.ssh$ 
+.ssh$ ssh debian
 Linux Debian 6.12.63+deb13-amd64 #1 SMP PREEMPT_DYNAMIC Debian 6.12.63-1 (2025-12-30) x86_64
  
 Last login: Sun Feb  8 17:30:27 2026 from 192.168.0.3
@@ -418,7 +454,7 @@ Last login: Sun Feb  8 17:30:27 2026 from 192.168.0.3
 ~$ exit
 logout
 Connection to 192.168.0.5 closed.
-.ssh %
+.ssh$
 ```
 
 
@@ -433,7 +469,7 @@ Connection to 192.168.0.5 closed.
 ### 查看新硬盘的设备名
 
 # 确认系统是否识别了硬盘以及它的设备名。
-~# lsblk
+~$ lsblk
 NAME   MAJ:MIN RM   SIZE RO TYPE MOUNTPOINTS
 sda      8:0    0  59.6G  0 disk
 |-sda1   8:1    0  58.7G  0 part /
@@ -442,14 +478,14 @@ sda      8:0    0  59.6G  0 disk
 sdb      8:16   1 465.8G  0 disk
 `-sdb1   8:17   1 465.8G  0 part
 sdc      8:32   1 465.8G  0 disk            # 这就是新硬盘，没有分区和挂载点
-~#
+~$
 # 从命令输出中，找到你的新硬盘。它通常显示为 sdb、sdc 等（sd 后按字母顺序递增），并且没有相关的分区和挂载点信息。
 # 新硬盘必须挂载到目录树中的一个目录（这个目录称为挂载点）上，才能通过该目录访问。
 
 ### 为硬盘分区和创建文件系统
 
 # fdisk 直接操作的是磁盘的分区表（如 MBR/GPT），而不是分区内部的文件系统或子分区
-~# fdisk /dev/sdc
+~$ fdisk /dev/sdc
 
 Welcome to fdisk (util-linux 2.38.1).
 Changes will remain in memory only, until you decide to write them.
@@ -476,9 +512,9 @@ The partition table has been altered.
 Calling ioctl() to re-read partition table.
 Syncing disks.
 
-~#
+~$
 
-~# lsblk
+~$ lsblk
 NAME   MAJ:MIN RM   SIZE RO TYPE MOUNTPOINTS
 sda      8:0    0  59.6G  0 disk
 |-sda1   8:1    0  58.7G  0 part /
@@ -488,10 +524,10 @@ sdb      8:16   1 465.8G  0 disk
 `-sdb1   8:17   1 465.8G  0 part
 sdc      8:32   1 465.8G  0 disk
 `-sdc1   8:33   1 465.8G  0 part            # 这里可以看到 sdc1 分区
-~#
+~$
 
 ### 创建文件系统
-~# mkfs.ext4 /dev/sdc1
+~$ mkfs.ext4 /dev/sdc1
 mke2fs 1.47.0 (5-Feb-2023)
 Creating filesystem with 122096390 4k blocks and 30531584 inodes
 Filesystem UUID: 41b7efb0-9513-4466-a8fb-b71958a32c1a
@@ -505,20 +541,20 @@ Writing inode tables: done
 Creating journal (262144 blocks): done
 Writing superblocks and filesystem accounting information: done
 
-~#
+~$
 # 此操作会清除该分区上所有数据！
 
 ### 创建挂载点：挂载点就是一个普通的空目录。通常可以在 /mnt 或 /media 下创建
-~# mkdir -p /mnt/disk-02
+~$ mkdir -p /mnt/disk-02
 
 ### 挂载硬盘：将硬盘分区挂载到刚刚创建的目录
-~# mount /dev/sdc1 /mnt/disk-02
+~$ mount /dev/sdc1 /mnt/disk-02
 mount: (hint) your fstab has been modified, but systemd still uses
        the old version; use 'systemctl daemon-reload' to reload.
-~#
+~$
 
 ### 验证挂载
-~# df -h
+~$ df -h
 Filesystem      Size  Used Avail Use% Mounted on
 udev            3.8G     0  3.8G   0% /dev
 tmpfs           771M  752K  771M   1% /run
@@ -527,7 +563,7 @@ tmpfs           3.8G     0  3.8G   0% /dev/shm
 tmpfs           5.0M     0  5.0M   0% /run/lock
 tmpfs           771M     0  771M   0% /run/user/0
 /dev/sdc1       458G   28K  435G   1% /mnt/disk-02
-~#
+~$
 ```
 
 ## 自动挂载
@@ -536,27 +572,26 @@ tmpfs           771M     0  771M   0% /run/user/0
 ### 设置开机自动挂载
 # 手动挂载的硬盘在重启后会失效。如需开机自动挂载，需编辑 /etc/fstab 文件
 ## 获取分区的 UUID（推荐使用UUID而非设备名，更稳定）
-~# blkid /dev/sdc1
+~$ blkid /dev/sdc1
 /dev/sdc1: UUID="41b7efb0-9513-4466-a8fb-b71958a32c1a" BLOCK_SIZE="4096" TYPE="ext4" PARTUUID="65126148-01"
-~#
-~# ls /dev/disk/by-uuid/
+~$
+~$ ls /dev/disk/by-uuid/
 41b7efb0-9513-4466-a8fb-b71958a32c1a  51f48aa2-9e13-4ae9-a13b-b9b9723ee8a0  dd21c31c-48d0-4ab9-b273-64fb033c6ac4  df9baabb-96f4-4450-b700-08bbc1857091
-~#
+~$
 
 ## 编辑 /etc/fstab
-~# echo "/dev/disk/by-uuid/41b7efb0-9513-4466-a8fb-b71958a32c1a /mnt/disk-02 ext4 defaults 0 3" >> /etc/fstab
-~# cat /etc/fstab
+~$ echo "/dev/disk/by-uuid/41b7efb0-9513-4466-a8fb-b71958a32c1a /mnt/disk-02 ext4 defaults 0 3" >> /etc/fstab
+~$ cat /etc/fstab
 UUID=51f48aa2-9e13-4ae9-a13b-b9b9723ee8a0 /               ext4    errors=remount-ro 0       1
 UUID=dd21c31c-48d0-4ab9-b273-64fb033c6ac4 none            swap    sw              0       0
 UUID=df9baabb-96f4-4450-b700-08bbc1857091 /mnt/disk-01    ext4    defaults        0       2
 /dev/disk/by-uuid/41b7efb0-9513-4466-a8fb-b71958a32c1a /mnt/disk-02 ext4 defaults 0 3
-~#
+~$
+
 ## 测试配置
-/# mount -a
+~$ mount -a
 # 如果没报错，说明配置正确，下次开机就会自动挂载
 ```
-
-
 
 > UUID 能保证唯一性，无需担心两个不同的分区拥有相同的 UUID ; UUID 是绑定到硬盘分区上的文件系统的，而不是与整个物理硬盘的硬件本身永久绑定；
 >
@@ -567,18 +602,18 @@ UUID=df9baabb-96f4-4450-b700-08bbc1857091 /mnt/disk-01    ext4    defaults      
 ## 定时任务
 
 ```bash
-~# cat /root/copy.sh
+~$ cat /root/copy.sh
 #!/bin/bash
 /bin/cp -auv /mnt/disk_sdb/* /mnt/disk_sdc
 echo "Copy sucess!"
-~#
-~# crontab -e -u root
+~$
+~$ crontab -e -u root
 
-~# crontab -l -u root
+~$ crontab -l -u root
 
 * * * * * /root/copy.sh >> /root/copy.log 2>&1
 
-~#
+~$
 ```
 
 ## 服务配置
@@ -588,11 +623,12 @@ echo "Copy sucess!"
 指定用户可以通过 Samba 访问共享目录并具有写权限，而普通用户依然是只读或 guest 访问
 
 ```bash
-~# cat <<EOL> /etc/samba/smb.conf
+# deb
+~$ cat <<EOL> /etc/samba/smb.conf
 [global]
    # 基本信息
    workgroup = WORKGROUP
-   server string = Samba Server %v
+   server string = Samba Server$v
 
    # 强制使用现代 SMB 协议
    server min protocol = SMB2
@@ -619,10 +655,10 @@ echo "Copy sucess!"
    guest ok = yes
    write list = libix
 EOL  
-~#
+~$
 
-~# smbpasswd -a libix
-~# smbpasswd -e libix
+~$ smbpasswd -a libix
+~$ smbpasswd -e libix
 # -a ：Add（添加用户到 Samba 数据库）；将指定系统用户添加到 Samba 用户数据库中
 # -e ：Enable（启用 Samba 用户）；启用之前添加的 Samba 用户；如果不启用，该用户即使在数据库里也无法登录 Samba
 # 先 -a 添加，再 -e 启用
@@ -631,13 +667,13 @@ sudo chown -R libix:libix /mnt/disk
 
 # -------------不推荐，风险较高--------------
 # 把 libix 加入 root 组
-~# usermod -aG root libix
+~$ usermod -aG root libix
 -a → append（追加，不会把用户从其他组里移除）
 -G → 指定附加组
 
 # 使 root 组可以读写和执行共享目录
-~# chmod -R 775 /mnt/disk-01/*
-~# ls /mnt/ -l
+~$ chmod -R 775 /mnt/disk-01/*
+~$ ls /mnt/ -l
 total 12
 drwxrwxr-x 6 root root 4096 Sep 11 23:38 disk-01
 drwxr-xr-x 2 root root 4096 Sep 10 00:44 disk-02
@@ -650,50 +686,54 @@ drwxr-xr-x 2 root root 4096 Sep 10 00:44 disk-02
 
 ```bash
 ### 安装 Timeshift
-~# apt update
-~# apt install timeshift
+~$ apt update
+~$ apt install timeshift
 
 ### 创建快照，在命令行里指定快照存放位置
-~# timeshift --create --comments "snapshot $(date +%F-%H%M)" --snapshot-device /dev/sdc1
+~$ timeshift --create --comments "snapshot $(date +%F-%H%M)" --snapshot-device /dev/sdc1
 '
 --create 表示创建一个新的快照。
 --comments "snapshot $(date +%F-%H%M)"    # 给快照加备注
     $(date +%F-%H%M) 会在命令执行时插入系统时间
-        %F = 年-月-日
-        %H%M = 小时分钟
+       $F = 年-月-日
+       $H%M = 小时分钟
 --snapshot-device /dev/sdc1    # 指定快照存放的位置
 '
 
 # 列出已有快照：
-~# timeshift --list
+~$ timeshift --list
 
 ### 恢复快照
-~# timeshift --restore
+~$ timeshift --restore
 # 会交互式选择你想恢复的快照
 
 ### 删除单个快照
-~# timeshift --delete --snapshot '2025-09-11_23-50-00'
+~$ timeshift --delete --snapshot '2025-09-11_23-50-00'
 ```
 
-## NFS
+### NFS
 
 ```BASH
-~$ sudo mkdir -p /mnt/nfs
-~$ 
-~$ sudo chown -R nobody:nogroup /mnt/nfs/
-~$ sudo chmod 777 /mnt/nfs/
-~$ sudo cat /etc/exports 
-/mnt/nfs 192.168.0.0/24(rw,sync,all_squash,anonuid=65534,anongid=65534,no_subtree_check,insecure)
-~$
-~$ sudo exportfs -arv
-exporting 192.168.0.0/24:/mnt/nfs
-~$ 
+sudo apt update
+sudo apt install nfs-kernel-server -y
+
+sudo mkdir -p /mnt/nfs
+sudo chown -R nobody:nogroup /mnt/nfs/
+sudo chmod 777 /mnt/nfs/
+
+echo "/mnt/nfs 192.168.0.0/24(rw,sync,all_squash,anonuid=65534,anongid=65534,no_subtree_check,insecure)" | sudo tee /etc/exports
+
+sudo exportfs -arv
+
+### 配置自动挂载
+# 客户端
+echo "192.168.0.0:/mnt/nfs  /mnt/nfs_clientshare  nfs  defaults,_netdev  0  0" | sudo tee -a /etc/fstab
 ```
 
 # 监控脚本
 
 ```bash
-# ubuntu 官方
+### ubuntu 官方
 # 1. 先禁用所有欢迎脚本 (chmod -x)
 chmod -x /etc/update-motd.d/*
 
@@ -703,7 +743,7 @@ chmod +x /etc/update-motd.d/50-landscape-sysinfo
 # 彻底删除那个法律免责声明文件
 sudo rm -f /etc/legal
 
-~# /etc/update-motd.d/50-landscape-sysinfo
+~$ /etc/update-motd.d/50-landscape-sysinfo
 
  System information as of Sun Dec 21 10:12:49 PM UTC 2025
 
@@ -711,7 +751,7 @@ sudo rm -f /etc/legal
   Usage of /:   42.5% of 17.83GB   Users logged in:        1
   Memory usage: 37%                IPv4 address for ens32: 192.168.0.12    
   Swap usage:   0%
-~# 
+~$ 
 ```
 
 # 工具使用
@@ -1130,20 +1170,6 @@ curl -v -x socks5h://127.0.0.1:10808 https://www.youtube.com/
 认证 (Authentication)： 你的 Xray 配置中 auth 是 noauth，所以不需要填写用户名和密码。'
 ```
 
-## 配置系统代理
-
-```bash
-echo '
-export http_proxy=http://192.168.0.5:7897
-export https_proxy=http://192.168.0.5:7897
-export all_proxy=socks5://192.168.0.5:7897
-
-export no_proxy="localhost,127.0.0.1,::1"
-' >> ~/.bashrc
-
-source .bashrc
-```
-
 
 
 # NAS
@@ -1151,22 +1177,22 @@ source .bashrc
 ## 配置自动备份
 
 ```bash
-root@Debian-Server:~# ls
+root@Debian-Server:~$ ls
 backup.log  backup.sh  timeshift
 
-root@Debian-Server:~# cat <<EOL> backup.sh
+root@Debian-Server:~$ cat <<EOL> backup.sh
 #!/bin/bash
-echo "$(date '+[%Y-%m-%d %H:%M:%S]') - Backup task started."
+echo "$(date '+[%Y-%m-%d$H:%M:%S]') - Backup task started."
 /bin/cp -auv /mnt/fun-share/life/* /mnt/resource-share/life/
 /bin/cp -auv /mnt/resource-share/life/* /mnt/fun-share/life/
-echo "$(date '+[%Y-%m-%d %H:%M:%S]') - Backup success!"
+echo "$(date '+[%Y-%m-%d$H:%M:%S]') - Backup success!"
 EOL
 
-root@Debian-Server:~# crontab -u root -l
+root@Debian-Server:~$ crontab -u root -l
 */10 * * * * /root/backup.sh >> /root/backup.log 2>&1
 
 
-root@Debian-Server:~# cat samba.sh
+root@Debian-Server:~$ cat samba.sh
 #!/bin/bash
 
 SERVER="192.168.1.100"
@@ -1753,4 +1779,4 @@ llm "你觉得使用Debian 13作为桌面使用怎么样？" | rich --markdown -
 
 
 
-# ---
+# --

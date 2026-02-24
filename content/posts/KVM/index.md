@@ -17,7 +17,7 @@ tags:
 
 ```bash
 sudo apt update
-sudo apt install qemu-kvm qemu-system-x86 libvirt-daemon-system libvirt-clients libvirt-dev bridge-utils virt-manager virtinst libguestfs-tools
+sudo apt install qemu-kvm qemu-system-x86 libvirt-daemon-system libvirt-clients libvirt-dev bridge-utils virtinst libguestfs-tools virt-manager 
 sudo systemctl enable --now libvirtd
 
 # 将自己加入 libvirt 和 kvm 组
@@ -32,7 +32,7 @@ virsh -c qemu:///system list --all
 
 # 启动默认网络
 sudo virsh net-start default
-# 设置开机自启（防止下次重启又报错）
+# 设置开机自启
 sudo virsh net-autostart default
 ```
 
@@ -45,8 +45,8 @@ sudo virsh shutdown demo-vm		# 关机
 sudo virsh destroy demo-vm		# 强制关机
 sudo virsh autostart demo-vm		# 设置开机自启
 sudo virsh undefine demo-vm		# 删除虚拟机 (删除配置，但保留磁盘文件)
-# 删除虚拟机的同时，把磁盘文件也一起删掉
-sudo virsh undefine demo-vm --remove-all-storage
+
+sudo virsh undefine demo-vm --remove-all-storage	# 删除虚拟机的同时，把磁盘文件也一起删掉
 
 sudo virsh console demo-vm			# 连接到虚拟机
 
@@ -73,7 +73,7 @@ guestunmount ~/mnt_image
     局域网里的其他电脑（比如你的手机、同事的电脑）访问不到这台虚拟机。
 
 ```bash
-# 配置
+### 配置网络
 --network network=default
 ```
 
@@ -83,6 +83,7 @@ guestunmount ~/mnt_image
 **标准的 Linux 网桥不支持无线网卡 (WiFi)。这是无线协议（802.11）的限制。**
 
 ```bash
+### Debian
 # 创建网桥 (br0)
 # 创建一个名为 br0 的虚拟交换机。
 sudo nmcli con add type bridge ifname br0 con-name br0
@@ -106,21 +107,48 @@ sudo nmcli con up br0
 ### 物理网卡变成了一个“傻瓜交换机端口”，网桥 br0 变成了系统里唯一能上网的“虚拟网卡”。
 ### br0 的 MAC 地址通常会“继承”（复制）物理网卡的 MAC 地址。
 
-# 把物理网卡变成网桥的一个“端口” (Slave)
-sudo nmcli con add type ethernet slave-type bridge con-name bridge-slave-enx ifname enp3s0 master br0
-# 激活这个连接 (这一步会断网重连)
-sudo nmcli con up bridge-slave-enx
-
 # 修改 ip 
 sudo nmcli con modify br0 ipv4.addresses 192.168.0.5/24
 sudo nmcli con modify br0 ipv4.gateway 192.168.0.1
 sudo nmcli con modify br0 ipv4.dns "192.168.1.1 192.168.0.1"
 sudo nmcli con modify br0 ipv4.method manual
 sudo nmcli con down br0 && sudo nmcli con up br0
+
+### Ubuntu
+sudo cat /etc/netplan/50-cloud-init.yaml
+network:
+  version: 2
+  renderer: networkd
+  ethernets:
+    enp3s0:
+      dhcp4: false
+      dhcp6: false
+      # 物理网卡不再需要 IP，它现在只是 br0 的一个端口
+  bridges:
+    br0:
+      interfaces: [enp3s0]
+      addresses:
+        - 192.168.0.5/24
+      # 注意：在最新的 Ubuntu 22.04/24.04 中，gateway4 已被弃用，改用 routes 语法
+      routes:
+        - to: default
+          via: 192.168.0.1
+      nameservers:
+        addresses:
+          - 192.168.1.1
+          - 192.168.0.1
+      parameters:
+        stp: false
+        forward-delay: 0
+
+sudo chmod 600 /etc/netplan/50-cloud-init.yaml
+sudo netplan try
+sudo netplan apply
 ```
 
 ```bash
-# 配置: 在 virt-install 时添加
+### 配置网络
+# 在 virt-install 时添加
 --network bridge=br0,model=virtio
 # model=virtio 	网卡类型
 ```
@@ -130,7 +158,7 @@ sudo nmcli con down br0 && sudo nmcli con up br0
 Web 界面管理服务器。Debian 自带，叫 **Cockpit**。
 
 ```bash
-sudo apt install cockpit cockpit-machines -y			# 安装 Cockpit 和 KVM 插件
+sudo apt install cockpit cockpit-machines -y			# 安装 Cockpit
 sudo systemctl enable --now cockpit.socket
 ```
 
