@@ -8,43 +8,52 @@ tags:
 
 # 安装 Docker
 
-#### 下载 GPG 密钥
+## 下载 GPG 密钥
 使用官方推荐的二进制格式 (`.gpg`)
 
 ```bash
+### Debian
 # 确保目录存在
 sudo install -m 0755 -d /etc/apt/keyrings
-
 # 下载并转换密钥 (注意：这一步生成的是 docker.gpg)
 curl -fsSL https://download.docker.com/linux/debian/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
-
 # 赋予读取权限
 sudo chmod a+r /etc/apt/keyrings/docker.gpg
+
+### Ubuntu
+sudo install -m 0755 -d /etc/apt/keyrings
+sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+sudo chmod a+r /etc/apt/keyrings/docker.asc
 ```
 
-#### 写入源列表
-
-Docker 官方可能还没有 ` Debian 13 (Trixie)` 的仓库。为了避免 404 错误或不稳定，**强制使用 Debian 12 (bookworm) 的源**（它们是完全兼容的）。
+## 写入源列表
 
 ```bash
+### Debian
 echo \
   "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian \
   bookworm stable" | \
   sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+  
+### Ubuntu
+echo \
+  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
+  $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
+  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 ```
 
-#### 更新并安装
+## 更新并安装
 ```bash
 sudo apt-get update
 sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 ```
 
-#### 解决权限问题
+## 解决权限问题
 ```bash
-# 把当前用户加入 docker 组：
+# 把当前用户加入 docker 组
 sudo usermod -aG docker $USER
 
-# 立刻刷新组权限（不需要重启，也不需要注销）：
+# 立刻刷新组权限（不需要重启，也不需要注销）
 newgrp docker
 
 # 验证
@@ -52,16 +61,16 @@ docker ps
 ```
 
 
-#### 配置 Docker 走 HTTP 代理
+## 配置 Docker 走 HTTP 代理
 ```bash
 # 创建配置目录
 sudo mkdir -p /etc/systemd/system/docker.service.d
 
 # 创建代理配置文件写入以下内容（假设你的宿主机代理端口是 `7890`，请根据实际情况修改）
-sudo cat <<EOL> /etc/systemd/system/docker.service.d/http-proxy.conf
+cat <<EOL | sudo tee /etc/systemd/system/docker.service.d/http-proxy.conf > /dev/null
 [Service]
-Environment="HTTP_PROXY=http://127.0.0.1:7890"
-Environment="HTTPS_PROXY=http://127.0.0.1:7890"
+Environment="HTTP_PROXY=http://192.168.0.6:7890"
+Environment="HTTPS_PROXY=http://192.168.0.6:7890"
 Environment="NO_PROXY=localhost,127.0.0.1"
 EOL
 
