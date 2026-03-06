@@ -3,7 +3,7 @@ title: "One UI7 降级教程"
 date: 2026-03-06T07:59:10+08:00
 draft: false
 tags:
-  - "blog"
+  - "notes"
 ---
 
 # One UI7 降级教程
