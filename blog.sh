@@ -13,11 +13,9 @@ NC='\033[0m'
 function new_post() {
     echo -e "${YELLOW}>>> Creating New Post...${NC}"
     read -p "Enter Title: " TITLE
-    SLUG=$(printf "%s\n" "$TITLE" | tr '[:upper:]' '[:lower:]' | sed -E 's/[^a-z0-9\u4e00-\u9fa5]+/-/g' | sed -E 's/^-|-$//g')
+    SLUG=$(printf "%s\n" "$TITLE" | tr '[:upper:]' '[:lower:]' | perl -CS -pe 's/[^a-z0-9\p{Han}]+/-/g' | sed -E 's/^-|-$//g')
     hugo new "posts/$SLUG/index.md"
     echo -e "${GREEN}Created: content/posts/$SLUG/index.md${NC}"
-    
-    ${EDITOR:-vim} "content/posts/$SLUG/index.md"
 }
 
 # 本地预览
@@ -59,7 +57,7 @@ function deploy() {
     git push origin main
 
     if [ $? -eq 0 ]; then
-        echo -e "${GREEN}>>> Success! Blog updated. 🚀${NC}"
+        echo -e "${GREEN}>>> Success! Blog updated.${NC}"
     else
         echo -e "${RED}>>> Push failed. Check network or git errors.${NC}"
     fi

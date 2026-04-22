@@ -94,7 +94,7 @@ pre {
   background: #f4f4f4;
   padding: 1em;
   overflow-x: auto;
-  font-size: 110%;
+  font-size: 90%;
 }
 
 [data-theme="dark"] pre {
@@ -102,7 +102,7 @@ pre {
 }
 
 code {
-  font-family: monospace;
+  font-family: Consolas;
 }
 
 /* Basic layout for code viewers / posts */

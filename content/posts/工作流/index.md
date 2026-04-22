@@ -6,7 +6,174 @@ tags:
   - "notes"
 ---
 
-# n8n是什么？
+
+
+## cockpit
+
+```
+. /etc/os-release
+sudo apt install -t ${VERSION_CODENAME}-backports cockpit
+```
+
+## kvm
+
+```
+# 安装 KVM
+
+# 检查输出中是否包含 VMX (Intel) 或 SVM (AMD)
+lscpu | grep Virtualization
+
+# 安装虚拟化核心、工具及图形化管理器
+sudo dnf install @virtualization
+sudo dnf install libguestfs-tools -y
+# 在新版 Fedora 中，这个才是包含 virt-customize 的本体
+sudo dnf install guestfs-tools -y
+
+# 启动并设置开机自启
+sudo systemctl enable --now libvirtd
+
+# 检查运行状态
+systemctl status libvirtd
+
+# 将当前用户加入 libvirt 组
+sudo usermod -aG libvirt $(whoami)
+
+
+# virt-customize 在虚拟机启动前直接修改磁盘镜像，拥有至高无上的 Root 权限
+
+sudo mv noble-server-cloudimg-amd64.qcow2 openclaw.qcow2
+
+sudo qemu-img resize openclaw.qcow2 20G
+
+# Fedora 43 上运行 virt-customize，如果不显式指定 LIBGUESTFS_BACKEND=direct，由于权限过严，它经常会因为无法连接 libvirtd 而报错挂起
+export LIBGUESTFS_BACKEND=direct
+sudo virt-customize -a openclaw.qcow2 \
+  --root-password password:123456 \
+  --timezone Asia/Shanghai \
+  --hostname openclaw \
+  --write /etc/cloud/cloud.cfg.d/99_local.cfg:"datasource_list: [ NoCloud, None ]" \
+  --run-command 'rm /etc/ssh/sshd_config.d/60-cloudimg-settings.conf' \
+  --run-command 'useradd -m -s /bin/bash -G sudo libix' \
+  --run-command "echo 'libix: ' | chpasswd" \
+  --run-command 'echo "libix ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/libix' \
+  --chmod 0440:/etc/sudoers.d/libix \
+  --run-command 'mkdir -p /etc/systemd/system/systemd-networkd-wait-online.service.d' \
+  --run-command 'printf "[Service]\nTimeoutStartSec=10\nExecStart=\nExecStart=/lib/systemd/systemd-networkd-wait-online --any\n" > /etc/systemd/system/systemd-networkd-wait-online.service.d/override.conf'
+
+
+sudo virt-install \
+  --name openclaw \
+  --memory 6144 \
+  --vcpus 4 \
+  --cpu host-passthrough \
+  --disk openclaw.qcow2 \
+  --import \
+  --network network=default \
+  --os-variant ubuntu24.04 \
+  --graphics none \
+  --console pty,target_type=serial \
+  --noautoconsole
+  
+sudo virsh console openclaw
+
+# 快照
+sudo virsh snapshot-list openclaw --tree
+
+sudo virsh snapshot-revert openclaw Snap-02
+```
+
+
+
+## V2rayA
+
+```
+# 宿主机操作，对虚拟机的nat网卡开启7897端口，用于连接宿主机代理
+sudo firewall-cmd --zone=libvirt --add-port=7897/tcp --permanent
+sudo firewall-cmd --reload
+
+
+export http_proxy="http://192.168.122.1:7897"
+export https_proxy="http://192.168.122.1:7897"
+curl -I https://www.google.com
+
+sudo apt-get update
+sudo apt-get install -y ca-certificates curl gnupg
+
+sudo install -m 0755 -d /etc/apt/keyrings
+sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+sudo chmod a+r /etc/apt/keyrings/docker.asc
+
+echo \
+  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
+  $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
+  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+  
+sudo apt-get update
+sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+  
+# 把当前用户加入 docker 组
+sudo usermod -aG docker $USER
+# 立刻刷新组权限（不需要重启，也不需要注销）
+newgrp docker
+
+# 验证
+docker ps
+
+
+# 创建配置目录
+sudo mkdir -p /etc/systemd/system/docker.service.d
+
+# 创建代理配置文件写入以下内容（假设你的宿主机代理端口是 `7890`，请根据实际情况修改）
+cat <<EOL | sudo tee /etc/systemd/system/docker.service.d/http-proxy.conf > /dev/null
+[Service]
+Environment="HTTP_PROXY=http://192.168.122.1:7897"
+Environment="HTTPS_PROXY=http://192.168.122.1:7897"
+Environment="NO_PROXY=localhost,127.0.0.1"
+EOL
+
+# 重载并重启
+sudo systemctl daemon-reload
+sudo systemctl restart docker
+sudo systemctl enable docker
+
+docker pull mzz2017/v2raya
+  
+docker run -d \
+  --name v2raya \
+  --restart=always \
+  --network=host \
+  --cap-add=NET_ADMIN \
+  --cap-add=NET_RAW \
+  -v /etc/v2raya:/etc/v2raya \
+  -e V2RAYA_NFTABLES_SUPPORT=off \
+  -e IPTABLES_MODE=legacy \
+  mzz2017/v2raya
+  
+# 配置后
+unset http_proxy https_proxy all_proxy no_proxy
+sudo rm /etc/systemd/system/docker.service.d/http-proxy.conf
+curl -I https://www.google.com
+```
+
+## openclaw
+
+```
+
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+curl -LsSf https://astral.sh/uv/install.sh | sh
+source $HOME/.local/bin/env
+
+curl -fsSL https://openclaw.ai/install.sh | bash
+
+# 配置 telegram bot
+source ~/.bashrc
+openclaw pairing approve telegram Z4JRBG46
+```
+
+
+
+## n8n
 
 **[n8n](https://github.com/n8n-io/n8n)** 是一个**“可视化自动流程设计器”**。
 
@@ -21,33 +188,21 @@ n8n 是 AI Agent 的“躯干”，这是 n8n 最近爆火的原因。
 
 ![image-20260213025118565](image-20260213025118565.png)
 
-# 本地部署 n8n
-
 ```bash
 docker volume create n8n_data
-# 在 Docker 中创建一个名为 n8n_data 的持久化数据卷
-# Docker 容器本质上是临时的。如果删除了 n8n 的容器，容器里所有的文件都会瞬间消失。n8n_data 就像是一个外挂硬盘。
 
-docker run -it --rm \
- --name n8n \
- -p 5678:5678 \
- -e GENERIC_TIMEZONE="<Asia/Shanghai>" \
- -e TZ="<Asia/Shanghai>" \
- -e N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=true \
- -e N8N_RUNNERS_ENABLED=true \
- -e N8N_SECURE_COOKIE=false \
- -v n8n_data:/home/node/.n8n \
- docker.n8n.io/n8nio/n8n
-# 启动 n8n 容器并挂载卷
-# N8N_RUNNERS_ENABLED=true: 开启 Task Runners。这是 n8n 的高性能模式，处理大量并发任务时很有用。
-# N8N_SECURE_COOKIE=false: 设置能够在局域网内打开
-```
-
-
-
-
-
-```bash
-
+docker run -d \
+  --name n8n \
+  -p 5678:5678 \
+  -e GENERIC_TIMEZONE="Asia/Shanghai" \
+  -e TZ="Asia/Shanghai" \
+  -e N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=true \
+  -e N8N_RUNNERS_ENABLED=true \
+  -e N8N_SECURE_COOKIE=false \
+  -e N8N_COOKIE_SAMESITE=lax \
+  -e N8N_ENCRYPTION_KEY=my_custom_secret_key_2026 \
+  -v n8n_data:/home/node/.n8n \
+  --restart unless-stopped \
+  docker.n8n.io/n8nio/n8n
 ```
 

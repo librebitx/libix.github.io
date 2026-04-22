@@ -1,7 +1,6 @@
 baseURL = "https://librebitx.github.io/"
 languageCode = "zh-CN"
 title = "Libix's blog"
-theme = "bitx"
 
 [params]
   description = "一个极简的个人博客"
@@ -15,10 +14,6 @@ theme = "bitx"
     name = "归档"
     url = "/archives/"
     weight = 1
-  [[menu.main]]
-    name = "关于"
-    url = "/about/"
-    weight = 2
 
 [markup]
   [markup.tableOfContents]

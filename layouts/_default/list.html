@@ -1,0 +1,13 @@
+{{ define "main" }}
+  <div class="list-container">
+    <h1>{{ .Title }}</h1>
+    <ul>
+      {{ range .Pages }}
+        <li>
+          <span>{{ .Date.Format "2006-01-02" }}</span> &raquo; 
+          <a href="{{ .RelPermalink }}">{{ .Title }}</a>
+        </li>
+      {{ end }}
+    </ul>
+  </div>
+{{ end }}
