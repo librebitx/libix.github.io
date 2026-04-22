@@ -23,8 +23,7 @@
     <span class="tree-label">{{ .Name }}/</span>
     {{ else }}
     {{ $relativeUrl := replace $currentPath "static/code/" "" }}
-    <a href="/code-viewer/?file=/code/{{ $relativeUrl }}&v={{ now.Unix }}" target="_blank" class="tree-link">{{ .Name
-        }}</a>
+    <a href="/code-viewer/?file=/code/{{ $relativeUrl }}&v={{ now.Unix }}" target="_blank" class="tree-link">{{ .Name }}</a>
     <span class="tree-date">{{ .ModTime.Format "01-02" }}</span>
     {{ end }}
 </div>
@@ -43,8 +42,7 @@
     <span class="tree-label">{{ .Name }}/</span>
     {{ else }}
     {{ $relativeUrl := replace $currentPath "static/code/" "" }}
-    <a href="/code-viewer/?file=/code/{{ $relativeUrl }}&v={{ now.Unix }}" target="_blank" class="tree-link">{{ .Name
-        }}</a>
+    <a href="/code-viewer/?file=/code/{{ $relativeUrl }}&v={{ now.Unix }}" target="_blank" class="tree-link">{{ .Name }}</a>
     <span class="tree-date">{{ .ModTime.Format "01-02" }}</span>
     {{ end }}
 </div>

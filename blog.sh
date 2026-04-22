@@ -13,12 +13,11 @@ NC='\033[0m'
 function new_post() {
     echo -e "${YELLOW}>>> Creating New Post...${NC}"
     read -p "Enter Title: " TITLE
-    SLUG=$(echo "$TITLE" | tr '[:upper:]' '[:lower:]' | tr ' ' '-')
+    SLUG=$(printf "%s\n" "$TITLE" | tr '[:upper:]' '[:lower:]' | sed -E 's/[^a-z0-9\u4e00-\u9fa5]+/-/g' | sed -E 's/^-|-$//g')
     hugo new "posts/$SLUG/index.md"
     echo -e "${GREEN}Created: content/posts/$SLUG/index.md${NC}"
     
-    vim "content/posts/$SLUG/index.md"
-
+    ${EDITOR:-vim} "content/posts/$SLUG/index.md"
 }
 
 # 本地预览
@@ -40,7 +39,11 @@ function deploy() {
         MSG="update: $(date +'%Y-%m-%d %H:%M')"
     fi
     
-    git commit -m "$MSG"
+    if ! git diff --cached --quiet; then
+        git commit -m "$MSG"
+    else
+        echo -e "${YELLOW}No changes to commit, proceeding to pull/push...${NC}"
+    fi
     
     # --- 同步云端 ---
     echo "2. Syncing with GitHub (Pulling)..."

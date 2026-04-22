@@ -5,84 +5,36 @@
   {{ partial "head.html" . }}
 </head>
 
-<body class="{{ if and .IsPage (not .Params.header_visible) (ne .Type " code") (ne .Type "archives" )
-  }}is-article-page{{ end }} {{ if .IsHome }}is-home{{ end }}">
-  {{ if .IsHome }}
-  <section class="hero" id="hero">
-    <div class="hero-content">
-      <h1 class="hero-title">Welcome to Libix's blog!</h1>
-      <p class="hero-subtitle">{{ .Site.Params.description | default "欢迎来到我的博客" }}</p>
-    </div>
-    <p class="scroll-hint">向下滑动或点击任意位置继续</p>
-  </section>
-  {{ end }}
+<body class="{{ if and .IsPage (not .Params.header_visible) (ne .Type "code") (ne .Type "archives") }}is-article-page{{ end }} {{ if .IsHome }}is-home{{ end }}">
+  
+  <header>
+    <ul class="top-nav">
+      <li><a href="/">Home</a></li>
+      <li><a href="/archives/">归档</a></li>
+      <li><a href="/code/">Code</a></li>
 
-  <header class="header">
-    <div class="header-inner">
-      <h1 class="site-title">
-        <a href="/">{{ .Site.Title }}</a>
-      </h1>
-      <nav class="nav">
-        <a href="/archives/">归档</a>
-        <a href="/code/">Code</a>
-        {{ if .Site.Params.about_url }}
-        <a href="{{ .Site.Params.about_url }}" target="_blank">关于</a>
-        {{ else }}
-        <a href="/about/">关于</a>
-        {{ end }}
-        <a href="https://github.com/librebitx" target="_blank" aria-label="GitHub" class="nav-icon-link">
-          <svg class="icon-github" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-            stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-            <path
-              d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22">
-            </path>
-          </svg>
-        </a>
-        <span class="theme-toggle" id="theme-toggle">
-          <svg class="icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-            stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="5" />
-            <line x1="12" y1="1" x2="12" y2="3" />
-            <line x1="12" y1="21" x2="12" y2="23" />
-            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
-            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
-            <line x1="1" y1="12" x2="3" y2="12" />
-            <line x1="21" y1="12" x2="23" y2="12" />
-            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
-            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
-          </svg>
-          <svg class="icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-            stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
-          </svg>
-        </span>
-      </nav>
-    </div>
+      <li><a href="https://github.com/librebitx" target="_blank" aria-label="GitHub">GitHub</a></li>
+      <li>
+        <button id="theme-toggle" style="background:none;border:none;color:inherit;text-decoration:underline;cursor:pointer;font-size:inherit;padding:0;">
+          <span class="icon-moon">Dark Mode</span>
+          <span class="icon-sun">Light Mode</span>
+        </button>
+      </li>
+    </ul>
   </header>
 
-  {{ if and .IsPage (not .IsHome) }}
-  <div class="sticky-post-header">
-    <a href="/#posts" class="sticky-header-back">← 返回首页</a>
-    <div class="sticky-header-title">{{ .Title }}</div>
-    <div class="sticky-header-placeholder"></div>
-  </div>
-  {{ end }}
 
-  <main class="main-content">
+
+  <main>
     {{ block "main" . }}{{ end }}
   </main>
 
-  <footer class="footer">
+  <hr />
+
+  <footer>
+
     <p>&copy; {{ now.Year }} {{ .Site.Params.author }} · Day day up !</p>
   </footer>
-
-  <button class="back-to-top" id="back-to-top" aria-label="回到顶部">
-    <svg class="icon-arrow-up" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-      stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <line x1="12" y1="19" x2="12" y2="5"></line>
-      <polyline points="5 12 12 5 19 12"></polyline>
-    </svg>
-  </button>
 
   <div class="reading-progress" id="reading-progress"></div>
 

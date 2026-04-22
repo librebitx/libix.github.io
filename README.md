@@ -54,24 +54,25 @@
 .
 ├── .github/                # GitHub Actions 自动化部署配置
 │   └── workflows/
-│       └── hugo.yaml       # 持续集成与发布脚本
-├── archetypes/             # 文章内容模板
-│   └── default.md          # 新建文章时的默认元数据
-├── content/                # 站点核心内容
-│   ├── about/              # “关于”页面
-│   ├── archives/           # 归档页面定义
-│   ├── posts/              # 博客文章博文目录
-│   └── code/               # 代码中心
-│       ├── code-viewer.md  # 代码查看器逻辑
-│       └── ...             # 各类脚本与配置文件目录
-├── data/                   # 外部数据文件
-├── static/                 # 静态资源
-├── themes/                 # 主题存储目录
-│   └── bitx/               # 当前使用的 bitx 主题
-│       ├── layouts/        # HTML 模板布局
-│       └── static/         # 主题专用的 CSS/JS 资源
-├── hugo.toml               # 项目全局配置文件
-└── README.md               # 项目自述文件
+│       └── hugo.yaml       # 自动编译、部署到 GitHub Pages 的脚本
+├── archetypes/             # 预设的文章元数据模板
+│   └── default.md          # 新建文章时自动套用的默认 Front Matter
+├── content/                # 站点所有页面和文章的核心内容存放区
+│   ├── archives/           # 归档页面入口配置
+│   ├── code/               # 代码分享中心（各类配置文件与脚本存储在这里）
+│   ├── posts/              # 所有日常博客笔记和文章存放的地方
+│   ├── _index.md           # 博客首页内容（个人 About 介绍页内容）
+│   └── code-viewer.md      # 用于在原生浏览器环境下无感查看 raw 代码的虚拟入口
+├── static/                 # 静态资源存放区（不会被 Hugo 处理，直接复制到公网）
+│   └── code -> ../content/code  # 利用软链接使 content/code 中的脚本可以被直接被访问下载
+├── themes/                 # Hugo 博客主题存储目录
+│   └── bitx/               # 本博客定制的 Accessible Minimalism 极简风格主题
+│       ├── layouts/        # 决定页面呈现效果的全部 HTML 模板布局文件
+│       └── static/         # 极简主题专用的纯净版 CSS 和 JS 等静态资源
+├── hugo.toml               # Hugo 项目的全局配置文件（网站名、菜单、构建开关等）
+├── blog.sh                 # 快捷高效的本地管理脚本（包含新建文章、本地预览与自动推送）
+├── .gitignore              # 自动过滤敏感文件（如 .env, .key）和编译产物的安全护盾
+└── README.md               # 项目自述文件（即本文档）
 ```
 
 ## License

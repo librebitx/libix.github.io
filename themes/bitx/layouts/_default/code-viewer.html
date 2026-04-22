@@ -1,64 +1,42 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
-
+<html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>文件查看</title>
+    <title>Raw Content</title>
     <style>
         body {
-            margin: 20px;
-            font-family: monospace;
-            white-space: pre-wrap;
-            word-wrap: break-word;
+            margin: 0;
+            padding: 8px;
+            background: white;
+            color: black;
         }
-
+        pre {
+            word-wrap: break-word;
+            white-space: pre-wrap;
+            font-family: monospace;
+            font-size: 13px;
+            margin: 0;
+        }
         @media (prefers-color-scheme: dark) {
-            body {
-                background: #121212;
-                color: #e0e0e0;
-            }
+            body { background: #000; color: #fff; }
         }
     </style>
 </head>
-
 <body>
-    <div id="code-content">正在载入内容...</div>
-
+    <pre id="code-content"></pre>
     <script>
         (function () {
             const params = new URLSearchParams(window.location.search);
             const filePath = params.get('file');
             const codeEl = document.getElementById('code-content');
-
             if (filePath) {
-                // Security check
-                if (!filePath.startsWith('/code/') || filePath.includes('..')) {
-                    document.title = '无效路径';
-                    codeEl.textContent = '错误: 访问被拒绝或路径无效。';
-                    return;
-                }
-
-                const displayPath = filePath.replace(/^\/+code\//, '');
-                document.title = displayPath;
-
                 fetch(filePath)
-                    .then(response => {
-                        if (!response.ok) throw new Error('找不到该文件');
-                        return response.text();
-                    })
-                    .then(text => {
-                        codeEl.textContent = text;
-                    })
-                    .catch(err => {
-                        codeEl.textContent = '错误: ' + err.message;
-                    });
-            } else {
-                document.title = '未指定文件';
-                codeEl.textContent = '请选择一个文件查看。';
+                    .then(r => r.text())
+                    .then(t => codeEl.textContent = t)
+                    .catch(e => codeEl.textContent = 'Error: ' + e.message);
             }
         })();
     </script>
 </body>
-
 </html>

@@ -7,3 +7,9 @@ public/
 .deploy*/
 _multiconfig.yml
 .agent/
+
+# Security and sensitive files
+*.env
+.env*
+*.pem
+*.key

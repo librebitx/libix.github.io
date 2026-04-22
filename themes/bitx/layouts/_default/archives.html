@@ -20,7 +20,7 @@
         {{ $isLastPost := eq $pageIdx (sub (len $pages) 1) }}
         <div class="tree-node tree-post">
             <span class="tree-connector">{{ if $isLastPost }}└── {{ else }}├── {{ end }}</span>
-            <a href="{{ $page.Permalink }}" class="tree-link">{{ $page.Title }}</a>
+            <a href="{{ $page.Permalink }}" target="_blank" class="tree-link">{{ $page.Title }}</a>
             <span class="tree-date">{{ $page.Date.Format "01-02" }}</span>
         </div>
         {{ end }}

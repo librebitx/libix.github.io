@@ -6,7 +6,7 @@ theme = "bitx"
 [params]
   description = "一个极简的个人博客"
   author = "Libix"
-  about_url = ""
+
   math = true
   mermaid = true
 
@@ -34,9 +34,7 @@ theme = "bitx"
       typographer = true
       table = true
 
-[taxonomies]
-  category = "categories"
-  tag = "tags"
+disableKinds = ["taxonomy", "term"]
 
 [outputs]
   home = ["HTML", "RSS"]
