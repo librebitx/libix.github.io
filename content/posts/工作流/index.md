@@ -11,8 +11,15 @@ tags:
 ## cockpit
 
 ```
+# debian
 . /etc/os-release
 sudo apt install -t ${VERSION_CODENAME}-backports cockpit
+
+# fedora
+sudo dnf install cockpit -y
+sudo systemctl enable --now cockpit.socket
+sudo firewall-cmd --add-service=cockpit
+sudo firewall-cmd --add-service=cockpit --permanent
 ```
 
 ## kvm
@@ -149,9 +156,23 @@ docker run -d \
   -e IPTABLES_MODE=legacy \
   mzz2017/v2raya
   
+# fedora  
+docker run -d \
+  --name v2raya \
+  --restart=always \
+  --privileged \
+  --network host \
+  -v /lib/modules:/lib/modules:ro \
+  -v /etc/resolv.conf:/etc/resolv.conf \
+  -v /etc/v2raya:/etc/v2raya \
+  mzz2017/v2raya
+  
 # 配置后
 unset http_proxy https_proxy all_proxy no_proxy
-sudo rm /etc/systemd/system/docker.service.d/http-proxy.conf
+sudo rm -rf /etc/systemd/system/docker.service.d
+sudo systemctl daemon-reload
+sudo systemctl restart docker
+sudo systemctl enable docker
 curl -I https://www.google.com
 ```
 

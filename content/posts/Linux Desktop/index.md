@@ -6,11 +6,6 @@ tags:
   - "fun"
 ---
 
-# Linux 桌面
-
-在这篇文章中，我将分享如何在 **Debian 13 上构建一个极简桌面环境**，并对窗口管理、菜单、快捷键、美化、常用工具进行配置。
-实现低资源占用、快速响应、自由定制、极简视觉，适合老电脑、虚拟机、极简主义用户等。
-
 ## 系统配置
 
 ```bash
@@ -57,8 +52,6 @@ sudo apt install lxterminal
 lxtermianl &
 ```
 
-I3wm
-
 
 
 ## 主菜单
@@ -73,7 +66,9 @@ openbox --reconfigure        # 刷新 openbox 配置，也可以右击鼠标点�
 
 ## 输入法
 
-Fcitx5 是目前 Linux 社区公认的输入法框架第一选择。与 IBus 相比，Fcitx5 的后台常驻进程更少，内存占用更小。
+Fcitx5 是目前 Linux 社区公认的输入法框架第一选择。
+
+与 IBus 相比，Fcitx5 的后台常驻进程更少，内存占用更小。
 
 ```bash
 sudo apt install fcitx5 fcitx5-chinese-addons fcitx5-config-qt fcitx5-frontend-gtk2 fcitx5-frontend-gtk3 fcitx5-frontend-qt5
@@ -103,9 +98,7 @@ run_im fcitx
 
 快捷键的配置文件 rc.xml 其中也包括了 openbox 主题的配置信息，需要创建在用户家目录下。
 
-以下是本人在使用的快捷键，大家可以根据自己喜好自定义，系统默认配置在 `/etc/xdg/openbox/rc.xml`。
-
-
+系统默认配置在 `/etc/xdg/openbox/rc.xml`。
 
 ```bash
 mkdir -p ~/.config/openbox
@@ -155,7 +148,7 @@ maim -s "$FILE" && xclip -selection clipboard -t image/png < "$FILE"
 
 ### 图标
 
-GTK 主题决定了窗口的样式，可以根据喜好选择，我比较喜欢 Kali Linux 的主题和图标
+GTK 主题决定了窗口的样式
 
 ```bash
 git clone https://gitlab.com/kalilinux/packages/kali-themes.git
@@ -273,7 +266,6 @@ picom 可以优化显示减少画面撕裂，可以配置透明、阴影、模�
 
 Polybar 交互式状态栏（能点、能切换、能操作）
 Conky 桌面监控仪表（只显示，不交互）
-因为 polybar 会占用屏幕顶部小部分空间，而我只需要看看时间和机器状态，所以我选择了 conky 搭配 openbox （i3wm 中弃用）
 
 ```bash
 conky.config = {
@@ -405,7 +397,7 @@ sudo update-grub
 sudo reboot
 ```
 
-## 安装软件
+## 安装与卸载
 
 
 ![](image-20251226081057349.png)
@@ -441,9 +433,61 @@ local        locale       localectl    localedef    localsearch  localsend
 sudo apt install ./software.deb
 ```
 
+### flatpak
+
+```
+flatpak remote-add --if-not-exists flathub https://dl.fflatpak remote-add --user --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+
+# 代理安装
+sudo HTTP_PROXY="http://127.0.0.1:7897" HTTPS_PROXY="http://127.0.0.1:7897" flatpak install flathub xxx
+
+flatpak install flathub com.mattjakeman.ExtensionManager
+flatpak install flathub org.mozilla.firefox
+flatpak install flathub com.google.Chrome
+flatpak install flathub com.brave.Browser
+flatpak install flathub app.zen_browser.zen
+flatpak install flathub org.localsend.localsend_app
+flatpak install flathub io.typora.Typora
+flatpak install flathub io.github.ungoogled_software.ungoogled_chromium
+
+flatpak install flathub com.github.xournalpp.xournalpp
+flatpak install flathub io.bassi.Amberol
+flatpak install flathub org.videolan.VLC
+
+flatpak install flathub org.gnome.Chess
+flatpak install flathub org.gnome.gedit
+
+
+flatpak install flathub org.telegram.desktop
+flatpak install flathub com.obsproject.Studio
+flatpak install flathub md.obsidian.Obsidian
+
+
+
+flatpak install flathub com.belmoussaoui.Authenticator
+flatpak install flathub org.cryptomator.Cryptomator
+
+flatpak install flathub com.github.tchx84.Flatseal
+# 使用 flatpak 安装软件，它所有的数据、缓存、配置，都会被死死锁在一个钛合金保险柜里，绝对出不来！
+# 此时，Warehouse 就成了这个保险柜的最高管理员。可以一键清除用户数据
+
+flatpak install flathub io.github.flattool.Warehouse
+# Warehouse 本质上是一个帮你管理 Flatpak 沙盒的“本地管家”。
+# 它本身绝不会偷偷上传你的隐私文件，需要联网仅仅是为了连接 Flathub 官方军火库的 API。
+
+flatpak install flathub io.missioncenter.MissionCenter
+flatpak install --user flathub fr.romainvigier.MetadataCleaner
+
+flatpak uninstall --unused --delete-data
+(这条命令极度舒适：它会自动扫描你系统里所有没用的底层依赖包，并且把你卸载软件留在你个人目录下的配置文件，一把火全烧干净！)
+```
+
+
+
 ### Vmware Workstation Pro
 
 ```bash
+### Debian
 ## 下载依赖
 sudo apt update && sudo apt upgrade -y
 sudo apt install build-essential linux-headers-$(uname -r) -y
@@ -464,6 +508,17 @@ sudo vmware-installer -u vmware-workstation
 sudo rm -rf /usr/lib/vmware
 sudo rm -rf /etc/vmware
 sudo rm -rf ~/.vmware
+
+### VM
+sway wl-clipboard mako mate-polkit
+
+
+sudo dnf install liberation-sans-fonts liberation-serif-fonts liberation-mono-fonts fira-code-fonts google-noto-sans-cjk-sc-fonts google-noto-serif-cjk-sc-fonts google-noto-color-emoji-fonts
+
+fc-cache -fv
+
+
+
 ```
 
 ## 卸载软件
@@ -472,6 +527,63 @@ sudo apt remove firefox-esr  # 卸载Firefox主程序，保留配置文件
 sudo apt purge firefox-esr  # 完全删除Firefox及其配置文件
 sudo apt autoremove    # 清理残留依赖包
 dpkg -l | grep firefox-esr  # 若输出为空，表示卸载成功
+```
+
+
+
+## 系统精简
+
+```
+### Fedora
+## 通用
+sudo dnf remove libreoffice*
+sudo dnf autoremove
+rm -rf ~/.config/libreoffice
+
+
+
+## Gnome
+# 清理
+sudo dnf remove gnome-tour gnome-maps gnome-weather gnome-contacts \
+snapshot showtime decibels firefox gnome-calculator loupe papers \
+gnome-clocks rhythmbox totem simple-scan yelp gnome-boxes gnome-connections gnome-calendar \
+gnome-characters gnome-font-viewer gnome-logs \
+gnome-software gnome-browser-connector gnome-text-editor 
+
+# 停用并屏蔽 PackageKit (自动更新后端)
+sudo systemctl mask packagekit.service
+# 彻底关掉 GNOME 软件中心的自动后台运行
+gsettings set org.gnome.software download-updates false
+
+
+# 移除打印机监听
+sudo systemctl disable --now cups.socket cups.path cups.service
+sudo systemctl mask cups.service
+
+## xfce
+sudo dnf remove parole ristretto xfburn asunder transmission* pidgin hexchat claws-mail abiword gnumeric xfce4-dict xfce4-weather-plugin xfce4-places-plugin xfce4-mailwatch-plugin xfce4-clipman-plugin catfish gigolo xscreensaver simple-scan pragha xfce4-notes-plugin xfce4-timer-plugin xfce4-cpugraph-plugin xfce4-netload-plugin xfce4-systemload-plugin xfce4-diskperf-plugin xfce4-fsguard-plugin
+
+sudo dnf remove dnfdragora gnome-software xfce4-screensaver xfce4-screenshooter xfce4-taskmanager sane-backends xsane ModemManager NetworkManager-bluetooth
+
+# 打印机服务（防止局域网打印机漏洞）
+sudo systemctl disable --now cups
+
+# 蓝牙服务（防止近距离物理入侵）
+sudo systemctl disable --now bluetooth
+
+# 局域网发现服务（配合防火墙 Drop 战术）
+sudo systemctl disable --now avahi-daemon
+
+## 更新
+# 1. 正确禁用 Cisco openh264 仓库（Fedora 43 使用 dnf5 的语法）
+sudo dnf config-manager setopt fedora-cisco-openh264.enabled=0
+
+# 2. 强制切换到 noopenh264 并清理残留
+sudo dnf swap '*openh264*' noopenh264 --allowerasing
+sudo dnf remove openh264 gstreamer1-plugin-openh264 --allowerasing
+
+# 3. 再次确认更新
+sudo dnf update --refresh
 ```
 
 

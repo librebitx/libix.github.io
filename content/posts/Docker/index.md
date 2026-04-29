@@ -8,6 +8,8 @@ tags:
 
 # 安装 Docker
 
+https://docs.docker.com/engine/install/fedora/
+
 ## 下载 GPG 密钥
 使用官方推荐的二进制格式 (`.gpg`)
 
