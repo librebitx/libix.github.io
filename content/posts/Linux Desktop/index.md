@@ -528,12 +528,17 @@ fc-cache -fv
 
 # filebrowser
 docker run -d \
+  --name filebrowser \
   --restart=always \
   -v /:/srv \
   -v filebrowser_database:/database \
   -v filebrowser_config:/config \
   -p 8080:80 \
   filebrowser/filebrowser
+  
+sleep 3
+
+docker exec -it filebrowser filebrowser -d /database/filebrowser.db users update admin --password "admin"
 ```
 
 ## 卸载软件

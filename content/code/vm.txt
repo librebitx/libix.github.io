@@ -1,0 +1,70 @@
+sudo tee /etc/environment << 'EOF'
+http_proxy=http://192.168.122.1:7897
+https_proxy=http://192.168.122.1:7897
+no_proxy=localhost,127.0.0.1
+EOF
+curl -I https://www.google.com
+
+sudo dnf config-manager setopt fedora-cisco-openh264.enabled=0
+sudo dnf swap --allowerasing '*openh264*' noopenh264
+sudo dnf remove openh264 gstreamer1-plugin-openh264
+
+sudo dnf update --refresh
+
+# cockpit
+sudo dnf install cockpit -y
+sudo systemctl enable --now cockpit.socket
+sudo firewall-cmd --add-service=cockpit
+sudo firewall-cmd --add-service=cockpit --permanent
+
+# sway
+sudo dnf install sway firefox -y
+mkdir -p ~/.config/sway
+sudo chown -R $USER:$USER ~/.config/sway/
+
+mv config .config/sway/config
+
+# mihomo
+sudo dnf install wget -y
+http_proxy="http://192.168.122.1:7897" https_proxy="http://192.168.122.1:7897" wget https://github.com/MetaCubeX/mihomo/releases/download/Prerelease-Alpha/mihomo-linux-amd64-v3-alpha-df1c5e5.rpm
+sudo dnf install ./mihomo-linux-amd64-v3-alpha-df1c5e5.rpm -y
+sudo mv config.yaml /etc/mihomo/config.yaml
+sudo systemctl enable --now mihomo
+
+unset http_proxy https_proxy all_proxy no_proxy
+sudo rm /etc/environment
+curl -I https://www.google.com
+
+# flatpak
+sudo dnf install flatpak -y
+flatpak remote-add --user --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+
+HTTP_PROXY="http://127.0.0.1:7897" HTTPS_PROXY="http://127.0.0.1:7897" flatpak install --user flathub app.zen_browser.zen -y
+HTTP_PROXY="http://127.0.0.1:7897" HTTPS_PROXY="http://127.0.0.1:7897" flatpak install --user flathub com.brave.Browser -y
+
+# docker
+sudo dnf config-manager addrepo --from-repofile https://download.docker.com/linux/fedora/docker-ce.repo
+sudo dnf install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin -y
+sudo systemctl enable --now docker
+
+sudo usermod -aG docker $USER
+newgrp docker
+
+docker pull filebrowser/filebrowser
+docker run -d \
+  --name filebrowser \
+  --restart=always \
+  -v /:/srv \
+  -v filebrowser_database:/database \
+  -v filebrowser_config:/config \
+  -p 8080:80 \
+  filebrowser/filebrowser
+  
+docker stop filebrowser
+docker run --rm -it -v filebrowser_database:/database filebrowser/filebrowser -d /database/filebrowser.db users update admin --password "adminadminadmin"
+docker start filebrowser
+
+
+sudo firewall-cmd --set-default-zone=drop
+
+sudo firewall-cmd --runtime-to-permanent
