@@ -52,6 +52,17 @@ sudo apt install lxterminal
 lxtermianl &
 ```
 
+### sway
+
+```
+# 配置文件
+mkdir -p ~/.config/sway
+sudo cp /etc/sway/config ~/.config/sway/
+sudo chown -R $USER:$USER ~/.config/sway/
+
+
+```
+
 
 
 ## 主菜单
@@ -399,9 +410,6 @@ sudo reboot
 
 ## 安装与卸载
 
-
-![](image-20251226081057349.png)
-
 ### AppImage
 
 ```
@@ -436,10 +444,10 @@ sudo apt install ./software.deb
 ### flatpak
 
 ```
-flatpak remote-add --if-not-exists flathub https://dl.fflatpak remote-add --user --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+flatpak remote-add --user --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
 
 # 代理安装
-sudo HTTP_PROXY="http://127.0.0.1:7897" HTTPS_PROXY="http://127.0.0.1:7897" flatpak install flathub xxx
+HTTP_PROXY="http://127.0.0.1:7897" HTTPS_PROXY="http://127.0.0.1:7897" flatpak install flathub xxx
 
 flatpak install flathub com.mattjakeman.ExtensionManager
 flatpak install flathub org.mozilla.firefox
@@ -518,7 +526,14 @@ sudo dnf install liberation-sans-fonts liberation-serif-fonts liberation-mono-fo
 fc-cache -fv
 
 
-
+# filebrowser
+docker run -d \
+  --restart=always \
+  -v /:/srv \
+  -v filebrowser_database:/database \
+  -v filebrowser_config:/config \
+  -p 8080:80 \
+  filebrowser/filebrowser
 ```
 
 ## 卸载软件
