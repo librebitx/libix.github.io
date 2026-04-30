@@ -54,6 +54,7 @@ docker pull filebrowser/filebrowser
 docker run -d \
   --name filebrowser \
   --restart=always \
+  --user root \
   -v /:/srv \
   -v filebrowser_database:/database \
   -v filebrowser_config:/config \
@@ -61,10 +62,9 @@ docker run -d \
   filebrowser/filebrowser
   
 docker stop filebrowser
-docker run --rm -it -v filebrowser_database:/database filebrowser/filebrowser -d /database/filebrowser.db users update admin --password "adminadminadmin"
+docker run --rm -it --user root -v filebrowser_database:/database filebrowser/filebrowser -d /database/filebrowser.db users update admin --password "adminadminadmin"
 docker start filebrowser
 
 
 sudo firewall-cmd --set-default-zone=drop
-
 sudo firewall-cmd --runtime-to-permanent
