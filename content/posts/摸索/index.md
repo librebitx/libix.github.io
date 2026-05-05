@@ -246,9 +246,11 @@ CoinMarketCap、CoinGecko、TradingView 等价格聚合网站会同时从多个C
 
 
 
+### CVD 
 
+累积成交量增量
 
-
+主动买成交量 – 主动卖成交量的**净差额** ，能进一步告诉你，在这些成交中，是多头还是空头在主动进攻
 
 
 
@@ -885,35 +887,72 @@ Ps，要排除极端消息面，以及众所周知的单边行情。 要学会�
 
 
 
+
+
+```
+看到趋势了，别急，先稳住
+你看到了别人也看到了或者是庄家故意让你看到的，等大部分散户入场，看庄家的操作再判断
+```
+
+
+
+# ---
+
+
+
 **主书签栏**
+
 https://www.binance.com/zh-CN/futures/markets/overview-um  — **Binance**
+
 https://www.okx.com/zh-hans/markets/futures-swap/usdt-all  — **OKX**
+
 https://www.bitget.com/zh-CN/markets/futures — **Bitget**
+
 https://www.gate.com/zh/price/futures  — **Gate**
+
 https://polymarket.com/zh  — **PolyMarket**
+
 https://cn.tradingview.com/chart/eTgt5gs8/?symbol=BITSTAMP%3ABTCUSD  — **TradingView**
+
 https://dexscreener.com/  — **DexScreener**
+
 https://perps.raydium.io/perp/PERP_BTC_USDC?lang=zh  — **Raydium**
+
 https://gmgn.ai/  — **Gmgn**
+
 https://pump.fun/  — **Pump**
+
 https://www.coingecko.com/  — **CoinGecko**
+
 https://coinmarketcap.com/zh/  — **CoinMarketCap**
+
 https://www.foregate.com/market/main?category=esports — **ForeGate**
 https://www.jin10.com/ — **金十数据**
 
 **参考地址**
+
 https://hyperx.trade/hyperliquid/trader?address=0x5b5d51203a0f9079f8aeb098a6523a13f298c060&ref=XIAONIU666 — **0x5b5d51... 钱包分析**
+
 https://hyperx.trade/hyperliquid/trader?address=0x9d32884370875f2960d5cc4b95be26687d69aff5&ref=XIAONIU666 — **0x9d3288... 钱包分析**
+
 https://hyperx.trade/hyperliquid/trader?address=0x71dfc07de32c2ebf1c4801f4b1c9e40b76d4a23d&ref=XIAONIU666 — **方程式**
+
 https://hyperx.trade/hyperliquid/trader?address=0xfd97600ac44b3c4e20ac1a5f23e3b18d10fa5912&ref=XIAONIU666 — **波王**
-https://hyperx.trade/hyperliquid/trader?address=0x049bdc370620beab340b01072fa580fd57745e7d&ref=XIAONIU666 — **重仓大赌狗-只交易观察，不建议跟单**
+
+https://hyperx.trade/hyperliquid/trader?address=0x049bdc370620beab340b01072fa580fd57745e7d&ref=XIAONIU666 — **重仓大赌狗**
+
 https://hyperx.trade/hyperliquid/trader?address=0xcac19662ec88d23fa1c81ac0e8570b0cf2ff26b3&ref=XIAONIU666 — **0xcac196... 钱包分析**
 
 **Tool**
+
 https://ping0.cc/ — **ping0.cc**
+
 https://ipleak.net/ — **ipleak.net**
+
 https://dnsleaktest.com/ — **DNS leak test**
+
 https://yacd.metacubex.one/#/proxies — **yacd**
+
 https://www.bing.com/translator — **Microsoft Translator**
 
 http://127.0.0.1:9090/system/terminal — **fedora**
@@ -925,3 +964,23 @@ https://www.timeanddate.com/worldclock/personal.html?cities=236,137,75,179,136,2
 
 
 # ---
+
+```mermaid
+flowchart TD
+    Start([开始]) --> Input[输入用户名密码]
+    Input --> Validate{验证通过?}
+    Validate -->|是| Login[登录成功]
+    Validate -->|否| Error[显示错误]
+    Error --> Retry{重试?}
+    Retry -->|是| Input
+    Retry -->|否| End([结束])
+    Login --> Dashboard[进入首页]
+    Dashboard --> End
+```
+
+
+
+
+
+
+

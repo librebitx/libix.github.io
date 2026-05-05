@@ -65,6 +65,15 @@ docker stop filebrowser
 docker run --rm -it --user root -v filebrowser_database:/database filebrowser/filebrowser -d /database/filebrowser.db users update admin --password "adminadminadmin"
 docker start filebrowser
 
+docker pull ghcr.io/metacubex/metacubexd:latest
+docker run -d \
+  --name metacubexd \
+  --restart always \
+  -p 9093:80 \
+  ghcr.io/metacubex/metacubexd:latest
+
 
 sudo firewall-cmd --set-default-zone=drop
 sudo firewall-cmd --runtime-to-permanent
+sudo firewall-cmd --permanent --add-service=ssh
+sudo firewall-cmd --reload

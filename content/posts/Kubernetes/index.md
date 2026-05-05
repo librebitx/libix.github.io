@@ -260,7 +260,7 @@ CURRENT   NAME                          CLUSTER      AUTHINFO           NAMESPAC
 Context "kubernetes-admin@kubernetes" modified.
 ```
 
-## **kubens**
+## kubens
 
 使用 `kubens` 脚本可以更方便的更换所在命名空间。该脚本必须移动到 `/bin` 目录下使用！
 
@@ -288,7 +288,7 @@ No resources found in default namespace.
 
 # Pod
 
-## **镜像拉取策略**
+## 镜像拉取策略
 
 创建 pod 的前提是要有对应的镜像，在 yaml 文件里可以指定创建 pod 时使用镜像的方式：
 *   **Always**：它每次都会联网检查最新的镜像，不管你本地有没有。
@@ -297,13 +297,13 @@ No resources found in default namespace.
 
 可以把 `crictl` 类比为 Kubernetes 时代的“精简版 docker 命令”。`crictl pull` 调用的是 CRI 运行时，拉取的镜像会出现在 `crictl images` 中。
 
-## **创建 pod**
+## 创建 pod
 
 在 k8s 集群里面，k8s 调度的最小单位是 pod，pod 里面跑容器。如何创建一个 pod：1.命令行 2.yaml 文件（推荐后者）。
 
 Kubernetes 有一个叫做 **调度器 (scheduler)** 的组件。当您创建一个 Pod 时，调度器会自动选择一个最合适的节点来运行这个 Pod。
 
-### **命令行创建 pod**
+### 命令行创建 pod
 
 ```bash
 ~# kubectl run pod1 --image nginx
@@ -334,7 +334,7 @@ pod1      0/1     Completed   0          111m
 testpod   1/1     Running     0          2s
 ```
 
-### **yaml 文件创建 pod**
+### yaml 文件创建 pod
 
 ```bash
 ~# kubectl run pod1 --image nginx --image-pull-policy IfNotPresent --dry-run=client -o yaml > pod2.yaml
@@ -366,10 +366,10 @@ NAME   READY   STATUS    RESTARTS   AGE     IP               NODE     NOMINATED 
 pod1   1/1     Running   0          3m14s   10.244.195.152   knode1   <none>           <none>
 ```
 
-## **create 与 apply 的区别**
+## create 与 apply 的区别
 在使用 yaml 文件创建 pod 时，如果是初次创建，二者无区别；若需更改 yaml 后更新配置，只有 `apply` 可以更新并创建，`create` 则会报错。
 
-## **一个 pod 里面启动多个容器**
+## 一个 pod 里面启动多个容器
 
 ```bash
 ~# cat <<EOL> pod11.yaml
@@ -401,7 +401,7 @@ EOL
 ~# kubectl exec -ti pod11 -c r1 -- bash            # 进入指定容器
 ```
 
-## **删除 pod**
+## 删除 pod
 
 ```bash
 kubectl delete -f pod1.yaml
@@ -410,13 +410,13 @@ kubectl delete pods pod{3,4,5}
 kubectl delete pods --all
 ```
 
-## **pod 重启策略**
+## pod 重启策略
 
 *   **Always**: 总是重启（默认）。
 *   **Never**: 永不重启。
 *   **OnFailure**: 仅在故障时重启。
 
-## **静态 pod**
+## 静态 pod
 
 静态 Pod 是由 **kubelet** 进程直接管理并运行在特定节点上的 Pod，而不需要通过 API Server 进行调度。
 在集群目录 /etc/kubernetes/manifests/ 下会放着一些 yaml 文件，这些都是静态 pod 所属的文件。主要是为集群提供功能支撑的。只需要把文件放在里面，就会在集群里面创建一个 pod，把文件移走，pod 就会自动删除。
@@ -429,7 +429,7 @@ K8s 的核心组件本质上就是运行在 K8s 里的 Pod；K8s 是一个用 Po
 beta.kubernetes.io/arch=amd64
 aaa.bbb=ccc
 aaa.bbb/ccc=ddd
-## **node 标签**
+## node 标签
 
 ```bash
 ~# kubectl get nodes --show-labels            # 查看集群中所有节点的标签信息
@@ -472,7 +472,7 @@ knode2    Ready    work2    2d20h   v1.30.0   192.168.100.202   <none>        Ce
 ~#
 ```
 
-## **pod 标签**
+## pod **标签**
 **pod 上的标签是给 deployment 管理用的**
 
 ```bash
@@ -490,7 +490,7 @@ NAME   READY   STATUS    RESTARTS   AGE    LABELS
 pod1   1/1     Running   0          116s   run=pod1
 ```
 
-## **将 pod 发放到指定节点**
+## 将 pod 发放到指定节点
 **nodeName**
 这个字段允许直接指定 Pod 调度到目标节点 (node)
 **nodeSelector**
@@ -552,13 +552,13 @@ pod1   1/1     Running   0          29m   10.244.195.137   knode1   <none>      
 pod4   1/1     Running   0          54s   10.244.69.199    knode2   <none>           <none>
 ```
 
-## **cordon / drain / taint**
+## cordon / drain / taint
 在 Kubernetes 中管理**节点 (node)** 状态和工作负载时非常重要的工具
 cordon 警戒线：用于将一个节点标记为**不可调度 (unschedulable)**。
 drain 驱逐：一旦设置了 drain，不仅会 cordon，还会 evicted 驱逐。（本意是把该节点上的 pod 删除掉，并在其他 node 上启动）
 taint 污点：一但设置了 taint，默认调度器会直接过滤掉，不会调度到该 node 上，但是可以通过 tolerations 关键字来强制的运行。
 
-### **cordon**
+### cordon
 用于将一个节点标记为 **不可调度 (unschedulable)** 。一旦对某个节点设置了 cordon，那么就告诉 k8s 集群，未来发放的 pod 不要再调度到该节点上了；
 对于节点上已经存在的 pod 不受影响。
 比如有两个节点，当创建一个 pod 的时候，会根据 scheduler 调度算法，分布在不同的节点上。现在有 knode1 和 knode2 两个节点，如果 knode1 节点要维护或检查，设置 cordon 后，新创建的 pod 就不能再调度到 node1 上了。
@@ -614,7 +614,7 @@ drain 命令首先会自动将目标节点标记为不可调度 (unschedulable)�
 
 单个 pod 看不到效果，配合 deployment 可以看到效果。
 
-### **Taint**
+### Taint
 Taint (污点) 就是用来实现这种 “排斥” 需求的。
 主控节点 (Master/Control-Plane Node) 运行着 Kubernetes 的核心组件，非常重要，你不希望普通的应用 Pod 占用它们的资源或可能影响它们的稳定性。
 具有特殊硬件的节点，比如带有 GPU 的节点，你可能只想让需要 GPU 的特定应用在上面运行。
@@ -624,22 +624,25 @@ Taint (污点) 就是用来实现这种 “排斥” 需求的。
 Taint 是应用到节点 (Node) 上的一个属性。它会 “排斥” 那些不能 “容忍” 这个污点的 Pod。也就是说，默认情况下，Pod 不会被调度到带有它不能容忍的污点的节点上。
 可以把 Taint 看作是节点给 Pod 设置的一个 “门槛” 或者 “条件”。
 
-**Taint 的组成**
-一个 Taint 由三个部分组成：
-**键 (Key):** 必需的，是一个字符串，例如 gpu、node-role.kubernetes.io/master。
-**值 (Value):** 可选的，也是一个字符串，与键一起描述污点的具体含义，例如 true、nvidia-tesla-v100。如果不需要值，可以省略。
-**效果 (Effect):** 必需的，决定了当 Pod 不能容忍这个污点时会发生什么。
-**格式：** =: ( 如果值为空，则是 : )
-**Taint 的效果 (Effect)**
-有三种主要的效果：
-**NoSchedule (不调度):** 这是最常用的效果。
-如果一个 Pod 不能容忍带有 NoSchedule 效果污点的节点，那么 Kubernetes 调度器不会将这个 Pod 调度到该节点上。
-NoSchedule 只影响新调度的 Pod。对于那些在节点被打上污点之前就已经在该节点上运行的 Pod，它们不会被驱逐。
-**PreferNoSchedule (倾向于不调度):** 这是一个 “软” 限制。
-Kubernetes 调度器会尽量避免将不能容忍此污点的 Pod 调度到该节点上。
-但是，如果没有其他更合适的节点可以调度，调度器仍然可能将该 Pod 调度到这个带有 PreferNoSchedule 污点的节点上。
-**NoExecute (不执行并驱逐):** 这是最强的效果。
-如果 Pod 不容忍，不但阻止新的 Pod 调度到该节点，而且驱逐 (evict) 节点上已经运行的、且不能**容忍**该污点的 Pod。
+> **Taint 的组成**
+> 一个 Taint 由三个部分组成：
+> **键 (Key):** 必需的，是一个字符串，例如 gpu、node-role.kubernetes.io/master。
+> **值 (Value):** 可选的，也是一个字符串，与键一起描述污点的具体含义，例如 true、nvidia-tesla-v100。如果不需要值，可以省略。
+> **效果 (Effect):** 必需的，决定了当 Pod 不能容忍这个污点时会发生什么。
+> **格式：** =: ( 如果值为空，则是 : )
+
+
+
+> **Taint 的效果 (Effect)**
+> 有三种主要的效果：
+> **NoSchedule (不调度):** 这是最常用的效果。
+> 如果一个 Pod 不能容忍带有 NoSchedule 效果污点的节点，那么 Kubernetes 调度器不会将这个 Pod 调度到该节点上。
+> NoSchedule 只影响新调度的 Pod。对于那些在节点被打上污点之前就已经在该节点上运行的 Pod，它们不会被驱逐。
+> **PreferNoSchedule (倾向于不调度):** 这是一个 “软” 限制。
+> Kubernetes 调度器会尽量避免将不能容忍此污点的 Pod 调度到该节点上。
+> 但是，如果没有其他更合适的节点可以调度，调度器仍然可能将该 Pod 调度到这个带有 PreferNoSchedule 污点的节点上。
+> **NoExecute (不执行并驱逐):** 这是最强的效果。
+> 如果 Pod 不容忍，不但阻止新的 Pod 调度到该节点，而且驱逐 (evict) 节点上已经运行的、且不能**容忍**该污点的 Pod。
 
 对于一个典型的 Kubernetes 控制平面节点 (master/control-plane node)，会看到至少一个默认的污点。这是 Kubernetes 为了保护控制平面组件不被普通用户工作负载干扰而设置的。
 
@@ -819,6 +822,7 @@ pod2   1/1     Running   0          15m   10.244.69.205   knode2   <none>       
 tolerationSeconds 就是客人能够容忍在有缺点的饭店吃饭的时间有多久。
 即 node 上的 taint 如果在 pod 的 Toleration 中没有定义，则 pod 就不会运行在该 node 上
 **使用 deployment 控制器体现驱逐 drain**
+
 ```bash
 [root@kmaster 328]# kubectl create deployment web1 --image nginx --dry-run=client -o yaml > web1.yaml
 [root@kmaster 328]# ls
@@ -1052,7 +1056,7 @@ abc2.txt  hehehe.txt
 [root@knode2 ~]# 
 ```
 
-## **网络存储**
+## 网络存储
 
 网络存储是指数据存储在独立的、可以通过网络访问的存储系统上。在 Kubernetes 中，网络存储是实现数据持久性、高可用性和 Pod 可移植性的主要方式。
 
@@ -1188,20 +1192,20 @@ root@node1:~# df -h | grep nfs
 
 Kubernetes 通过一套标准化的 API 和抽象层来管理各种底层存储技术，从而实现持久化存储。主要包括以下几个核心组件：
 
-## **PV  - 持久卷**
+## PV  - 持久卷
 
 PV (PersistentVolume) 是集群中管理员（或存储系统自动）预置（provision）或动态创建的网络存储资源。它代表了实际的物理存储。
 PV 是集群中的一种资源，不属于任何命名空间。
 PV 独立于 Pod 的生命周期。即使 Pod 被删除，PV 和其中的数据仍然存在。
 PV 定义了存储的容量、访问模式（如 ReadWriteOnce、ReadOnlyMany、ReadWriteMany）、存储类型、以及回收策略（Retain、Recycle、Delete）。
 
-##  **PVC - 持久卷声明**
+##  PVC - 持久卷声明
 PVC (PersistentVolumeClaim) 是用户（开发者）对存储资源的请求。它声明了 Pod 需要的存储量、访问模式和存储类型。
 Pod 不直接挂载 PV，而是通过 PVC 来 “声明” 对存储的需求。
 PVC 是命名空间范围内的资源。
 Kubernetes 调度器会找到一个符合 PVC 要求的 PV 来绑定这个 PVC。一旦绑定，PVC 就只能使用这个特定的 PV。
 
-## **生命周期状态**
+## 生命周期状态
 
 PV 的生命周期状态
     Available: PV 未绑定到任何 PVC，可以被请求。
@@ -1242,38 +1246,50 @@ CSI 是一个行业标准接口，允许存储供应商开发插件（CSI 驱动
 CSI 使得 Kubernetes 能够支持各种各样的存储系统（包括传统的存储阵列、分布式存储、云存储），而无需 Kubernetes 核心代码进行修改。这极大地扩展了 Kubernetes 的存储生态系统。
 存储供应商实现 CSI 接口，并部署 CSI 驱动到 Kubernetes 集群中。当 Pod 请求存储时，CSI 驱动会与底层存储系统交互，完成 PV 的创建、挂载、扩展等操作。
 
-## **持久卷管理机制**
+## 持久卷管理机制
 持久卷管理机制是一套完整的资源分配、生命周期跟踪和回收流程。
+
 可以将其类比为 Linux 中的“逻辑卷管理（LVM）”，但它多了一层“申请与匹配”的自动化逻辑。
-**供应 (Provisioning)**
-这是存储准备阶段，将物理存储抽象为 Kubernetes 中的 PV 对象。有两种主要方式：
-**静态供应 (Static Provisioning)**
-集群管理员手动在底层存储系统上创建实际的存储卷。然后手动创建一个 PV 对象，在 YAML 中指定这个实际存储卷的详细信息（如容量、访问模式、底层存储的地址/ID、以及回收策略）。此时，PV 处于 Available 状态，等待被 PVC 绑定。
-适用场景: 当底层存储资源有限、需要严格控制或无法进行动态供应时。
-**动态供应 (Dynamic Provisioning)**
-这是更现代、更推荐的方式。它依赖于 StorageClass 对象和相应的存储供应器 (Provisioner)。
-管理员不再手动创建 PV，而是创建一个 **StorageClass (SC)**。当用户提交 PVC 时，K8s 会根据 SC 的定义，自动调用底层插件（CSI）去创建物理空间并自动生成 PV。
-**绑定 (Binding)**
-这是 PV 与 PVC 建立一对一关联的过程。
-用户创建了 PVC，控制平面（PersistentVolume-Binder 控制器）就会监控该申请，它会尝试寻找一个与之匹配的 PV。
-匹配条件包括：
-    **容量**: PV 的容量必须**大于或等于** PVC 请求的容量。
-    **访问模式**: PV 和 PVC 必须支持**至少一种**共同的访问模式
-    **StorageClass**: 
-    如果 PVC 指定了 storageClassName，则 PV 也必须具有相同的 storageClassName。
-    如果 PVC 未指定 storageClassName，则它会绑定到默认的 StorageClass 创建的 PV，或者尝试绑定任何没有 storageClassName 的静态 PV。
-    **标签选择器 (Label Selector)**: PVC 还可以使用 selector 来进一步过滤匹配的 PV。
-一旦找到匹配的 PV，Kubernetes 会将 PVC 绑定到该 PV。绑定成功后，PV 和 PVC 都进入 Bound 状态。PV 和 PVC 是一一对应的。一旦绑定，该 PV 就不能再给其他 PVC 使用，直到解绑。
-绑定阶段通过在 PV 和 PVC 对象中互相设置 claimRef 字段来实现双向引用。
 
-**使用 (Using)**
-一旦 PVC 与 PV 绑定成功，Pod 就可以将 PVC 作为一个卷（Volume）挂载到容器的文件系统中。
-调度保护： 为了防止数据冲突，调度器会确保 Pod 被调度到能够访问该存储的节点上。
-文件系统锁定： 对于 ReadWriteOnce 的卷，K8s 会通过 CSI 插件确保同一时间只有一个节点能挂载它，防止并发写入导致的文件系统损坏。
+> **供应 (Provisioning)**
+>
+> 这是存储准备阶段，将物理存储抽象为 Kubernetes 中的 PV 对象。有两种主要方式：
+>
+> **静态供应 (Static Provisioning)**
+>
+> 集群管理员手动在底层存储系统上创建实际的存储卷。然后手动创建一个 PV 对象，在 YAML 中指定这个实际存储卷的详细信息（如容量、访问模式、底层存储的地址/ID、以及回收策略）。此时，PV 处于 Available 状态，等待被 PVC 绑定。
+> 适用场景: 当底层存储资源有限、需要严格控制或无法进行动态供应时。
+>
+> **动态供应 (Dynamic Provisioning)**
+>
+> 这是更现代、更推荐的方式。它依赖于 StorageClass 对象和相应的存储供应器 (Provisioner)。
+> 管理员不再手动创建 PV，而是创建一个 **StorageClass (SC)**。当用户提交 PVC 时，K8s 会根据 SC 的定义，自动调用底层插件（CSI）去创建物理空间并自动生成 PV。
+>
+> **绑定 (Binding)**
+>
+> 这是 PV 与 PVC 建立一对一关联的过程。
+> 用户创建了 PVC，控制平面（PersistentVolume-Binder 控制器）就会监控该申请，它会尝试寻找一个与之匹配的 PV。
+> 匹配条件包括：
+>     **容量**: PV 的容量必须**大于或等于** PVC 请求的容量。
+>     **访问模式**: PV 和 PVC 必须支持**至少一种**共同的访问模式
+>     **StorageClass**: 
+>     如果 PVC 指定了 storageClassName，则 PV 也必须具有相同的 storageClassName。
+>     如果 PVC 未指定 storageClassName，则它会绑定到默认的 StorageClass 创建的 PV，或者尝试绑定任何没有 storageClassName 的静态 PV。
+>     **标签选择器 (Label Selector)**: PVC 还可以使用 selector 来进一步过滤匹配的 PV。
+> 一旦找到匹配的 PV，Kubernetes 会将 PVC 绑定到该 PV。绑定成功后，PV 和 PVC 都进入 Bound 状态。PV 和 PVC 是一一对应的。一旦绑定，该 PV 就不能再给其他 PVC 使用，直到解绑。
+> 绑定阶段通过在 PV 和 PVC 对象中互相设置 claimRef 字段来实现双向引用。
+>
+> **使用 (Using)**
+>
+> 一旦 PVC 与 PV 绑定成功，Pod 就可以将 PVC 作为一个卷（Volume）挂载到容器的文件系统中。
+> 调度保护： 为了防止数据冲突，调度器会确保 Pod 被调度到能够访问该存储的节点上。
+> 文件系统锁定： 对于 ReadWriteOnce 的卷，K8s 会通过 CSI 插件确保同一时间只有一个节点能挂载它，防止并发写入导致的文件系统损坏。
+>
+> **回收 (Reclaiming)**
+>
+> 当 Pod 不再需要存储时，PV 就可以被回收。这通常发生在 PVC 被删除时。回收策略定义了 PV 和底层存储如何处理。
+> 当用户删除 PVC 时，PV 不再被任何 PVC 绑定，PV 的状态会从 Bound 变为 Released。
 
-**回收 (Reclaiming)**
-当 Pod 不再需要存储时，PV 就可以被回收。这通常发生在 PVC 被删除时。回收策略定义了 PV 和底层存储如何处理。
-当用户删除 PVC 时，PV 不再被任何 PVC 绑定，PV 的状态会从 Bound 变为 Released。
 ``` bash
 ~# cat pv-nfs.yaml 
 apiVersion: v1
@@ -1401,11 +1417,11 @@ pv-nfs   5Gi        RWO            Retain           Released   default/pvc-nfs  
 ~# 
 ```
 
-# **控制器**
+# 控制器
 在 Kubernetes 中，控制器是一个核心概念，它是 Kubernetes 实现其自动化和自愈能力的关键。你可以把控制器想象成一个永不停止地尝试让当前状态与期望状态一致的循环。
 每个控制器都关注特定类型的 Kubernetes 资源（比如 Pod、Deployment、Service 等）。
 
-## **Deployment**
+## Deployment
 一种资源对象，是 K8s 的**逻辑控制器**。存在于 **Master 节点 (etcd)** 里的配置信息。
 在k8s里面，最小的调度单位是 pod，但是 pod 本身不稳定，导致系统不健壮，没有可再生性（自愈功能）。
 Deployment 并不直接管理 Pod，它通过 **ReplicaSet (RS)** 来实现版本控制维持 Pod 的副本数量。
@@ -1463,7 +1479,7 @@ dep-test   3/3     3            3           5m4s   nginx        nginx:1.20   app
 ~# 
 ```
 
-### **镜像升级与回滚**
+### 镜像升级与回滚
 
 镜像升级（Upgrade）与回滚（Rollback）是 Deployment 最核心的价值体现。它让应用更新告别了传统的“停机维护”，实现了真正的“无缝切换”。
 
@@ -1676,7 +1692,7 @@ dep-test-76866db9d5-zn8dt   1/1     Running   0          3s    10.244.104.24   n
 
 ```
 
-### **修改副本数**
+### 修改副本数
 
 ```bash
 ### 1.在线修改
@@ -1916,14 +1932,17 @@ dep1   Deployment/dep1   cpu: 19%/10%   1         6         6          66m
 ## DaemonSet
 
 DaemonSet 确保在集群的**每一个（或指定的）节点**上都运行一个 Pod 的副本。
+
 daemonset 也是一种控制器，也是用来创建pod的，但是和dep不一样，dep 需要指定副本数，每个 worker 上都可以运行多个副本。
-ds 不需要指定副本数，会自动的在每个 worker上都创建1个副本，不可运行多个。这东西有啥用？
-作用就是在每个节点上收集日志、监控和管理等，还记得drain操作吗？里面包含驱逐操作，这个pod是不能删除的。
-由于 DaemonSet 的特性是“每台机器一个副本”，它通常用于执行 系统级操作 或 基础服务：
-    日志收集：在每个节点运行日志采集 Agent，例如 fluentd 或 logstash。
-    节点监控：在每个节点运行监控组件，例如 Prometheus Node Exporter、collectd 或 Datadog agent。
-    网络插件：在每个节点运行网络组件，例如 calico-node、flannel 或 kube-proxy。
-    存储守护进程：在每个节点运行存储驱动，例如 ceph、glusterd 的客户端。
+
+> ds 不需要指定副本数，会自动的在每个 worker上都创建1个副本，不可运行多个。这东西有啥用？
+>
+> 作用就是在每个节点上收集日志、监控和管理等，还记得drain操作吗？里面包含驱逐操作，这个pod是不能删除的。
+> 由于 DaemonSet 的特性是“每台机器一个副本”，它通常用于执行 系统级操作 或 基础服务：
+>     日志收集：在每个节点运行日志采集 Agent，例如 fluentd 或 logstash。
+>     节点监控：在每个节点运行监控组件，例如 Prometheus Node Exporter、collectd 或 Datadog agent。
+>     网络插件：在每个节点运行网络组件，例如 calico-node、flannel 或 kube-proxy。
+>     存储守护进程：在每个节点运行存储驱动，例如 ceph、glusterd 的客户端。
 
 
 
@@ -3346,7 +3365,7 @@ mylocalchart-hello-helm   NodePort    10.98.157.153   <none>        80:32289/TCP
 ~# 
 ```
 
-### **通用 Chart 模板**
+### 通用 Chart 模板
 学会 `range`（循环）、`if`（判断）和 `include`（引用辅助模板）。
 ```bash
 ~# helm create my-app
@@ -3709,7 +3728,7 @@ Qrw7XPRgcx~# 			# 密码：Qrw7XPRgcx
 
 Kubernetes 的设计哲学是“以集群为中心”，调度器会平衡业务 Pod，但对于系统基础组件，通常会分散或随机分布。node2 目前承担了更多的集群管理职责（类似“值班经理”），因此资源占用更高。只要内存占用未触发 MemoryPressure（通常高于 85%-90%）导致 Pod 频繁重启，该状态即为健康。
 
-## **关于 RFC 1123 的命名规范**
+## 关于 RFC 1123 的命名规范
 
 在 Kubernetes 的世界里，几乎所有的资源名称、卷名称、容器名称都必须遵循严格的**小写字母**准则。
 
